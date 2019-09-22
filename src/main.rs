@@ -307,7 +307,10 @@ pub fn home_post(statelang: State<Lang>,
                 else {
                     // invalid captcha!!
                     i_form_result = Some(loc_dict.lang["error_captcha_fail"][&user_lang].clone());
-                    println!("INFO: [{}] failed the captcha.", addr.0);
+                    // printing captcha info to console, might be useful to analyze bots' behavior.
+                    // Not printing in lowercase for a better analysis.
+                    println!("INFO: [{}] failed the captcha (input: \"{}\", answer: \"{}\").",
+                    addr.0, linkform.captcha.0, captcha_key.1);
                 }
             }
         }
