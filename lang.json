@@ -1,0 +1,137 @@
+{
+    "pages": {
+        "home": {
+            "template": "home",
+            "lang": {
+                "back_to_hoster": {
+                    "En": "Back to 42l's website",
+                    "Fr": "Retour sur le site web de 42l"
+                },
+                "hoster_logo_alt": {
+                    "En": "Association 42l",
+                    "Fr": "Association 42l"
+                },
+                "logo_alt": {
+                    "En": "Link Shortener",
+                    "Fr": "Raccourcisseur de liens"
+                },
+                "title": {
+                    "En": "42l link shortener",
+                    "Fr": "Raccourcisseur de liens 42l"
+                },
+                "desc" : {
+                    "En": "42l Link shortener service",
+                    "Fr": "Service raccourcisseur de liens 42l"
+                },
+                "captcha_alt": {
+                    "En": "Captcha",
+                    "Fr": "Captcha"
+                },
+                "url_to_placeholder": {
+                    "En": "Enter your long URL here...",
+                    "Fr": "Entrez votre longue URL ici..."
+                },
+                "url_from_placeholder": {
+                    "En": "Custom shortcut name (optional)",
+                    "Fr": "Nom personnalisé de votre raccourci (facultatif)"
+                },
+                "url_to_label": {
+                    "En": "URL to shortcut",
+                    "Fr": "URL à raccourcir"
+                },
+                "url_from_label": {
+                    "En": "Shortcut name",
+                    "Fr": "Nom du raccourci"
+                },
+                "captcha_placeholder": {
+                    "En": "Captcha",
+                    "Fr": "Captcha"
+                },
+                "captcha_label": {
+                    "En": "Anti-spam check",
+                    "Fr": "Vérification anti-spam"
+                },
+                "button_submit_text": {
+                    "En": "Create!",
+                    "Fr": "Créer !"
+                },
+                "error_invalid_link": {
+                    "En": "The link you tried to visit has been deleted or doesn't exist.",
+                    "Fr": "Le lien que vous avez essayé de visiter a été supprimé ou n'existe pas."
+                },
+                "error_session_expired": {
+                    "En": "Your session has expired, please retry.",
+                    "Fr": "Votre session a expiré, veuillez réessayer."
+                },
+                "error_captcha_fail": {
+                    "En": "You failed the captcha, please retry.",
+                    "Fr": "Vous avez raté le captcha, veuillez réessayer."
+                },
+                "error_link_already_exists": {
+                    "En": "This shortcut name is already taken, please take another one.",
+                    "Fr": "Ce nom de raccourci est déjà pris, veuillez en trouver un autre."
+                },
+                "error_cookie_parse_fail": {
+                    "En": "We failed to read your cookie. That shouldn't happen, but please retry.",
+                    "Fr": "Nous n'avons pas réussi à lire votre cookie. Cela ne devrait pas se produire, mais veuillez réessayer."
+                },
+                "error_db_fail": {
+                    "En": "We failed to establish a connection with the database. That's quite unexpected, please contact us.",
+                    "Fr": "Nous n'avons pas pu établir de lien avec la base de données. C'est assez inattendu, veuillez nous contacter."
+                },
+                "error_invalid_form": {
+                    "En": "Some of the fields are invalid. Please retry.",
+                    "Fr": "La plupart des champs sont invalides. Veuillez réessayer."
+                },
+                "error_link_not_found": {
+                    "En": "The link you're searching for doesn't exist or has been deleted.",
+                    "Fr": "Le lien que vous recherchez n'existe pas ou a été supprimé."
+                },
+                "error_invalid_key": {
+                    "En": "The link administration key you specified is invalid.",
+                    "Fr": "La clé d'administration du lien que vous avez spécifiée est invalide."
+                },
+                "error_link_delete_db_fail": {
+                    "En": "Sorry, we failed to delete your link. This is a problem from our side, please reach us.",
+                    "Fr": "Désolés, nous avons échoué à supprimer votre lien. Il s'agit d'un problème de notre côté, veuillez nous contacter."
+                },
+                "form_success": {
+                    "En": "Your link has been successfully created!",
+                    "Fr": "Votre lien a été créé avec succès !"
+                },
+                "link_delete_success": {
+                    "En": "Your link has been successfully deleted!",
+                    "Fr": "Votre lien a été supprimé avec succès !"
+                },
+                "notif_link_label_shortcut": {
+                    "En": "Your shortcut",
+                    "Fr": "Votre raccourci"
+                },
+                "notif_link_label_original": {
+                    "En": "Original link",
+                    "Fr": "Lien original"
+                },
+                "notif_link_label_admin": {
+                    "En": "Administration link",
+                    "Fr": "Lien d'administration"
+                },
+                "notif_link_admin_desc": {
+                    "En": "This link allows you to check the link counter and delete the shortcut.",
+                    "Fr": "Ce lien vous permet de compter le nombre de clics et de supprimer le raccourci."
+                },
+                "notif_link_clickcount": {
+                    "En": "Click count: ",
+                    "Fr": "Nombre de clics : "
+                },
+                "notif_link_delete": {
+                    "En": "Delete link",
+                    "Fr": "Supprimer le lien"
+                },
+                "footer_source_code": {
+                    "En": "Source code, license and credits",
+                    "Fr": "Code source, licence et crédits"
+                }
+            }
+        }
+    }
+}
