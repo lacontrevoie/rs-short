@@ -49,8 +49,8 @@ impl<'v> FromFormValue<'v> for InputUrlCustomText {
 
     type Error = &'v RawStr;
     fn from_form_value(form_value: &'v RawStr) -> Result<InputUrlCustomText, &'v RawStr> {
-        match form_value.trim().url_decode_lossy().len() <= 50 {
-            true => Ok(InputUrlCustomText(form_value.trim().url_decode_lossy())),
+        match form_value.url_decode_lossy().trim().len() <= 50 {
+            true => Ok(InputUrlCustomText(form_value.url_decode_lossy().trim().to_string())),
             false => Err(form_value),
         }
     }

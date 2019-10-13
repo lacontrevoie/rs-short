@@ -19,10 +19,11 @@ mod cookies;
 
 // rocket uses
 use rocket::{Rocket, State};
-use rocket::http::Cookies;
+use rocket::http::{Cookies, Status};
 use rocket::fairing::AdHoc;
 use rocket::request::{Form};
 use rocket::response::{Redirect};
+use rocket::response::status::{Custom, NotFound};
 use rocket_contrib::{templates::Template, serve::StaticFiles};
 
 // diesel uses
@@ -53,12 +54,20 @@ use base64::URL_SAFE_NO_PAD;
 use chrono::prelude::*;
 use chrono::Duration;
 
+// std uses
+use std::path::Path;
+use std::fs::File;
+use std::io::{self, BufRead, BufReader};
 
 // constants. Please edit at your convenience
 pub const INSTANCE_HOSTNAME: &str = "s.42l.fr";
 
 pub const HOSTER_HOSTNAME: &str = "42l.fr";
 
+#[derive(Clone)]
+pub struct BannedUrlTo(pub Vec<String>);
+
+pub const BANNED_URL_TO: &str = "./banned_url_to.list";
 
 // This macro from `diesel_migrations` defines an `embedded_migrations` module
 // containing a function named `run`. This allows the example to be run and
@@ -206,7 +215,7 @@ pub fn shortcut(
     lang_header: LangHeader,
     conn: DbConn,
     cookies: Cookies
-    ) -> Result<Redirect, Template> {
+    ) -> Result<Redirect, NotFound<Template>> {
 
     // if the link exists, redirects to it.
     if let Some(link) = Link::get_link(&url_from, &conn) {
@@ -232,20 +241,26 @@ pub fn shortcut(
             i_form_result = Some(loc_dict.lang["error_invalid_link"][&user_lang].clone());
         }
 
-        Err(Template::render(loc_dict.clone().template, &gen_default_context(
-                    loc_dict, user_lang, i_captcha_data, i_form_result, false, None)))
+        Err(NotFound(Template::render(loc_dict.clone().template, &gen_default_context(
+                    loc_dict, user_lang, i_captcha_data, i_form_result, false, None))))
     }
 }
 
+// TODO: rework the ugly structure
+
 // route used to create a link.
+// Success -> Redirects to the link admin page.
+// Failure -> Displays an error message.
+// "hard" failure -> blacklisted url_to, returns 403.
 #[post("/", data = "<linkform>")]
-pub fn home_post(statelang: State<Lang>,
+pub fn home_post(url_to_banlist: State<BannedUrlTo>,
+                 statelang: State<Lang>,
                  lang_header: LangHeader,
                  mut cookies: Cookies,
                  conn: DbConn,
                  linkform: Form<LinksForm>,
                  addr: IPAddress
-                ) -> Result<Redirect, Template> {
+                ) -> Result<Redirect, Result<Template, Custom<String>>> {
     // success: redirects to link admin page
     // err: displays home with error message
 
@@ -274,35 +289,52 @@ pub fn home_post(statelang: State<Lang>,
                 // (?) might change at some point
                 if captcha_key.1.to_lowercase() == linkform.captcha.0.to_lowercase() {
                     // valid captcha
-                    // 3. check for custom name availability
-                    // generate random url_from if not specified
-                    let new_url_from = match linkform.url_from.0.len() == 0 {
-                        true => base64_encode_config(&gen_random(6), URL_SAFE_NO_PAD),
-                        false => linkform.url_from.0,
-                    };
-                    // then try to get an eventual existing link from db
-                    if let Some(_) = Link::get_link(&new_url_from, &conn) {
-                        // error, the link already exists.
-                        i_form_result = Some(loc_dict.lang["error_link_already_exists"][&user_lang].clone());
+
+                    // 3. check for blacklists
+                    if linkform.url_to.0.contains(INSTANCE_HOSTNAME) {
+                        println!("INFO: [{}] tried to shorten an already shortened link.",
+                                 addr.0);
+                        i_form_result = Some(loc_dict.lang["error_selflink_forbidden"][&user_lang].clone());
+                    }
+                    else if url_to_blacklist_check(&linkform.url_to.0, url_to_banlist.0.clone()) {
+                        // GAME OVER.
+                        println!("WARN: [{}] banned (url_to blacklist). Link: {}",
+                        addr.0, linkform.url_to.0);
+                        // returning 403 forbidden, to be caught with f2b
+                        return Err(Err(Custom(Status::Forbidden, loc_dict.lang["error_blacklisted_link"][&user_lang].clone())));
                     }
                     else {
-                        // 4. the link doesn't exist, try to create it.
-                        if let Some(newlink) = Link::insert(new_url_from.clone(), linkform.url_to.0, &conn) {
-                            // SUCCESS ROUTE!! GOOD END
-                            // redirects to the link admin page
-                            return Ok(Redirect::to(uri!(
-                                        shortcut_admin:
-                                        newlink.url_from,
-                                        base64_encode_config(&newlink.key, URL_SAFE_NO_PAD),
-                                        true
-                                        )));
+                        // 4. check for custom name availability
+                        // generate random url_from if not specified
+                        let new_url_from = match linkform.url_from.0.len() == 0 {
+                            true => base64_encode_config(&gen_random(6), URL_SAFE_NO_PAD),
+                            false => linkform.url_from.0,
+                        };
+                        // then try to get an eventual existing link from db
+                        if let Some(_) = Link::get_link(&new_url_from, &conn) {
+                            // error, the link already exists.
+                            i_form_result = Some(loc_dict.lang["error_link_already_exists"][&user_lang].clone());
                         }
                         else {
-                            // error, db fail
-                            eprintln!("WARN: Failed to insert link {} (DB error)", new_url_from);
-                            i_form_result = Some(loc_dict.lang["error_db_fail"][&user_lang].clone());
+                            // 5. the link doesn't exist, try to create it.
+                            if let Some(newlink) = Link::insert(new_url_from.clone(), linkform.url_to.0, &conn) {
+                                // SUCCESS ROUTE!! GOOD END
+                                // redirects to the link admin page
+                                return Ok(Redirect::to(uri!(
+                                            shortcut_admin:
+                                            newlink.url_from,
+                                            base64_encode_config(&newlink.key, URL_SAFE_NO_PAD),
+                                            true
+                                            )));
+                            }
+                            else {
+                                // error, db fail
+                                eprintln!("WARN: Failed to insert link {} (DB error)", new_url_from);
+                                i_form_result = Some(loc_dict.lang["error_db_fail"][&user_lang].clone());
+                            }
                         }
                     }
+
                 }
                 else {
                     // invalid captcha!!
@@ -336,8 +368,8 @@ pub fn home_post(statelang: State<Lang>,
         i_captcha_data = Some(base64_encode(&captcha_data.1));
     }
 
-    Err(Template::render(loc_dict.clone().template, &gen_default_context(
-                loc_dict, user_lang, i_captcha_data, i_form_result, false, None)))
+    Err(Ok(Template::render(loc_dict.clone().template, &gen_default_context(
+                    loc_dict, user_lang, i_captcha_data, i_form_result, false, None))))
 }
 
 // main route.
@@ -399,6 +431,19 @@ fn gen_default_context(loc: LangChild,
     }
 }
 
+pub fn lines_from_file(filename: impl AsRef<Path>) -> io::Result<Vec<String>> {
+    BufReader::new(File::open(filename)?).lines().collect()
+}
+
+pub fn url_to_blacklist_check(url_to: &str, ban_url_to: Vec<String>) -> bool {
+    for elem in ban_url_to.iter() {
+        if url_to.contains(elem) {
+            return true
+        }
+    }
+    false
+}
+
 fn rocket() -> (Rocket, Option<DbConn>) {
     let rocket = rocket::ignite()
         .manage(Lang::init())
@@ -413,6 +458,11 @@ fn rocket() -> (Rocket, Option<DbConn>) {
                 },
             }
         }))
+    .attach(AdHoc::on_attach("Loading forbidden url_to...", |rocket| {
+        let lines = lines_from_file(BANNED_URL_TO)
+            .expect("Failed to load forbidden url_to");
+        Ok(rocket.manage(BannedUrlTo(lines)))
+    }))
     .mount("/", routes![
            home, home_post, shortcut, shortcut_admin, shortcut_admin_del
     ])
