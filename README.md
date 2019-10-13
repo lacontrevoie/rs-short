@@ -57,6 +57,15 @@ url = "db/db.sqlite"
 - Eventually change the database storage path.
 You can specify more parameters following the [Rocket documentation](https://api.rocket.rs/v0.4/rocket/config/index.html).
 
+- **Create the `banned_url_to.list` file** and enter keywords that causes IPs submitting links to get a `403 Forbidden` if their links contain those keywords. Example:
+
+```
+://bit.ly
+google
+```
+
+You can configure a fail2ban instance to watch your favourite reverse-proxy logs to see which IPs are getting a 403 and ban accordingly.
+
 - `cargo run --release`
 
 ## Contributing
@@ -74,8 +83,9 @@ Here are many ways to contribute:
 - Add postgresql compatibility
 - Add different CSS themes (a dark theme would be a great start!)
 - Develop a more resilient protection to spambots
-    - Blacklist hostnames and shortcut names ?
-    - Ban / ratelimit IPs ? (I'd say this task isn't up to rs-short, but rather to a `fail2ban` instance)
+    - Improve hostname blacklisting ?
+    - Blacklist shortcut names ?
+    - Integrate a ban / ratelimiting system ? (the current system relies entirely on a separate fail2ban instance)
 - Clean up the code
     - Restructure the rocket routes in `main.rs` to something more readable
     - Make a better usage of template contexts
