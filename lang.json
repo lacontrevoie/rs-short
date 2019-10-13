@@ -95,6 +95,10 @@
                     "En": "Sorry, we failed to delete your link. This is a problem from our side, please reach us.",
                     "Fr": "Désolés, nous avons échoué à supprimer votre lien. Il s'agit d'un problème de notre côté, veuillez nous contacter."
                 },
+                "error_selflink_forbidden": {
+                    "En": "You can't shorten a link already shortened.",
+                    "Fr": "Vous ne pouvez pas raccourcir un lien déjà raccourci."
+                },
                 "form_success": {
                     "En": "Your link has been successfully created!",
                     "Fr": "Votre lien a été créé avec succès !"

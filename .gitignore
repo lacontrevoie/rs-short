@@ -15,3 +15,6 @@ Rocket.toml
 
 # Don't push the DB
 /db/db.sqlite
+
+# Don't push blacklists
+banned_*.list
