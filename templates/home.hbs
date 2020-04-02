@@ -54,14 +54,12 @@
                 <label for="url_to">{{tr loc.lang.url_to_label l}}</label>
                 <input type="url" id="url_to" name="url_to" required placeholder="{{tr loc.lang.url_to_placeholder l}}" autofocus>
             </div>
-            <br />
-            <br />
+            <br /><br />
             <div class="s-field">
                 <label for="url_from">{{tr loc.lang.url_from_label l}}</label>
                 <input type="text" id="url_from" name="url_from" maxlength="80" placeholder="{{tr loc.lang.url_from_placeholder l}}">
             </div>
-            <br />
-            <br />
+            <br /><br />
             <div class="s-field s-captcha-section">
                 <div class="s-captcha-img">
                     <img src="data:image/png;base64, {{captcha}}" alt="{{tr loc.lang.captcha_alt l}}" />
@@ -72,16 +70,16 @@
                     <input type="text" id="captcha" name="captcha" maxlength="8" placeholder="{{tr loc.lang.captcha_placeholder l}}" autocomplete="off" required>
                 </div>
             </div>
-            <br />
-            <br />
+            <br /><br />
             <div class="s-field">
                 <button class="s-button s-primary" type="submit">
                     {{tr loc.lang.button_submit_text l}}
                 </button>
             </div>
-            <br />
-            <br />
+            <br /><br />
             <div class="s-field s-footer">
+                <b><a href="{{config.contact}}">{{tr loc.lang.footer_report_phishing l}}</a></b>
+                <br /><br />
                 <a href="{{config.hoster_tos}}">{{tr loc.lang.footer_tos l}}</a> –
                 <a href="https://git.42l.fr/42l/rs-short">{{tr loc.lang.footer_source_code l}}</a>
             </div>

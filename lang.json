@@ -135,6 +135,10 @@
                     "En": "Delete link",
                     "Fr": "Supprimer le lien"
                 },
+                "footer_report_phishing": {
+                    "En": "Report a fraudulent link",
+                    "Fr": "Signaler un lien frauduleux"
+                },
                 "footer_source_code": {
                     "En": "Source code, license and credits",
                     "Fr": "Code source, licence et crédits"
