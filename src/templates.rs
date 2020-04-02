@@ -20,6 +20,7 @@ use rand::Rng;
 
 // local uses
 use crate::link::LinkInfo;
+use crate::config::CONFIG;
 
 pub const LANG_FILE: &str = "./lang.json";
 pub const DEFAULT_LANGUAGE: ValidLanguages = ValidLanguages::Fr;
@@ -175,14 +176,33 @@ pub fn gen_captcha() -> Option<(String, Vec<u8>)> {
 
     let mut rng = rand::thread_rng();
 
-    Captcha::new()
-        .add_chars(6)
-        .apply_filter(Noise::new(0.1))
-        .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(6, 13) as f64).horizontal())
-        .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(6, 13) as f64).vertical())
-        .apply_filter(Grid::new(rng.gen_range(15, 25), rng.gen_range(15, 25)))
-        .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(5, 9) as f64).horizontal())
-        .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(5, 9) as f64).vertical())
-        .view(250, 100)
+    let mut captcha = Captcha::new();
+    captcha
+        .add_chars(6);
+    if CONFIG.general.captcha_difficulty >= 1 {
+        captcha.apply_filter(Noise::new(0.1));
+
+    }
+    if CONFIG.general.captcha_difficulty >= 2 {
+        captcha
+            .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(6, 13) as f64).horizontal())
+            .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(6, 13) as f64).vertical());
+    }
+    if CONFIG.general.captcha_difficulty >= 3 {
+        captcha.apply_filter(Grid::new(rng.gen_range(15, 25), rng.gen_range(15, 25)));
+
+    }
+    if CONFIG.general.captcha_difficulty >= 4 {
+        captcha
+            .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(5, 9) as f64).horizontal())
+            .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(5, 9) as f64).vertical());
+    }
+    if CONFIG.general.captcha_difficulty >= 5 {
+        captcha
+            .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(6, 13) as f64).horizontal())
+            .apply_filter(Noise::new(0.1));
+    }
+
+    captcha.view(250, 100)
         .as_tuple()
 }
