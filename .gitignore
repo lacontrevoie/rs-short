@@ -16,8 +16,5 @@ Rocket.toml
 # Don't push the DB
 /db/db.sqlite
 
-# Don't push blacklists
-banned_*.list
-
 # Don't push rs-short's configuration file
 config.toml
