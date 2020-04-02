@@ -33,12 +33,12 @@ First, you must install Cargo and the latest stable version of Rust by following
 git clone https://git.42l.fr/42l/rs-short.git
 ```
 
-- Edit what you need. You might want to change the following elements:
-    - constant `INSTANCE_HOSTNAME` in `main.rs`: replace with your instance hostname
-    - constant `HOSTER_HOSTNAME` in `main.rs`: replace with the hostname of the organization hosting the project
+- Edit what you need. You might want to change the following files:
     - `assets/hoster-logo.png`: replace with the logo of your organization
     - `assets/logo.svg`: the software logo
     - `assets/background.jpg`: the default background
+
+- Copy `config.toml.sample` to `config.toml` and edit its values to suit your needs.
 
 - Create a file named `Rocket.toml` at the project root, containing the following:
 
@@ -57,14 +57,11 @@ url = "db/db.sqlite"
 - Eventually change the database storage path.
 You can specify more parameters following the [Rocket documentation](https://api.rocket.rs/v0.4/rocket/config/index.html).
 
-- **Create the `banned_url_to.list` file** and enter keywords that causes IPs submitting links to get a `403 Forbidden` if their links contain those keywords. Example:
+- Edit blacklists at your convenience.
+    - `banned_url_from.list`: Any client that submits a *link name* **fully matching** one of the elements in this list will get a 403 Forbidden HTTP status code.
+    - `banned_url_to.list`: Any client that submits an *URL* **containing** one of the elements in this list will get a 403 Forbidden HTTP status code.
 
-```
-://bit.ly
-google
-```
-
-You can configure a fail2ban instance to watch your favourite reverse-proxy logs to see which IPs are getting a 403 and ban accordingly.
+You can configure a `fail2ban` instance to watch your favourite reverse-proxy logs to see which IPs are getting a 403 and ban accordingly for the duration of your choice.
 
 - `cargo run --release`
 

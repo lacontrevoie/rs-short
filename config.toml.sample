@@ -1,0 +1,49 @@
+# rs-short configuration file
+# See also:
+#   - banned_url_from.list: Forbidden redirection names
+#   - banned_url_to.list: Forbidden websites to redirect to 
+
+[general]
+
+# Your (sub)domain for rs-short
+instance_hostname = "s.example.com"
+
+# Your website
+hoster_hostname = "example.com"
+
+# Your terms of service
+hoster_tos = "example.com/ToS"
+
+# Theme (light or dark). If you make new themes, please
+# contact us so we can add them to the main repository!
+theme = "light"
+
+# Find a compromise between accessibility and protection
+# against spambots. Don't forget that a good captcha **won't**
+# protect you against human spammers, and lots of them **are** human.
+# 0 = easiest / 5 = hardest
+captcha_difficulty = 4
+
+[phishing]
+
+# Writes every created link in console for easier monitoring
+# to fight phishing at the cost of users' privacy
+# Please use this feature with caution and consideration.
+verbose_console = false
+
+# Warns in console when there is an unusual activity on a link.
+# Needs to temporarily store user IPs and timestamps to RAM.
+verbose_suspicious = true
+
+# Per link, starting from how many clicks per 12h a link is
+# considered as suspicious.
+# Only if verbose_suspicious is true
+suspicious_click_times = 15
+
+# A link to your contact details to fight phishing
+# Can be https:, mailto: or whatever
+phishing_contact = "mailto:contact@example.com"
+
+# Admin password to mark a link as phish link
+# example.com/<bad_link>/<secret>/phishing/<phishing_password> 
+phishing_password = "DONT_USE_THE_DEFAULT_VALUE_PLEASE_EDIT_THIS"

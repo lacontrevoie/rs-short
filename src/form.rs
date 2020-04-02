@@ -44,7 +44,8 @@ pub struct InputCaptcha(pub String);
 
 // url_from Form value
 // url_from is the custom text set for the link.
-// A valid url_from value must have between 0 and 80 characters.
+// A valid url_from value must have between 2 and 50 characters.
+// It MUST NOT contain reserved characters or dot '.' character.
 impl<'v> FromFormValue<'v> for InputUrlCustomText {
 
     type Error = &'v RawStr;

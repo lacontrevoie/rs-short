@@ -16,8 +16,7 @@ use rand::rngs::OsRng;
 use self::schema::links;
 use self::schema::links::dsl::{links as all_links};
 
-// local uses
-use crate::INSTANCE_HOSTNAME;
+use crate::config::CONFIG;
 
 // The Links Table, as seen from the database
 mod schema {
@@ -57,9 +56,10 @@ pub struct LinkInfo {
 impl LinkInfo {
     pub fn create_from(link: Link) -> Self {
         LinkInfo {
-            url_from: format!("https://{}/{}", INSTANCE_HOSTNAME, link.url_from),
+            url_from: format!("https://{}/{}", CONFIG.general.instance_hostname,
+                              link.url_from),
             url_to: link.url_to,
-            adminlink: format!("https://{}/{}/{}", INSTANCE_HOSTNAME,
+            adminlink: format!("https://{}/{}/{}", CONFIG.general.instance_hostname,
                                link.url_from,
                                base64_encode_config(&link.key, URL_SAFE_NO_PAD)),
             clicks: link.clicks

@@ -5,12 +5,14 @@
 #[macro_use] extern crate diesel_migrations;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate rocket_contrib;
+#[macro_use] extern crate lazy_static;
 extern crate rand;
 extern crate chrono;
 extern crate url;
 extern crate captcha;
 extern crate base64;
 
+mod config;
 mod link;
 mod templates;
 mod form;
@@ -25,9 +27,6 @@ use rocket::request::{Form};
 use rocket::response::{Redirect};
 use rocket::response::status::{Custom, NotFound};
 use rocket_contrib::{templates::Template, serve::StaticFiles};
-
-// diesel uses
-use diesel::SqliteConnection;
 
 // local uses
 use link::Link;
@@ -44,6 +43,7 @@ use templates::tr_helper;
 use templates::IPAddress;
 use form::LinksForm;
 use link::gen_random;
+use crate::config::*;
 
 // base64 uses
 use base64::{encode as base64_encode};
@@ -59,24 +59,10 @@ use std::path::Path;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 
-// constants. Please edit at your convenience
-pub const INSTANCE_HOSTNAME: &str = "s.42l.fr";
-
-pub const HOSTER_HOSTNAME: &str = "42l.fr";
-
-#[derive(Clone)]
-pub struct BannedUrlTo(pub Vec<String>);
-
-pub const BANNED_URL_TO: &str = "./banned_url_to.list";
-
 // This macro from `diesel_migrations` defines an `embedded_migrations` module
 // containing a function named `run`. This allows the example to be run and
 // tested without any outside setup of the database.
 embed_migrations!();
-
-#[database("sqlite_database")]
-pub struct DbConn(SqliteConnection);
-
 
 // used to delete a link. the link name and admin key
 // associated with the link are mandatory.
@@ -291,7 +277,7 @@ pub fn home_post(url_to_banlist: State<BannedUrlTo>,
                     // valid captcha
 
                     // 3. check for blacklists
-                    if linkform.url_to.0.contains(INSTANCE_HOSTNAME) {
+                    if linkform.url_to.0.contains(&CONFIG.general.instance_hostname) {
                         println!("INFO: [{}] tried to shorten an already shortened link.",
                                  addr.0);
                         i_form_result = Some(loc_dict.lang["error_selflink_forbidden"][&user_lang].clone());
@@ -427,7 +413,7 @@ fn gen_default_context(loc: LangChild,
             Some(v) => Some(LinkInfo::create_from(v)),
             None => None,
         },
-        hoster: HOSTER_HOSTNAME,
+        hoster: &CONFIG.general.hoster_hostname,
     }
 }
 
@@ -458,6 +444,11 @@ fn rocket() -> (Rocket, Option<DbConn>) {
                 },
             }
         }))
+    .attach(AdHoc::on_attach("Loading forbidden url_from...", |rocket| {
+        let lines = lines_from_file(BANNED_URL_FROM)
+            .expect("Failed to load forbidden url_from");
+        Ok(rocket.manage(BannedUrlFrom(lines)))
+    }))
     .attach(AdHoc::on_attach("Loading forbidden url_to...", |rocket| {
         let lines = lines_from_file(BANNED_URL_TO)
             .expect("Failed to load forbidden url_to");
