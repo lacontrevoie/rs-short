@@ -22,11 +22,12 @@ pub struct BannedUrlTo(pub Vec<String>);
 
 // config.toml settings
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct ConfGeneral {
     pub instance_hostname: String,
     pub hoster_hostname: String,
     pub hoster_tos: String,
+    pub contact: String,
     pub theme: String,
     pub captcha_difficulty: u8,
 }
@@ -36,7 +37,6 @@ pub struct ConfPhishing {
     pub verbose_console: bool,
     pub verbose_suspicious: bool,
     pub suspicious_click_times: u8,
-    pub phishing_contact: String,
     pub phishing_password: String,
 }
 

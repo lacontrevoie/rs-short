@@ -20,7 +20,7 @@ use rand::Rng;
 
 // local uses
 use crate::link::LinkInfo;
-use crate::config::CONFIG;
+use crate::config::*;
 
 pub const LANG_FILE: &str = "./lang.json";
 pub const DEFAULT_LANGUAGE: ValidLanguages = ValidLanguages::Fr;
@@ -111,7 +111,7 @@ pub struct GeneralContext {
     // for the link admin page (access with key) + link creation
     pub linkinfo: Option<LinkInfo>,
     // service hoster address, constant defined in main.
-    pub hoster: &'static str,
+    pub config: &'static ConfGeneral,
 }
 
 #[derive(Serialize, Deserialize)]

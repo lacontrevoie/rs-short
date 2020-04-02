@@ -12,7 +12,12 @@ instance_hostname = "s.example.com"
 hoster_hostname = "example.com"
 
 # Your terms of service
-hoster_tos = "example.com/ToS"
+hoster_tos = "https://example.com/ToS"
+
+# A link to your contact details
+# Needed to fight phishing or general purposes
+# Can be https:, mailto: or whatever
+contact = "mailto:contact@example.com"
 
 # Theme (light or dark). If you make new themes, please
 # contact us so we can add them to the main repository!
@@ -22,7 +27,7 @@ theme = "light"
 # against spambots. Don't forget that a good captcha **won't**
 # protect you against human spammers, and lots of them **are** human.
 # 0 = easiest / 5 = hardest
-captcha_difficulty = 4
+captcha_difficulty = 3
 
 [phishing]
 
@@ -40,10 +45,8 @@ verbose_suspicious = true
 # Only if verbose_suspicious is true
 suspicious_click_times = 15
 
-# A link to your contact details to fight phishing
-# Can be https:, mailto: or whatever
-phishing_contact = "mailto:contact@example.com"
-
 # Admin password to mark a link as phish link
 # example.com/<bad_link>/<secret>/phishing/<phishing_password> 
-phishing_password = "DONT_USE_THE_DEFAULT_VALUE_PLEASE_EDIT_THIS"
+# You must use characters that are safe to use in URLs
+# (let's say, alphanumeric characters)
+phishing_password = "edit me >///<"

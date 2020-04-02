@@ -138,6 +138,10 @@
                 "footer_source_code": {
                     "En": "Source code, license and credits",
                     "Fr": "Code source, licence et crédits"
+                },
+                "footer_tos": {
+                    "En": "Terms of use",
+                    "Fr": "Conditions d'utilisation"
                 }
             }
         }

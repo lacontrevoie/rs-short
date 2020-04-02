@@ -413,7 +413,7 @@ fn gen_default_context(loc: LangChild,
             Some(v) => Some(LinkInfo::create_from(v)),
             None => None,
         },
-        hoster: &CONFIG.general.hoster_hostname,
+        config: &CONFIG.general,
     }
 }
 
