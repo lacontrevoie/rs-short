@@ -5,7 +5,14 @@
 
 [general]
 
+# Address and port to listen on
+listening_address = "0.0.0.0:8080"
+
+# SQLite database path
+database_path = "./db/db.sqlite"
+
 # Your (sub)domain for rs-short
+# with https://, without the trailing slash
 instance_hostname = "s.example.com"
 
 # Your website
@@ -22,6 +29,11 @@ contact = "mailto:contact@example.com"
 # Theme (light or dark). If you make new themes, please
 # contact us so we can add them to the main repository!
 theme = "light"
+
+# Key used to encrypt the cookie key.
+# Don't leave it empty!!
+# `openssl rand -base64 48`
+cookie_key = "CHANGE ME"
 
 # Find a compromise between accessibility and protection
 # against spambots. Don't forget that a good captcha **won't**
@@ -40,10 +52,15 @@ verbose_console = false
 # Needs to temporarily store user IPs and timestamps to RAM.
 verbose_suspicious = true
 
-# Per link, starting from how many clicks per 12h a link is
-# considered as suspicious.
+# Per link, starting from how many clicks per suspicious_click_delay
+# a link is considered suspicious.
+# Default: Starting from 15 clicks in a timeframe of 12 hours.
 # Only if verbose_suspicious is true
-suspicious_click_times = 15
+suspicious_click_count = 15
+
+# In hours.
+# See above.
+suspicious_click_timeframe = 12
 
 # Admin password to mark a link as phish link
 # example.com/<bad_link>/<secret>/phishing/<phishing_password> 

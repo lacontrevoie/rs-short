@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ loc|tr(l,"title") }}{% endblock %}
+
+{% block head %}
+    <meta name="description" content="{{ loc|tr(l,"desc") }}" />
+    <link rel="stylesheet" href="/assets/themes/{{ config.theme }}/base.css" />
+{% endblock %}
+
+{% block content %}
+    <div class="s-logo">
+        <div class="s-space"></div>
+        <a href="{{ config.instance_hostname|safe }}"><img src="/assets/logo.svg" alt="{{ loc|tr(l,"logo_alt") }}"/></a>
+        <div class="s-space"></div>
+    </div>
+    <div class="s-backbutton">
+        <a href="{{ config.hoster_hostname|safe }}">
+            <img src="/assets/hoster-logo.svg" alt="{{ loc|tr(l,"hoster_logo_alt") }}"/>
+        </a>
+    </div>
+    <section class="s-section s-phishing">
+        <div class="s-warning s-responsive">
+            <div class="s-notification s-link">
+                <div class="s-inner">
+                    <h2>{{ loc|tr(l,"warning_title") }}</h2>
+                    <p>{{ loc|tr(l,"warning1") }}</p>
+                    <p>{{ loc|tr(l,"warning2") }}</p>
+                    <p>{{ loc|tr(l,"warning3") }}</p>
+                    <p>{{ loc|tr(l,"warning4") }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="s-info s-responsive">
+            <div class="s-outer s-notification s-link">
+                <img src="/assets/hoster-logo.svg" alt="{{ loc|tr(l,"hoster_logo_alt") }}"/>
+                <div class="s-inner">
+                    <h3>{{ loc|tr(l,"more_info1") }}</h3>
+                    <p>{{ loc|tr(l,"more_info2") }}</p>
+                    <p>{{ loc|tr(l,"more_info3") }}</p>
+                    <p>{{ loc|tr(l,"more_info4") }}</p>
+                    <p><b><a href="{{ config.hoster_hostname|safe }}">{{ loc|tr(l,"our_website") }}</a></b></p>
+                </div>
+            </div>
+        </div>
+        <div class="s-responsive">
+            <a href="{{ config.instance_hostname|safe }}" class="s-button s-primary">{{ loc|tr(l, "back_to_website") }}</a>
+        </div>
+
+        <br />
+    </section>
+{% endblock %}

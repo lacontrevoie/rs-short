@@ -1,208 +1,179 @@
-// std uses
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::Read;
-use std::fmt;
-use std::net::{IpAddr, Ipv4Addr};
 
-// Rocket uses
-use rocket_contrib::templates::handlebars::{Helper, Handlebars, Context, RenderContext, HelperResult, Output};
-use rocket::Outcome::*;
-use rocket::Request;
-use rocket::request::{self, FromRequest};
+use askama::Template;
 
-// captcha uses
-use captcha::Captcha;
-use captcha::filters::{Noise, Wave, Grid};
+use crate::database::*;
+use crate::init::*;
+use crate::spam::cookie_captcha_set;
 
-// rand uses
-use rand::Rng;
+use actix_session::Session;
+use actix_web::HttpRequest;
 
-// local uses
-use crate::link::LinkInfo;
-use crate::config::*;
+use base64::encode as base64_encode;
 
-pub const LANG_FILE: &str = "./lang.json";
-pub const DEFAULT_LANGUAGE: ValidLanguages = ValidLanguages::Fr;
+use rand::rngs::OsRng;
+use rand::RngCore;
 
-// DEFINE VALID LANGUAGES HERE
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
-pub enum ValidLanguages {
-    En, Fr,
+pub struct TplNotification<'a> {
+    pub message: &'a str,
+    pub is_valid: bool,
 }
 
-// The lang codes MUST correspond to the
-// Accept-Language header format.
-impl ValidLanguages {
-    pub fn from_str(s: &str) -> ValidLanguages {
-        match s.to_lowercase().as_str() {
-            "en" => ValidLanguages::En,
-            "fr" => ValidLanguages::Fr,
-            _ => DEFAULT_LANGUAGE,
-        }
-    }
-    pub fn get_list() -> Vec<&'static str> {
-        // ALSO DEFINE VALID LANGUAGES HERE AND JUST ABOVE
-        vec!["En", "Fr"]
-    }
-}
-
-impl fmt::Display for ValidLanguages {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
-pub struct LangHeader(pub ValidLanguages);
-
-impl<'a, 'r> FromRequest<'a, 'r> for LangHeader {
-    type Error = ();
-    fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, ()> {
-        match request.clone().headers().get_one("Accept-Language") {
-            Some(s) => {
-                let mut s_s = String::from(s);
-                s_s.to_lowercase();
-                s_s.truncate(2);
-                match s_s.len() < 2 {
-                    true => Success(LangHeader(DEFAULT_LANGUAGE)),
-                    false => Success(LangHeader(ValidLanguages::from_str(s_s.as_str()))),
-                }
-            }
-            None => Success(LangHeader(DEFAULT_LANGUAGE))
+impl TplNotification<'_> {
+    pub fn new<'a>(
+        page: &'static str,
+        message_key: &'static str,
+        p_is_valid: bool,
+        l: &'a ValidLanguages,
+    ) -> Self {
+        TplNotification {
+            message: &LANG.pages[page].map[message_key][l],
+            is_valid: p_is_valid,
         }
     }
 }
 
-#[derive(Debug)]
-pub struct IPAddress(pub IpAddr);
-
-impl<'a, 'r> FromRequest<'a, 'r> for IPAddress {
-    type Error = ();
-    fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, ()> {
-        // if we can't read the client IP address, defaults to unspecified
-        // to avoid panic. Also writes an error in stdout.
-        // Let's not forget to consider that "feature" in case IP-based
-        // features gets implemented someday.
-        let ipaddr = request.client_ip()
-            .unwrap_or(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)));
-        if ipaddr.is_unspecified() {
-            eprintln!("WARN: Failed to read client IP address");
-        }
-        Success(IPAddress(ipaddr))
-    }
-}
-
-// Generic Template Context
-// That's not like there are so many pages anyway
-#[derive(Serialize)]
-pub struct GeneralContext {
-    // l10n data for the page
-    pub loc: LangChild,
-    // l is the user's language
-    pub l: ValidLanguages,
-    // the captcha.png as base64
-    pub captcha: Option<String>,
-    // the parent template - if needed.
-    pub parent: &'static str,
-    // if form_result is set, a notification will be displayed.
-    // the notification color will be green or red depending on form_is_valid.
-    pub form_result: Option<String>,
-    pub form_is_valid: bool,
-    // for the link admin page (access with key) + link creation
+//#[template(source = r#"{{ loc|tr(l,"desc") }}"#, ext = "txt")]
+#[derive(Template)]
+#[template(path = "home.html")]
+pub struct HomeTemplate<'a> {
+    pub loc: &'a HashMap<String, HashMap<ValidLanguages, String>>,
+    pub l: &'a ValidLanguages,
+    pub captcha: &'a String,
+    pub notification: Option<TplNotification<'a>>,
     pub linkinfo: Option<LinkInfo>,
-    // service hoster address, constant defined in main.
     pub config: &'static ConfGeneral,
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct Lang {
-    pub pages: HashMap<String, LangChild>,
+#[derive(Template)]
+#[template(path = "phishing.html")]
+pub struct PhishingTemplate<'a> {
+    pub loc: &'a HashMap<String, HashMap<ValidLanguages, String>>,
+    pub l: &'a ValidLanguages,
+    pub config: &'static ConfGeneral,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub struct LangChild {
-    pub template: String,
-    pub lang: HashMap<String, HashMap<ValidLanguages, String>>
-}
-
-impl Lang {
-    pub fn init() -> Self {
-        let mut file = File::open(LANG_FILE)
-            .expect("Lang.init(): Can't open lang file!!");
-        let mut data = String::new();
-        file.read_to_string(&mut data)
-            .expect("Lang.init(): Can't read lang file!!");
-        let json: Lang = serde_json::from_str(&data)
-            .expect("Lang.init(): lang file JSON parse fail!!");
-        json
+// needs cookie access for captcha purposes
+pub fn gentpl_home(
+    l: &ValidLanguages,
+    s: &Session,
+    linkinfo: Option<LinkInfo>,
+    notification: Option<TplNotification>,
+) -> String {
+    if let Some(captcha_image) = cookie_captcha_set(s) {
+        // if it succeeds, renders the template
+        HomeTemplate {
+            loc: &LANG.pages["home"].map,
+            l: l,
+            captcha: &base64_encode(&captcha_image),
+            notification: notification,
+            linkinfo: linkinfo,
+            config: &CONFIG.general,
+        }
+        .render()
+    } else {
+        // if it fails, returns an error message
+        HomeTemplate {
+            loc: &LANG.pages["home"].map,
+            l: &l,
+            captcha: &String::from("Error"),
+            notification: Some(TplNotification::new("home", "error_captcha_gen", false, &l)),
+            linkinfo: linkinfo,
+            config: &CONFIG.general,
+        }
+        .render()
     }
+    .expect("Failed to render home template")
 }
 
-pub fn tr_helper(
-    h: &Helper,
-    _: &Handlebars,
-    _: &Context,
-    _: &mut RenderContext,
-    out: &mut dyn Output,
-    ) -> HelperResult {
+// determine the user language for i18n purposes
+pub fn get_lang(req: &HttpRequest) -> ValidLanguages {
+    let result: Option<ValidLanguages> = try {
+        ValidLanguages::from_str(
+            // getting language from client header
+            // taking the two first characters of the Accept-Language header,
+            // in lowercase, then parsing it
+            &req.headers()
+                .get("Accept-Language")?
+                .to_str()
+                .ok()?
+                .to_lowercase()[..2],
+        )
+    };
+    result.unwrap_or(DEFAULT_LANGUAGE)
+}
 
-    if let Some(loc_key) = h.param(0) {
-        if let Some(lang) = h.param(1) {
-            let selected_lang = ValidLanguages::from_str(
-                lang.value().as_str()
-                .unwrap_or(&format!("{}", DEFAULT_LANGUAGE)));
+mod filters {
+    // translation filter
+    use crate::init::*;
+    use std::collections::HashMap;
 
-            // in case we fail to extract data for default language, we display
-            // "TR_Error" instead of panicking.
-            let error = json!("TR_Error");
-            let loc_value = loc_key.value().get(format!("{}", selected_lang))
-                .unwrap_or(loc_key.value().get(format!("{}", DEFAULT_LANGUAGE))
-                           .unwrap_or(&error));
-
-            if loc_value == "TR_Error" {
-                eprintln!("tr_helper: TR_Error at {:?} for language {}",
-                          loc_key, selected_lang);
+    pub fn tr(
+        loc: &HashMap<String, HashMap<ValidLanguages, String>>,
+        lang: &ValidLanguages,
+        key: &str,
+    ) -> ::askama::Result<String> {
+        let filter_result: Option<String> = try { loc.get(key)?.get(&lang)?.to_string() };
+        match filter_result {
+            Some(s) => Ok(s),
+            None => {
+                // if the language is invalid or the specified key doesn't exist
+                let err = format!("tr filter error! {} key, {} language", key, lang);
+                eprintln!("{}", err);
+                Ok(err)
             }
-
-            out.write(loc_value.as_str()
-                      .expect("tr_helper: failed to convert loc_value to &str (text)"))?;
         }
     }
-    Ok(())
 }
 
-
-pub fn gen_captcha() -> Option<(String, Vec<u8>)> {
-
-    let mut rng = rand::thread_rng();
-
-    let mut captcha = Captcha::new();
-    captcha
-        .add_chars(6);
-    if CONFIG.general.captcha_difficulty >= 1 {
-        captcha.apply_filter(Noise::new(0.1));
-
+// checks if the specified url isn't written in link blacklists.
+// `url` can be both url_from or url_to.
+// if strict_match is specified, only full matches will return true.
+pub fn blacklist_check(url: &str, blacklist: &Vec<String>, strict_match: bool) -> bool {
+    for elem in blacklist.iter() {
+        if strict_match {
+            if url.to_lowercase() == elem.to_lowercase() {
+                return true;
+            }
+        }
+        else {
+            if url.to_lowercase().contains(&elem.to_lowercase()) {
+                return true;
+            }
+        }
     }
-    if CONFIG.general.captcha_difficulty >= 2 {
-        captcha
-            .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(6, 13) as f64).horizontal())
-            .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(6, 13) as f64).vertical());
-    }
-    if CONFIG.general.captcha_difficulty >= 3 {
-        captcha.apply_filter(Grid::new(rng.gen_range(15, 25), rng.gen_range(15, 25)));
+    false
+}
 
-    }
-    if CONFIG.general.captcha_difficulty >= 4 {
-        captcha
-            .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(5, 9) as f64).horizontal())
-            .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(5, 9) as f64).vertical());
-    }
-    if CONFIG.general.captcha_difficulty >= 5 {
-        captcha
-            .apply_filter(Wave::new(rng.gen_range(1, 4) as f64, rng.gen_range(6, 13) as f64).horizontal())
-            .apply_filter(Noise::new(0.1));
-    }
+// used to generate random strings for:
+// - link admin panel (links.key field, 24 bytes)
+// - short link names when none is specified (links.url_from field, 6 bytes)
+pub fn gen_random(n_bytes: usize) -> Vec<u8> {
+    // Using /dev/random to generate random bytes
+    let mut r = OsRng;
 
-    captcha.view(250, 100)
-        .as_tuple()
+    let mut my_secure_bytes = vec![0u8; n_bytes];
+    r.fill_bytes(&mut my_secure_bytes);
+    my_secure_bytes
+}
+
+pub fn get_ip(req: &HttpRequest) -> String {
+    match req.connection_info().remote() {
+        // trimming the port
+        Some(v) => v
+            .trim_end_matches(|c: char| c.is_numeric())
+            .trim_end_matches(':')
+            .to_owned(),
+        None => {
+            req.connection_info()
+                .remote()
+                .expect("ERROR: Failed to get client IP.");
+            eprintln!(
+                "More information:\nRequest: {:?}\nConnection info: {:?}",
+                req,
+                req.connection_info()
+            );
+            panic!();
+        }
+    }
 }

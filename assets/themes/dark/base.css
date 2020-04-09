@@ -1,0 +1,359 @@
+/* dark theme major edits */
+
+* {
+    color: #ffffffdd;
+}
+
+a {
+    color: white;
+}
+
+a:hover {
+    color: #a2d9df;
+    transition: all .25s ease-in-out;
+}
+
+/* dark theme major edits - end */
+
+.s-backbutton {
+    position: fixed;
+    display: flex;
+    font-size: 14px;
+    margin: 1vw;
+    top: 0;
+    left: 0;
+}
+
+.s-backbutton img {
+    width: 3rem;
+    height: 3rem;
+    margin: auto;
+}
+
+/* Full-sized elements in container */
+.s-section {
+    width: 100%;
+}
+
+/* Center elements in a container that takes almost half of the page */
+.s-responsive {
+    width: 48%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Smaller label */
+.s-field > label {
+    font-size: 13px;
+}
+
+/* Stylish text inputs. No borders, big font size. */
+.s-field > input {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #999999;
+    outline: none;
+    height: 3rem;
+    width: 100%;
+    font-size: 16px;
+}
+
+/* stylish - material design - form button. */
+.s-button {
+    width: 100%;
+    color: #FFF;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.18),0 5px 5px rgba(0, 0, 0, 0.18);
+    font-weight: bold;
+    font-size: .875rem;
+    text-transform: uppercase;
+    transition: all .2s ease-in-out;
+    border: none;
+    border-radius: 2px;
+    height: 2.25rem;
+    text-align: center;
+    line-height: 2.25rem;
+    vertical-align: middle;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    margin: auto;
+}
+
+.s-link .s-button {
+    width: 90%;
+}
+
+.s-button.s-primary {
+    background-color: #4494EA;
+}
+
+/* lighter color when the button is hovered */
+.s-button.s-primary > button:hover {
+    background-color: #5FCBEC;
+
+}
+
+/* Centering the captcha in the the left container */
+.s-captcha-img {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0.75;
+}
+
+.s-captcha-img img {
+    max-width: 80vw;
+}
+
+/* Applying flex properties to the captcha container
+ * so we can add the captcha field on the same line
+ * while keeping a responsive page. */
+.s-captcha-section {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Centering the captcha container (right)
+ * and reducing its size (no many characters to copy) */
+.s-captcha-field {
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 40%;
+}
+
+/* No many characters in the field, so bigger characters. */
+.s-captcha-field > input {
+    font-size: 26px;
+}
+
+/* Let's have a centered logo. */
+.s-logo {
+    text-align: center;
+}
+
+.s-logo img {
+    width: 40%;
+}
+
+.s-footer {
+    text-align: center;
+    font-size: 14px;
+}
+
+.s-footer a {
+    text-decoration: none;
+}
+
+/* Using space empty blocks for visibility around the logo. */
+.s-space {
+    height: 6vh;
+}
+
+/* Material design notification.
+ * Applying the same size properties as the other elements.
+ * Kinda hackish. See Keyframes. */
+.s-notification {
+    display: inline-block;
+    margin: 0px auto;
+    margin-bottom: 30px;
+    text-align: center;
+    border-radius: 2px;
+    box-shadow: none;
+    border: none;
+    color: #fff;
+    padding: 15px 0px;
+    width: 100%;
+}
+
+/* Success notification color. */
+.s-notification.s-success {
+    background-color: #2DAA29;
+    animation: fadeinout ease-in-out 8s;
+    top: -200px;
+    position: fixed;
+}
+
+/* Success notification color. */
+.s-notification.s-link {
+    border-left: 6px solid #4494EA;
+    background-color: #1b1c2296;
+    color: black;
+    display: block;
+    box-shadow: 0 0 2px rgba(0,0,0,.12),0 2px 2px rgba(0,0,0,.2);
+    width: calc(100% - 6px);
+}
+
+.s-field.s-link-group {
+    width: 95%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.s-field.s-link-group label {
+    min-width: 8rem;
+    line-height: 32px;
+    padding-right: 8px;
+    text-align: right;
+    margin: auto;
+}
+
+.s-field.s-link-group input {
+    height: 2rem;
+    font-size: 12px;
+    width: 65%;
+    margin: auto;
+}
+
+.s-link small {
+    color: #646464;
+    font-style: italic;
+}
+
+.s-button.s-danger {
+    background-color: #EE3838;
+}
+
+/* Failure notification color. */
+.s-notification.s-error {
+    background-color: #F44336;
+    animation: fadeinout ease-in-out 8s;
+    top: -200px;
+    position: fixed;
+}
+
+/* Some hack to make it fade in and out without Javascript.
+ * The animation lasts 8 seconds, appears at 2%, disappears at 99%.
+ * Then, the element is moved out of the browser window. */
+@keyframes fadeinout {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+        position: unset;
+        top: unset;
+    }
+    2% {
+        opacity: 1;
+        transform: none;
+    }
+    95% {
+        opacity: 1;
+    }
+    99% {
+        opacity: 0;
+        position: unset;
+        top: unset;
+    }
+    100%   {
+        opacity: 0;
+        top: -200px;
+        position: fixed;
+    }
+}
+
+/* for mobile and tablets. */
+@media only screen and (max-width: 1080px) {
+    /* center the hoster button and unfix it on mobile */
+    .s-backbutton {
+        position: absolute;
+        left: calc(50vw - 1.5rem);
+        margin: auto;
+        margin-top: 1.75rem;
+    }
+    /* use full-sized elements. */
+    .s-responsive {
+        width: 95%;
+    }
+    /* except for the captcha field which doesn't need
+     * any resizing. BTW it's in a flex (wrap) container
+     * so the element is moved in case it's too big. */
+    .s-captcha-field {
+        width: 40%;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 1.25rem;
+    }
+
+    .s-logo {
+        padding-top: 2rem;
+    }
+
+    .s-logo img {
+        width: 100%;
+    }
+}
+
+/* This font is cool. */
+@font-face {
+    font-family: 'Ubuntu-R';
+    src: url('/assets/Ubuntu-R.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Applying this font EVERYWHERE. */
+* {
+    font-family: "Ubuntu-R"
+}
+
+/* The background image */
+body {
+    background-color: #2a2e3a;
+}
+
+.s-phishing > .s-field {
+    /*background-color: #FFFFFFDD;
+    border-radius: 20px;
+    box-shadow: 10px 10px 8px #888888AA;
+    padding: 1rem;*/
+}
+
+.s-section > .s-warning > div {
+    border: 6px solid #EA4444;
+    width: calc(100% - 12px);
+}
+
+.s-info > div.s-outer {
+    border-left: none;
+    display: flex;
+    align-items: center;
+}
+
+.s-phishing > .s-info > div > * {
+    margin: 1rem;
+}
+
+.s-phishing img {
+    flex-basis: 40%;
+}
+
+.s-section .s-inner {
+    width: 90%;
+    margin: auto;
+}
+
+.s-info.s-home {
+
+}
+
+.s-home > div.s-outer {
+    display: block;
+}
+
+.s-home > .s-outer > * {
+    width: 90%;
+    margin: auto;
+}
+
+.s-home > .s-outer > div > button {
+    width: 100%;
+}
+
+.s-outer > .s-field {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+.s-info > .s-link {
+    width: 100%;
+}

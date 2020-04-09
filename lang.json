@@ -2,7 +2,7 @@
     "pages": {
         "home": {
             "template": "home",
-            "lang": {
+            "map": {
                 "back_to_hoster": {
                     "En": "Back to 42l's website",
                     "Fr": "Retour sur le site web de 42l"
@@ -55,6 +55,14 @@
                     "En": "Create!",
                     "Fr": "Créer !"
                 },
+                "error_invalid_url_from": {
+                    "En": "The shortcut name you specified contains forbidden characters.",
+                    "Fr": "Le nom du raccourci que vous avez entré contient des caractères interdits."
+                },
+                "error_invalid_url_to": {
+                    "En": "The URL you specified does not like a valid URL.",
+                    "Fr": "Le lien que vous avez spécifié semble être invalide."
+                },
                 "error_invalid_link": {
                     "En": "The link you tried to visit has been deleted or doesn't exist.",
                     "Fr": "Le lien que vous avez essayé de visiter a été supprimé ou n'existe pas."
@@ -100,8 +108,24 @@
                     "Fr": "Vous ne pouvez pas raccourcir un lien déjà raccourci."
                 },
                 "error_blacklisted_link": {
-                    "En": "You do not have the permission to create shortened links from this address. Your IP address has been banned.",
-                    "Fr": "Vous n'avez pas le droit de créer des raccourcis avec cette adresse. Votre adresse IP a été bannie."
+                    "En": "You do not have the permission to create shortened links with this URL. Your IP address has been banned.",
+                    "Fr": "Vous n'avez pas le droit de créer des raccourcis avec ce lien. Votre adresse IP a été bannie."
+                },
+                "error_captcha_gen": {
+                    "En": "Error during captcha generation. Please try again.",
+                    "Fr": "Erreur lors de la génération du captcha. Veuillez réessayer."
+                },
+                "error_bad_server_admin_key": {
+                    "En": "The administrator password entered is invalid.",
+                    "Fr": "Le mot de passe administrateur entré est invalide."
+                },
+                "error_not_managing_phishing": {
+                    "En": "That phishing link has been disabled and can't be deleted.",
+                    "Fr": "Ce lien de phishing a été désactivé et ne peut pas être administré."
+                },
+                "error_not_deleting_phishing": {
+                    "En": "That phishing link has been disabled and can't be deleted.",
+                    "Fr": "Ce lien de phishing a été désactivé et ne peut être supprimé."
                 },
                 "form_success": {
                     "En": "Your link has been successfully created!",
@@ -110,6 +134,10 @@
                 "link_delete_success": {
                     "En": "Your link has been successfully deleted!",
                     "Fr": "Votre lien a été supprimé avec succès !"
+                },
+                "link_flag_success": {
+                    "En": "Link marked as phishing.",
+                    "Fr": "Lien marqué comme tentative de hameçonnage."
                 },
                 "notif_link_label_shortcut": {
                     "En": "Your shortcut",
@@ -146,6 +174,71 @@
                 "footer_tos": {
                     "En": "Terms of use",
                     "Fr": "Conditions d'utilisation"
+                }
+            }
+        },
+        "phishing": {
+            "template": "phishing",
+            "map": {
+                "hoster_logo_alt": {
+                    "En": "Association 42l",
+                    "Fr": "Association 42l"
+                },
+                "logo_alt": {
+                    "En": "Link Shortener",
+                    "Fr": "Raccourcisseur de liens"
+                },
+                "title": {
+                    "En": "42l link shortener",
+                    "Fr": "Raccourcisseur de liens 42l"
+                },
+                "desc" : {
+                    "En": "42l Link shortener service",
+                    "Fr": "Service raccourcisseur de liens 42l"
+                },
+                "warning_title": {
+                    "En": "You have clicked on a fraudulent link",
+                    "Fr": "Vous avez cliqué sur un lien frauduleux"
+                },
+                "warning1": {
+                    "En": "A malicious person abused of our link shortener service for phishing.",
+                    "Fr": "Une personne malintentionnée a abusé notre service de raccourcisseur de lien afin de vous hameçonner."
+                },
+                "warning2": {
+                    "En": "Phishing consists of tricking you to give personal information (password, email address, credit card number, ...) through a fake website.",
+                    "Fr": "Le hameçonnage consiste à vous soutirer des informations personnelles (mots de passe, adresse email, numéro de carte de crédit, ...) à travers un faux site web."
+                },
+                "warning3": {
+                    "En": "We have detected this fraudulent link and deleted it.",
+                    "Fr": "Nous avons détecté ce lien frauduleux et l'avons supprimé."
+                },
+                "warning4": {
+                    "En": "Be more careful in the future!",
+                    "Fr": "Faites preuve de vigilance à l'avenir !"
+                },
+                "more_info1": {
+                    "En": "More information",
+                    "Fr": "Plus d'informations"
+                },
+                "more_info2": {
+                    "En": "We offer a free and open-source link shortener service that respects your privacy.",
+                    "Fr": "Nous proposons un service de raccourcisseur de liens libre et open-source qui respecte votre vie privée."
+                },
+                "more_info3": {
+                    "En": "We do our best effort to avoid the abuse of our services by malicious people.",
+                    "Fr": "Nous faisons de notre possible pour éviter l'abus de nos services par une personne malveillante."
+                },
+                "more_info4": {
+                    "En": "We are not responsible of those phishing attempts.",
+                    "Fr": "Nous ne sommes pas responsables de ces tentatives de hameçonnage."
+                },
+                "our_website": {
+                    "En": "Our website",
+                    "Fr": "Notre site web"
+                },
+                "back_to_website": {
+                    "En": "Back",
+                    "Fr": "Retour"
                 }
             }
         }

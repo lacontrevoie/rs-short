@@ -1,17 +1,16 @@
 .s-backbutton {
-    position: absolute;
-    top: 10px;
-    left: 10px;
+    position: fixed;
     display: flex;
     font-size: 14px;
-    padding: 0.5rem;
+    margin: 1vw;
+    top: 0;
+    left: 0;
 }
 
 .s-backbutton img {
     width: 3rem;
     height: 3rem;
     margin: auto;
-    padding-right: 0.5rem;
 }
 
 /* Full-sized elements in container */
@@ -20,8 +19,8 @@
 }
 
 /* Center elements in a container that takes almost half of the page */
-.s-field {
-    width: 40%;
+.s-responsive {
+    width: 48%;
     margin-left: auto;
     margin-right: auto;
 }
@@ -46,8 +45,8 @@
 .s-button {
     width: 100%;
     color: #FFF;
-    box-shadow: 0 0 2px rgba(0,0,0,.12),0 2px 2px rgba(0,0,0,.2);
-    font-weight: 500;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.18),0 5px 5px rgba(0, 0, 0, 0.18);
+    font-weight: bold;
     font-size: .875rem;
     text-transform: uppercase;
     transition: all .2s ease-in-out;
@@ -69,7 +68,7 @@
 }
 
 .s-button.s-primary {
-    background-color: #44C3EA;
+    background-color: #4494EA;
 }
 
 /* lighter color when the button is hovered */
@@ -160,13 +159,12 @@
 
 /* Success notification color. */
 .s-notification.s-link {
-    border-left: 6px solid #44C3EA;
-    background-color: #71b2ff1a;
+    border-left: 6px solid #4494EA;
+    background-color: #ffffffaf;
     color: black;
     display: block;
     box-shadow: 0 0 2px rgba(0,0,0,.12),0 2px 2px rgba(0,0,0,.2);
-
-    /* #44C3EA */
+    width: calc(100% - 6px);
 }
 
 .s-field.s-link-group {
@@ -237,9 +235,16 @@
 }
 
 /* for mobile and tablets. */
-@media only screen and (max-width: 880px) {
+@media only screen and (max-width: 1080px) {
+    /* center the hoster button and unfix it on mobile */
+    .s-backbutton {
+        position: absolute;
+        left: calc(50vw - 1.5rem);
+        margin: auto;
+        margin-top: 1.75rem;
+    }
     /* use full-sized elements. */
-    .s-field {
+    .s-responsive {
         width: 95%;
     }
     /* except for the captcha field which doesn't need
@@ -249,6 +254,7 @@
         width: 40%;
         margin-left: auto;
         margin-right: auto;
+        margin-top: 1.25rem;
     }
 
     .s-logo {
@@ -275,9 +281,66 @@
 
 /* The background image */
 body {
-    background-image: url("/assets/background.jpg");
+    background-image: url("/assets/themes/light/background.jpg");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: top;
     background-attachment: fixed;
+}
+
+.s-phishing > .s-field {
+    /*background-color: #FFFFFFDD;
+    border-radius: 20px;
+    box-shadow: 10px 10px 8px #888888AA;
+    padding: 1rem;*/
+}
+
+.s-section > .s-warning > div {
+    border: 6px solid #EA4444;
+    width: calc(100% - 12px);
+}
+
+.s-info > div.s-outer {
+    border-left: none;
+    display: flex;
+    align-items: center;
+}
+
+.s-phishing > .s-info > div > * {
+    margin: 1rem;
+}
+
+.s-phishing img {
+    flex-basis: 40%;
+}
+
+.s-section .s-inner {
+    width: 90%;
+    margin: auto;
+}
+
+.s-info.s-home {
+
+}
+
+.s-home > div.s-outer {
+    display: block;
+}
+
+.s-home > .s-outer > * {
+    width: 90%;
+    margin: auto;
+}
+
+.s-home > .s-outer > div > button {
+    width: 100%;
+}
+
+.s-outer > .s-field {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+.s-info > .s-link {
+    width: 100%;
 }

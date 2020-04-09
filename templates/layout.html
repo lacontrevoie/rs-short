@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="{{ l }}">
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% block head %}{% endblock %}
+    <body>
+        <div>
+            {% block content %}{% endblock %}
+        </div>
+    </body>
+</html>

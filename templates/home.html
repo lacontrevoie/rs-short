@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ loc|tr(l,"title") }}{% endblock %}
+
+{% block head %}
+    <meta name="description" content="{{ loc|tr(l,"desc") }}" />
+    <link rel="stylesheet" href="/assets/themes/{{ config.theme }}/base.css" />
+{% endblock %}
+
+{% block content %}
+    <div class="s-logo">
+        <div class="s-space"></div>
+        <img src="/assets/logo.svg" alt="{{ loc|tr(l,"logo_alt") }}"/> 
+        <div class="s-space"></div>
+    </div>
+    <div class="s-backbutton">
+        <a href="{{ config.hoster_hostname|safe }}">
+            <img src="/assets/hoster-logo.svg" alt="{{ loc|tr(l,"hoster_logo_alt") }}"/>
+        </a>
+    </div>
+    <section class="s-section">
+        {% if notification.is_some() -%}
+            <div class="s-responsive">
+                {% if notification.as_ref().unwrap().is_valid == true %}
+                    <div class="s-notification s-success">
+                        {%- else -%}
+                        <div class="s-notification s-error">
+                            {%- endif %}
+                            {{ notification.as_ref().unwrap().message }}
+                        </div>
+                    </div>
+                    {%- endif %}
+
+                    {% if linkinfo.is_some() %}
+                        <div class="s-responsive">
+                            <div class="s-notification s-link">
+                                <div class="s-field s-link-group">
+                                    <label for="new_link">{{ loc|tr(l,"notif_link_label_shortcut") }}</label>
+                                    <input type="text" id="new_link" name="new_link" readonly value="{{ linkinfo.as_ref().unwrap().url_from|safe }}">
+                                </div>
+                                <br />
+                                <div class="s-field s-link-group">
+                                    <label for="old_link">{{ loc|tr(l,"notif_link_label_original") }}</label>
+                                    <input type="text" id="old_link" name="old_link" readonly value="{{ linkinfo.as_ref().unwrap().url_to|safe }}">
+                                </div>
+                                <br />
+                                <div class="s-field s-link-group">
+                                    <label for="new_link">{{ loc|tr(l,"notif_link_label_admin") }}</label>
+                                    <input type="text" id="new_link" name="new_link" readonly value="{{ linkinfo.as_ref().unwrap().adminlink|safe }}">
+                                </div>
+                                <small>{{ loc|tr(l,"notif_link_admin_desc") }}</small>
+                                <br />
+                                <p>{{ loc|tr(l,"notif_link_clickcount") }}{{ linkinfo.as_ref().unwrap().clicks }}</p>
+                                <a class="s-button s-danger" href="{{ linkinfo.as_ref().unwrap().deletelink|safe }}">{{ loc|tr(l,"notif_link_delete") }}</a>
+
+
+                            </div>
+                        </div>
+                    {% endif %} 
+                    <form action="/" method="post">
+                        <div class="s-home s-info s-responsive">
+                            <div class="s-outer s-notification s-link">
+                                <br />
+                                <div class="s-field">
+                                    <label for="url_to">{{ loc|tr(l,"url_to_label") }}</label>
+                                    <input type="url" id="url_to" name="url_to" required placeholder="{{ loc|tr(l,"url_to_placeholder") }}" autofocus>
+                                </div>
+                                <div class="s-field">
+                                    <label for="url_from">{{ loc|tr(l,"url_from_label") }}</label>
+                                    <input type="text" id="url_from" name="url_from" pattern="[^,*';?:@=&.<>#%\/\\\[\]\{\}|^~ ]*" maxlength="80" placeholder="{{ loc|tr(l,"url_from_placeholder") }}">
+                                </div>
+                                <div class="s-field s-captcha-section">
+                                    <div class="s-captcha-img">
+                                        <img src="data:image/png;base64, {{ captcha|safe }}" alt="{{ loc|tr(l,"captcha_alt") }}" />
+                                    </div>
+                                    <div class="s-field s-captcha-field">
+                                        <label for="captcha">{{ loc|tr(l,"captcha_label") }}</label>
+                                        <input type="text" id="captcha" name="captcha" maxlength="8" placeholder="{{ loc|tr(l,"captcha_placeholder") }}" autocomplete="off" required>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="s-field">
+                                    <button class="s-button s-primary" type="submit">
+                                        {{ loc|tr(l,"button_submit_text") }}
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="s-footer">
+                                <b><a href="{{ config.contact|safe }}">{{ loc|tr(l,"footer_report_phishing") }}</a></b>
+                                <br /> <br />
+                                <a href="{{ config.hoster_tos|safe }}">{{ loc|tr(l,"footer_tos") }}</a> –
+                                <a href="https://git.42l.fr/42l/rs-short">{{ loc|tr(l,"footer_source_code") }}</a>
+                                <br /> <br />
+                            </div>
+                        </div>
+                    </form>
+    </section>
+{% endblock %}
