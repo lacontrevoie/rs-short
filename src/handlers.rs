@@ -32,7 +32,7 @@ pub async fn shortcut_admin_flag(
     let l = get_lang(&req);
 
     // if the admin phishing password doesn't match, return early.
-    if &params.admin_key != &CONFIG.phishing.phishing_password {
+    if params.admin_key != CONFIG.phishing.phishing_password {
         println!("INFO: [{}] tried to flag a link as phishing.", get_ip(&req));
         let tpl = TplNotification::new("home", "error_bad_server_admin_key", false, &l);
         return web_ok(gentpl_home(&l, &s, None, Some(tpl))).await;
@@ -52,7 +52,7 @@ pub async fn shortcut_admin_flag(
                 e
             );
             let tpl = TplNotification::new("home", "error_db_fail", false, &l);
-            return HttpResponse::InternalServerError()
+            HttpResponse::InternalServerError()
                 .content_type("text/html")
                 .body(gentpl_home(&l, &s, None, Some(tpl)));
         })?;
@@ -92,7 +92,7 @@ pub async fn shortcut_admin_del(
         .map_err(|e| {
             eprintln!("ERROR: shortcut_admin: get_link query failed: {}", e);
             let tpl = TplNotification::new("home", "error_db_fail", false, &l);
-            return HttpResponse::InternalServerError()
+            HttpResponse::InternalServerError()
                 .content_type("text/html")
                 .body(gentpl_home(&l, &s, None, Some(tpl)));
         })?;
@@ -127,7 +127,7 @@ pub async fn shortcut_admin_del(
     web::block(move || link.delete(&conn)).await.map_err(|e| {
         eprintln!("ERROR: shortcut_admin: delete query failed: {}", e);
         let tpl = TplNotification::new("home", "error_link_delete_db_fail", false, &l);
-        return HttpResponse::InternalServerError()
+        HttpResponse::InternalServerError()
             .content_type("text/html")
             .body(gentpl_home(&l, &s, None, Some(tpl)));
     })?;
@@ -171,7 +171,7 @@ pub async fn shortcut_admin(
         .map_err(|e| {
             eprintln!("ERROR: shortcut_admin: get_link query failed: {}", e);
             let tpl = TplNotification::new("home", "error_db_fail", false, &l);
-            return HttpResponse::InternalServerError()
+            HttpResponse::InternalServerError()
                 .content_type("text/html")
                 .body(gentpl_home(&l, &s, None, Some(tpl)));
         })?;
@@ -270,7 +270,7 @@ pub async fn post_link(
     }
 
     // if the user hasn't chosen a shortcut name, decide for them.
-    let new_url_from = if form.url_from.len() == 0 {
+    let new_url_from = if form.url_from.is_empty() {
         base64_encode_config(&gen_random(6), URL_SAFE_NO_PAD)
     } else {
         form.url_from.clone()
@@ -289,7 +289,7 @@ pub async fn post_link(
             .map_err(|e| {
                 eprintln!("ERROR: post_link: insert_if_not_exists query failed: {}", e);
                 let tpl = TplNotification::new("home", "error_db_fail", false, &l);
-                return HttpResponse::InternalServerError()
+                HttpResponse::InternalServerError()
                     .content_type("text/html")
                     .body(gentpl_home(&l, &s, None, Some(tpl)));
             })?;
@@ -347,7 +347,7 @@ pub async fn shortcut(
         .map_err(|e| {
             eprintln!("ERROR: shortcut: get_link query failed: {}", e);
             let tpl = TplNotification::new("home", "error_db_fail", false, &l);
-            return HttpResponse::InternalServerError()
+            HttpResponse::InternalServerError()
                 .content_type("text/html")
                 .body(gentpl_home(&l, &s, None, Some(tpl)));
         })?;

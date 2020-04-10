@@ -74,7 +74,7 @@ pub fn cookie_captcha_get(s: &Session) -> Option<(NaiveDateTime, String)> {
 
     Some((
         NaiveDateTime::parse_from_str(cookie_split.get(0)?, "%s").ok()?,
-        cookie_split.get(1)?.to_string(),
+        (*cookie_split.get(1)?).to_string(),
     ))
 }
 
@@ -93,12 +93,11 @@ pub fn watch_visits(watcher: web::Data<SuspiciousWatcher>, link: LinkInfo, ip: S
         .lock()
         .map_err(|e| {
             eprintln!("ERROR: watch_visits: Failed to get the mutex lock: {}", e);
-            return;
         })
         .unwrap();
 
     // get the entry corresponding to the shortcut or create a new one
-    let rate_shortcut = w.entry(link.url_from.to_string()).or_insert(Vec::new());
+    let rate_shortcut = w.entry(link.url_from.to_string()).or_insert_with(Vec::new);
 
     // clean up old entries
     rate_shortcut.retain(|timestamp| {
@@ -122,7 +121,7 @@ pub fn watch_visits(watcher: web::Data<SuspiciousWatcher>, link: LinkInfo, ip: S
     }
 
     // adding the IP to list if it doesn't exist already
-    if rate_shortcut.iter().any(|val| val.1 == ip) == false {
+    if !rate_shortcut.iter().any(|val| val.1 == ip) {
         rate_shortcut.push((Utc::now(), ip));
     }
 }

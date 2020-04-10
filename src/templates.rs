@@ -64,10 +64,10 @@ pub fn gentpl_home(
         // if it succeeds, renders the template
         HomeTemplate {
             loc: &LANG.pages["home"].map,
-            l: l,
+            l,
             captcha: &base64_encode(&captcha_image),
-            notification: notification,
-            linkinfo: linkinfo,
+            notification,
+            linkinfo,
             config: &CONFIG.general,
         }
         .render()
@@ -75,10 +75,10 @@ pub fn gentpl_home(
         // if it fails, returns an error message
         HomeTemplate {
             loc: &LANG.pages["home"].map,
-            l: &l,
+            l,
             captcha: &String::from("Error"),
             notification: Some(TplNotification::new("home", "error_captcha_gen", false, &l)),
-            linkinfo: linkinfo,
+            linkinfo,
             config: &CONFIG.general,
         }
         .render()
@@ -137,16 +137,14 @@ mod filters {
 // checks if the specified url isn't written in link blacklists.
 // `url` can be both url_from or url_to.
 // if strict_match is specified, only full matches will return true.
-pub fn blacklist_check(url: &str, blacklist: &Vec<String>, strict_match: bool) -> bool {
+pub fn blacklist_check(url: &str, blacklist: &[String], strict_match: bool) -> bool {
     for elem in blacklist.iter() {
         if strict_match {
             if url.to_lowercase() == elem.to_lowercase() {
                 return true;
             }
-        } else {
-            if url.to_lowercase().contains(&elem.to_lowercase()) {
-                return true;
-            }
+        } else if url.to_lowercase().contains(&elem.to_lowercase()) {
+            return true;
         }
     }
     false
@@ -166,11 +164,12 @@ pub fn gen_random(n_bytes: usize) -> Vec<u8> {
 
 pub fn get_ip(req: &HttpRequest) -> String {
     match req.connection_info().remote() {
-        // trimming the port
-        Some(v) => v
-            .trim_end_matches(|c: char| c.is_numeric())
-            .trim_end_matches(':')
-            .to_owned(),
+        Some(v) => v.to_owned(),
+            // do not trim the port anymore since there is
+            // no port with a reverse proxy.
+            // some more testing might be needed.
+            /*.trim_end_matches(|c: char| c.is_numeric())
+            .trim_end_matches(':')*/
         None => {
             req.connection_info()
                 .remote()

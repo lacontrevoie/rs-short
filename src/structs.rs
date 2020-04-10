@@ -47,7 +47,7 @@ impl NewLink {
                 false,
                 l,
             ))
-        } else if self.url_to.len() > 4096 || !Url::parse(&self.url_to).is_ok() {
+        } else if self.url_to.len() > 4096 || Url::parse(&self.url_to).is_err() {
             Err(TplNotification::new(
                 "home",
                 "error_invalid_url_to",
