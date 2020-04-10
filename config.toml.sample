@@ -15,6 +15,9 @@ database_path = "./db/db.sqlite"
 # with https://, without the trailing slash
 instance_hostname = "s.example.com"
 
+# Your name (used in various places)
+hoster_name = "ExampleSoft"
+
 # Your website
 hoster_hostname = "example.com"
 
@@ -54,9 +57,9 @@ verbose_suspicious = true
 
 # Per link, starting from how many clicks per suspicious_click_delay
 # a link is considered suspicious.
-# Default: Starting from 15 clicks in a timeframe of 12 hours.
+# Default: Starting from 25 clicks in a timeframe of 12 hours.
 # Only if verbose_suspicious is true
-suspicious_click_count = 15
+suspicious_click_count = 25
 
 # In hours.
 # See above.
