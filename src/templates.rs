@@ -165,11 +165,11 @@ pub fn gen_random(n_bytes: usize) -> Vec<u8> {
 pub fn get_ip(req: &HttpRequest) -> String {
     match req.connection_info().remote() {
         Some(v) => v.to_owned(),
-            // do not trim the port anymore since there is
-            // no port with a reverse proxy.
-            // some more testing might be needed.
-            /*.trim_end_matches(|c: char| c.is_numeric())
-            .trim_end_matches(':')*/
+        // do not trim the port anymore since there is
+        // no port with a reverse proxy.
+        // some more testing might be needed.
+        /*.trim_end_matches(|c: char| c.is_numeric())
+        .trim_end_matches(':')*/
         None => {
             req.connection_info()
                 .remote()
