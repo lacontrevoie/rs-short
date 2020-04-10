@@ -14,6 +14,7 @@ Powered by the [Actix](https://actix.rs) framework using (server-side) [Askama](
 - No CSS framework ; CSS is handmade and all rules are prefixed to avoid rule conflicts
 - No tracking features at all, user IPs are not saved in database
 - No `unsafe` block
+- Compiles on Rust stable
 
 Features:
 - Includes a captcha as a minimal protection against spamming

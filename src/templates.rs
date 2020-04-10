@@ -88,19 +88,20 @@ pub fn gentpl_home(
 
 // determine the user language for i18n purposes
 pub fn get_lang(req: &HttpRequest) -> ValidLanguages {
-    let result: Option<ValidLanguages> = try {
-        ValidLanguages::from_str(
-            // getting language from client header
-            // taking the two first characters of the Accept-Language header,
-            // in lowercase, then parsing it
-            &req.headers()
-                .get("Accept-Language")?
-                .to_str()
-                .ok()?
-                .to_lowercase()[..2],
-        )
-    };
-    result.unwrap_or(DEFAULT_LANGUAGE)
+    try_get_lang(req).unwrap_or(DEFAULT_LANGUAGE)
+}
+
+fn try_get_lang(req: &HttpRequest) -> Option<ValidLanguages> {
+    Some(ValidLanguages::from_str(
+        // getting language from client header
+        // taking the two first characters of the Accept-Language header,
+        // in lowercase, then parsing it
+        &req.headers()
+        .get("Accept-Language")?
+        .to_str()
+        .ok()?
+        .to_lowercase()[..2],
+    ))
 }
 
 mod filters {
@@ -113,8 +114,7 @@ mod filters {
         lang: &ValidLanguages,
         key: &str,
     ) -> ::askama::Result<String> {
-        let filter_result: Option<String> = try { loc.get(key)?.get(&lang)?.to_string() };
-        match filter_result {
+        match try_tr(loc, lang, key) {
             Some(s) => Ok(s),
             None => {
                 // if the language is invalid or the specified key doesn't exist
@@ -123,6 +123,14 @@ mod filters {
                 Ok(err)
             }
         }
+    }
+
+    fn try_tr(
+        loc: &HashMap<String, HashMap<ValidLanguages, String>>,
+        lang: &ValidLanguages,
+        key: &str,
+    ) -> Option<String> {
+        Some(loc.get(key)?.get(&lang)?.to_string())
     }
 }
 
