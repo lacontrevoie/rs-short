@@ -49,9 +49,6 @@ embed_migrations!();
 async fn main() -> std::io::Result<()> {
     println!("rs-short, starting.");
 
-    std::env::set_var("RUST_LOG", "actix_web=debug");
-    env_logger::init();
-
     println!("Opening database {}", CONFIG.general.database_path);
     // connecting the sqlite database
     let manager = ConnectionManager::<SqliteConnection>::new(&CONFIG.general.database_path);

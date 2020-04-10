@@ -3,7 +3,6 @@
 {% block title %}{{ loc|tr(l,"title") }}{% endblock %}
 
 {% block head %}
-    <meta name="description" content="{{ loc|tr(l,"desc") }}" />
     <link rel="stylesheet" href="/assets/themes/{{ config.theme }}/base.css" />
 {% endblock %}
 
@@ -15,7 +14,7 @@
     </div>
     <div class="s-backbutton">
         <a href="{{ config.hoster_hostname|safe }}">
-            <img src="/assets/hoster-logo.svg" alt="{{ loc|tr(l,"hoster_logo_alt") }}"/>
+            <img src="/assets/hoster-logo.svg" alt="{{ config.hoster_name }}"/>
         </a>
     </div>
     <section class="s-section s-phishing">

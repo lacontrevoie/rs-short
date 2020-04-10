@@ -3,25 +3,17 @@
         "home": {
             "template": "home",
             "map": {
-                "back_to_hoster": {
-                    "En": "Back to 42l's website",
-                    "Fr": "Retour sur le site web de 42l"
-                },
-                "hoster_logo_alt": {
-                    "En": "Association 42l",
-                    "Fr": "Association 42l"
-                },
                 "logo_alt": {
-                    "En": "Link Shortener",
+                    "En": "Link shortener",
                     "Fr": "Raccourcisseur de liens"
                 },
                 "title": {
-                    "En": "42l link shortener",
-                    "Fr": "Raccourcisseur de liens 42l"
+                    "En": "Link shortener",
+                    "Fr": "Raccourcisseur de liens"
                 },
                 "desc" : {
-                    "En": "42l Link shortener service",
-                    "Fr": "Service raccourcisseur de liens 42l"
+                    "En": "Link shortener service",
+                    "Fr": "Service raccourcisseur de liens"
                 },
                 "captcha_alt": {
                     "En": "Captcha",
@@ -180,21 +172,17 @@
         "phishing": {
             "template": "phishing",
             "map": {
-                "hoster_logo_alt": {
-                    "En": "Association 42l",
-                    "Fr": "Association 42l"
-                },
                 "logo_alt": {
-                    "En": "Link Shortener",
+                    "En": "Link shortener",
                     "Fr": "Raccourcisseur de liens"
                 },
                 "title": {
-                    "En": "42l link shortener",
-                    "Fr": "Raccourcisseur de liens 42l"
+                    "En": "Link shortener",
+                    "Fr": "Raccourcisseur de liens"
                 },
                 "desc" : {
-                    "En": "42l Link shortener service",
-                    "Fr": "Service raccourcisseur de liens 42l"
+                    "En": "Link shortener service",
+                    "Fr": "Service raccourcisseur de liens"
                 },
                 "warning_title": {
                     "En": "You have clicked on a fraudulent link",
