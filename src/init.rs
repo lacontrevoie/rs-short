@@ -13,6 +13,8 @@ pub const DEFAULT_LANGUAGE: ValidLanguages = ValidLanguages::En;
 
 pub const CAPTCHA_LETTERS: u32 = 6;
 
+pub const CONFIG_VERSION: u8 = 1;
+
 // initializing configuration
 
 lazy_static! {
@@ -101,6 +103,7 @@ pub struct ConfGeneral {
     pub listening_address: String,
     pub database_path: String,
     pub instance_hostname: String,
+    pub hoster_name: String,
     pub hoster_hostname: String,
     pub hoster_tos: String,
     pub contact: String,
@@ -120,6 +123,7 @@ pub struct ConfPhishing {
 
 #[derive(Deserialize)]
 pub struct Config {
+    pub config_version: u8,
     pub general: ConfGeneral,
     pub phishing: ConfPhishing,
 }
@@ -135,5 +139,11 @@ impl Config {
             .read_to_string(&mut confstr)
             .expect("Couldn't read config to string");
         toml::from_str(&confstr).unwrap()
+    }
+    pub fn check_version(&self) {
+        if self.config_version != CONFIG_VERSION {
+            eprintln!("Your configuration file is obsolete! Please update it with config.toml.sample and update its version to {}.", CONFIG_VERSION);
+            panic!();
+        }
     }
 }

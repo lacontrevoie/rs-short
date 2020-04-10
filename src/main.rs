@@ -70,6 +70,10 @@ async fn main() -> std::io::Result<()> {
         Vec<(DateTime<Utc>, String)>,
     >::new()));
 
+    // check configuration version
+    // and panic if it doesn't match CONFIG_VERSION
+    CONFIG.check_version();
+
     // starting the http server
     println!("Server listening at {}", CONFIG.general.listening_address);
     HttpServer::new(move || {
