@@ -35,10 +35,7 @@ pub struct LinkInfo {
 impl LinkInfo {
     pub fn create_from(link: Link) -> Self {
         LinkInfo {
-            url_from: format!(
-                "{}/{}",
-                CONFIG.general.instance_hostname, link.url_from
-            ),
+            url_from: format!("{}/{}", CONFIG.general.instance_hostname, link.url_from),
             url_to: link.url_to,
             adminlink: format!(
                 "{}/{}/admin/{}",
@@ -52,10 +49,10 @@ impl LinkInfo {
                 link.url_from,
                 base64_encode_config(&link.key, URL_SAFE_NO_PAD)
             ),
-            phishlink: format!("{}/{}/phishing/{}",
-                CONFIG.general.instance_hostname,
-                link.url_from,
-                CONFIG.phishing.phishing_password),
+            phishlink: format!(
+                "{}/{}/phishing/{}",
+                CONFIG.general.instance_hostname, link.url_from, CONFIG.phishing.phishing_password
+            ),
             clicks: link.clicks,
         }
     }
@@ -71,13 +68,15 @@ impl Link {
             .unwrap()
     }
 
-    pub fn get_link_and_incr(i_url_from: &str, conn: &SqliteConnection) -> Result<Option<Link>, diesel::result::Error> {
+    pub fn get_link_and_incr(
+        i_url_from: &str,
+        conn: &SqliteConnection,
+    ) -> Result<Option<Link>, diesel::result::Error> {
         // if the link exists, increments the click count
         if let Some(l) = Link::get_link(i_url_from, conn)? {
             l.increment(conn)?;
             Ok(Some(l))
-        }
-        else {
+        } else {
             Ok(None)
         }
     }
@@ -100,7 +99,11 @@ impl Link {
     }
 
     // creating a new link
-    pub fn insert(i_url_from: &str, i_url_to: &str, conn: &SqliteConnection) -> Result<Link, diesel::result::Error> {
+    pub fn insert(
+        i_url_from: &str,
+        i_url_to: &str,
+        conn: &SqliteConnection,
+    ) -> Result<Link, diesel::result::Error> {
         let t = Link {
             id: None,
             url_from: i_url_from.to_string(),
@@ -110,21 +113,22 @@ impl Link {
             clicks: 0,
             phishing: 0,
         };
-        match diesel::insert_into(links::table)
-            .values(&t)
-            .execute(conn) {
-                Ok(_) => Ok(t),
-                Err(e) => Err(e),
-            }
+        match diesel::insert_into(links::table).values(&t).execute(conn) {
+            Ok(_) => Ok(t),
+            Err(e) => Err(e),
+        }
     }
 
     // returns Ok(None) if the link already exists
     // else, returns Ok(Link)
-    pub fn insert_if_not_exists(i_url_from: &str, i_url_to: &str, conn: &SqliteConnection) -> Result<Option<Link>, diesel::result::Error> {
+    pub fn insert_if_not_exists(
+        i_url_from: &str,
+        i_url_to: &str,
+        conn: &SqliteConnection,
+    ) -> Result<Option<Link>, diesel::result::Error> {
         if Link::get_link(i_url_from, conn)?.is_some() {
             Ok(None)
-        }
-        else {
+        } else {
             Ok(Some(Link::insert(i_url_from, i_url_to, conn)?))
         }
     }
@@ -133,8 +137,11 @@ impl Link {
     pub fn delete(&self, conn: &SqliteConnection) -> Result<usize, diesel::result::Error> {
         diesel::delete(all_links.find(self.id)).execute(conn)
     }
-    
-    pub fn flag_as_phishing(i_url_from: &str, conn: &SqliteConnection) -> Result<usize, diesel::result::Error> {
+
+    pub fn flag_as_phishing(
+        i_url_from: &str,
+        conn: &SqliteConnection,
+    ) -> Result<usize, diesel::result::Error> {
         diesel::update(all_links)
             .filter(links::url_from.eq(i_url_from))
             .set(links::phishing.eq(1))

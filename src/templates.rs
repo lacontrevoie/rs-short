@@ -97,10 +97,10 @@ fn try_get_lang(req: &HttpRequest) -> Option<ValidLanguages> {
         // taking the two first characters of the Accept-Language header,
         // in lowercase, then parsing it
         &req.headers()
-        .get("Accept-Language")?
-        .to_str()
-        .ok()?
-        .to_lowercase()[..2],
+            .get("Accept-Language")?
+            .to_str()
+            .ok()?
+            .to_lowercase()[..2],
     ))
 }
 
@@ -143,8 +143,7 @@ pub fn blacklist_check(url: &str, blacklist: &Vec<String>, strict_match: bool) -
             if url.to_lowercase() == elem.to_lowercase() {
                 return true;
             }
-        }
-        else {
+        } else {
             if url.to_lowercase().contains(&elem.to_lowercase()) {
                 return true;
             }

@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use std::fmt;
 use std::fs::File;
 use std::io::Read;
-use std::path::Path;
 use std::io::{self, BufRead, BufReader};
+use std::path::Path;
 
 pub const URL_FROM_BL_FILE: &str = "./url_from_blacklist.txt";
 pub const URL_TO_BL_FILE: &str = "./url_to_blacklist.txt";
@@ -29,15 +29,12 @@ lazy_static! {
 
 lazy_static! {
     pub static ref URL_FROM_BL: Vec<String> =
-        lines_from_file(URL_FROM_BL_FILE)
-        .expect("Failed to load url_from blacklist");
-        
+        lines_from_file(URL_FROM_BL_FILE).expect("Failed to load url_from blacklist");
 }
 
 lazy_static! {
     pub static ref URL_TO_BL: Vec<String> =
-        lines_from_file(URL_TO_BL_FILE)
-        .expect("Failed to load url_to blacklist");
+        lines_from_file(URL_TO_BL_FILE).expect("Failed to load url_to blacklist");
 }
 
 fn lines_from_file(filename: impl AsRef<Path>) -> io::Result<Vec<String>> {

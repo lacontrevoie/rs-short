@@ -55,15 +55,14 @@ pub async fn shortcut_admin_flag(
             return HttpResponse::InternalServerError()
                 .content_type("text/html")
                 .body(gentpl_home(&l, &s, None, Some(tpl)));
-            })?;
+        })?;
 
     // if flag_as_phishing returned 0, it means it affected 0 rows.
     // so link not found
     if flag_result == 0 {
         let tpl = TplNotification::new("home", "error_link_not_found", false, &l);
         web_ok(gentpl_home(&l, &s, None, Some(tpl))).await
-    }
-    else {
+    } else {
         let tpl = TplNotification::new("home", "link_flag_success", true, &l);
         web_ok(gentpl_home(&l, &s, None, Some(tpl))).await
     }
@@ -96,7 +95,7 @@ pub async fn shortcut_admin_del(
             return HttpResponse::InternalServerError()
                 .content_type("text/html")
                 .body(gentpl_home(&l, &s, None, Some(tpl)));
-            })?;
+        })?;
 
     let link = match selected_link {
         // if the administration key doesn't match, return early
@@ -131,7 +130,7 @@ pub async fn shortcut_admin_del(
         return HttpResponse::InternalServerError()
             .content_type("text/html")
             .body(gentpl_home(&l, &s, None, Some(tpl)));
-        })?;
+    })?;
 
     // displaying success message
     let tpl = TplNotification::new("home", "link_delete_success", true, &l);
@@ -143,10 +142,10 @@ pub async fn shortcut_admin_del(
 #[get("/{url_from}/{admin_key}")]
 pub async fn shortcut_admin_fallback(params: web::Path<ShortcutAdminInfo>) -> Result<HttpResponse> {
     web_redir(&format!(
-            "{}/{}/admin/{}",
-            &CONFIG.general.instance_hostname, params.url_from, params.admin_key
+        "{}/{}/admin/{}",
+        &CONFIG.general.instance_hostname, params.url_from, params.admin_key
     ))
-        .await
+    .await
 }
 
 // GET: link administration page
@@ -175,7 +174,7 @@ pub async fn shortcut_admin(
             return HttpResponse::InternalServerError()
                 .content_type("text/html")
                 .body(gentpl_home(&l, &s, None, Some(tpl)));
-            })?;
+        })?;
 
     let linkinfo = match selected_link {
         // if the administration key doesn't match, return early
@@ -239,10 +238,10 @@ pub async fn post_link(
     // prevent shortening loop
     if form.url_to.contains(
         &CONFIG
-        .general
-        .instance_hostname
-        .replace("http://", "")
-        .replace("https://", ""),
+            .general
+            .instance_hostname
+            .replace("http://", "")
+            .replace("https://", ""),
     ) {
         eprintln!(
             "INFO: [{}] tried to create a shortening loop.",
@@ -286,13 +285,13 @@ pub async fn post_link(
     // and creates a link if it doesn't exist
     let new_link =
         web::block(move || Link::insert_if_not_exists(&new_url_from, &form.url_to, &conn))
-        .await
-        .map_err(|e| {
-            eprintln!("ERROR: post_link: insert_if_not_exists query failed: {}", e);
-            let tpl = TplNotification::new("home", "error_db_fail", false, &l);
-            return HttpResponse::InternalServerError()
-                .content_type("text/html")
-                .body(gentpl_home(&l, &s, None, Some(tpl)));
+            .await
+            .map_err(|e| {
+                eprintln!("ERROR: post_link: insert_if_not_exists query failed: {}", e);
+                let tpl = TplNotification::new("home", "error_db_fail", false, &l);
+                return HttpResponse::InternalServerError()
+                    .content_type("text/html")
+                    .body(gentpl_home(&l, &s, None, Some(tpl)));
             })?;
 
     // if the link already exists, early return.
@@ -351,7 +350,7 @@ pub async fn shortcut(
             return HttpResponse::InternalServerError()
                 .content_type("text/html")
                 .body(gentpl_home(&l, &s, None, Some(tpl)));
-            })?;
+        })?;
 
     match selected_link {
         // if the link does not exist, renders home template
@@ -385,10 +384,14 @@ pub async fn shortcut(
         // if verbose_suspicious is enabled, play with the Mutex.
         Some(link) => {
             if CONFIG.phishing.verbose_suspicious {
-                watch_visits(suspicious_watch, LinkInfo::create_from(link.clone()), get_ip(&req));
+                watch_visits(
+                    suspicious_watch,
+                    LinkInfo::create_from(link.clone()),
+                    get_ip(&req),
+                );
             }
             web_redir(&link.url_to).await
-        },
+        }
     }
 }
 

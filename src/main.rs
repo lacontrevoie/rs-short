@@ -13,22 +13,22 @@ extern crate url;
 
 mod database;
 mod db_schema;
-mod routes;
 mod handlers;
 mod init;
+mod routes;
 mod spam;
 mod structs;
 mod templates;
 
 use actix_files as fs;
 use actix_session::CookieSession;
-use actix_web::{App, web, HttpServer};
+use actix_web::{web, App, HttpServer};
 
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 
-use chrono::Utc;
 use chrono::DateTime;
+use chrono::Utc;
 
 use crate::handlers::*;
 use crate::init::*;
@@ -48,9 +48,9 @@ embed_migrations!();
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
     println!("rs-short, starting.");
-    
+
     std::env::set_var("RUST_LOG", "actix_web=debug");
-        env_logger::init();
+    env_logger::init();
 
     println!("Opening database {}", CONFIG.general.database_path);
     // connecting the sqlite database
@@ -59,16 +59,16 @@ async fn main() -> std::io::Result<()> {
         .build(manager)
         .expect("Failed to create pool.");
 
-    let conn = pool
-        .get()
-        .expect("ERROR: main: DB connection failed");
-    
+    let conn = pool.get().expect("ERROR: main: DB connection failed");
+
     println!("Running migrations");
     embedded_migrations::run(&*conn).expect("Failed to run database migrations");
 
     // for verbose_suspicious option
-    let suspicious_watch = web::Data::new(
-            Mutex::new(HashMap::<String, Vec<(DateTime<Utc>, String)>>::new()));
+    let suspicious_watch = web::Data::new(Mutex::new(HashMap::<
+        String,
+        Vec<(DateTime<Utc>, String)>,
+    >::new()));
 
     // starting the http server
     println!("Server listening at {}", CONFIG.general.listening_address);
@@ -79,7 +79,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(
                 CookieSession::private(
                     &base64_decode(&CONFIG.general.cookie_key)
-                    .expect("Couldn't read the specified cookie_key"),
+                        .expect("Couldn't read the specified cookie_key"),
                 )
                 .name("rs-short-captcha")
                 .secure(true),
@@ -94,6 +94,6 @@ async fn main() -> std::io::Result<()> {
             .service(post_link)
     })
     .bind(&CONFIG.general.listening_address)?
-        .run()
-        .await
+    .run()
+    .await
 }

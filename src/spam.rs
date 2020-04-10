@@ -2,17 +2,17 @@
 // named it "spam".
 
 use actix_session::Session;
-use actix_web::{web};
+use actix_web::web;
 
 use captcha::filters::{Grid, Noise, Wave};
 use captcha::Captcha;
-use chrono::{NaiveDateTime, Utc};
 use chrono::Duration;
+use chrono::{NaiveDateTime, Utc};
 use rand::Rng;
 
-use crate::SuspiciousWatcher;
-use crate::init::*;
 use crate::database::LinkInfo;
+use crate::init::*;
+use crate::SuspiciousWatcher;
 
 pub fn gen_captcha() -> Option<(String, Vec<u8>)> {
     let mut rng = rand::thread_rng();
@@ -86,33 +86,37 @@ pub fn cookie_captcha_get(s: &Session) -> Option<(NaiveDateTime, String)> {
 // HashMap<String, Vec<(DateTime<Utc>, String)>>
 // HashMap<{SHORTCUT NAME}, Vec<({TIMESTAMP}, {IP ADDRESS})>.
 // The data is kept in RAM and cleaned regularly and on program restart.
-pub fn watch_visits(watcher: web::Data<SuspiciousWatcher>, link: LinkInfo,
-    ip: String) {
+pub fn watch_visits(watcher: web::Data<SuspiciousWatcher>, link: LinkInfo, ip: String) {
     // locks the mutex.
     // If we can't get the lock, return early and prints an error.
-    let mut w = watcher.lock().map_err(|e| {
-        eprintln!("ERROR: watch_visits: Failed to get the mutex lock: {}", e);
-        return;
-    }).unwrap();
+    let mut w = watcher
+        .lock()
+        .map_err(|e| {
+            eprintln!("ERROR: watch_visits: Failed to get the mutex lock: {}", e);
+            return;
+        })
+        .unwrap();
 
     // get the entry corresponding to the shortcut or create a new one
     let rate_shortcut = w.entry(link.url_from.to_string()).or_insert(Vec::new());
-    
+
     // clean up old entries
     rate_shortcut.retain(|timestamp| {
-        timestamp.0 > (Utc::now()
-            - Duration::hours(CONFIG.phishing.suspicious_click_timeframe as i64))
+        timestamp.0
+            > (Utc::now() - Duration::hours(CONFIG.phishing.suspicious_click_timeframe as i64))
     });
 
     // check click count
     if rate_shortcut.len() >= CONFIG.phishing.suspicious_click_count {
-        println!("WARN: suspicious activity detected.\n\
+        println!(
+            "WARN: suspicious activity detected.\n\
         Link: {}\n\
         Redirects to: {}\n\
         Admin link: {}\n\
         Flag as phishing: {}\n\
         ---",
-        link.url_from, link.url_to, link.adminlink, link.phishlink);
+            link.url_from, link.url_to, link.adminlink, link.phishlink
+        );
         // resetting activity after printing the message
         rate_shortcut.clear();
     }
