@@ -3,6 +3,9 @@
 #   - banned_url_from.list: Forbidden redirection names
 #   - banned_url_to.list: Forbidden websites to redirect to 
 
+# Do not edit this manually unless you know what you are doing
+config_version = 1
+
 [general]
 
 # Address and port to listen on
