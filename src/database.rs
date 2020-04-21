@@ -74,7 +74,14 @@ impl Link {
     ) -> Result<Option<Link>, diesel::result::Error> {
         // if the link exists, increments the click count
         if let Some(l) = Link::get_link(i_url_from, conn)? {
-            l.increment(conn)?;
+            // actually, if the link is a phishing link, don't increment
+            if l.phishing == 0 {
+                // if we fail to increment, just return the link
+                // and display an error message
+                if l.increment(conn).is_err() {
+                    eprintln!("Failed to increment a link: database is locked?");
+                }
+            }
             Ok(Some(l))
         } else {
             Ok(None)
