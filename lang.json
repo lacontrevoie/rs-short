@@ -99,6 +99,10 @@
                     "En": "You can't shorten a link already shortened.",
                     "Fr": "Vous ne pouvez pas raccourcir un lien déjà raccourci."
                 },
+                "error_unsupported_protocol": {
+                    "En": "Your link protocol is not allowed.",
+                    "Fr": "Le protocole de votre lien n'est pas autorisé."
+                },
                 "error_blacklisted_link": {
                     "En": "You do not have the permission to create shortened links with this URL. Your IP address has been banned.",
                     "Fr": "Vous n'avez pas le droit de créer des raccourcis avec ce lien. Votre adresse IP a été bannie."

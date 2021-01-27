@@ -9,6 +9,38 @@ pub const URL_FROM_BL_FILE: &str = "./url_from_blacklist.txt";
 pub const URL_TO_BL_FILE: &str = "./url_to_blacklist.txt";
 pub const LANG_FILE: &str = "./lang.json";
 
+pub const ALLOWED_PROTOCOLS: &[&str] = &[
+    "http://",
+    "https://",
+    "dat://",
+    "dweb://",
+    "ipfs://",
+    "ipns://",
+    "ssb:",
+    "gopher://",
+    "xmpp:",
+    "matrix:",
+    "irc://",
+    "news:",
+    "svn://",
+    "scp://",
+    "ftp://",
+    "ftps://",
+    "ftpes://",
+    "magnet:",
+    "gemini://",
+    "nntp://",
+    "mailto:",
+    "ssh://",
+    "webcal:",
+    "feed:",
+    "rss:",
+    "rtsp:",
+    "file:",
+    "telnet:",
+    "realaudio:"
+];
+
 pub const DEFAULT_LANGUAGE: ValidLanguages = ValidLanguages::En;
 
 pub const CAPTCHA_LETTERS: u32 = 6;

@@ -269,6 +269,24 @@ pub async fn post_link(
             .await;
     }
 
+    let mut is_allowed = false;
+    // check protocols whitelist
+    for r in ALLOWED_PROTOCOLS {
+        if form.url_to.starts_with(r) {
+            is_allowed = true;
+        }
+    }
+
+    // if the protocol is forbidden, throws a friendly error
+    if !is_allowed {
+        eprintln!(
+            "INFO: [{}] submitted an URL with an unsupported protocol: {}",
+            get_ip(&req), &form.url_to,
+        );
+        let tpl = TplNotification::new("home", "error_unsupported_protocol", false, &l);
+        return web_ok(gentpl_home(&l, &s, None, Some(tpl))).await;
+    }
+
     // if the user hasn't chosen a shortcut name, decide for them.
     let new_url_from = if form.url_from.is_empty() {
         base64_encode_config(&gen_random(6), URL_SAFE_NO_PAD)
