@@ -21,7 +21,7 @@ Features:
 - Easily customizable assets, contact details, and hoster information
 - Light / dark theme
 - Only needs a SQLite database to work
-- Localization (available in French and English)
+- Localization (available in French and English, please translate!)
 - Basic protection against spambots (captcha with a customizable difficulty)
 - Active **detection of phishing links** (detects "suspicious activity")
 - Counting clicks
@@ -63,8 +63,9 @@ git clone https://git.42l.fr/42l/rs-short.git
     - **Important**: Replace default values of `cookie_key` and `phishing_password`.
 
 - Edit blacklists at your convenience.
-    - `banned_url_from.list`: Any client that submits a *link name* **fully matching** one of the elements in this list will get a 403 Forbidden HTTP status code.
-    - `banned_url_to.list`: Any client that submits an *URL* **containing** one of the elements in this list will get a 403 Forbidden HTTP status code.
+    - `url_from_blacklist.list`: Any client that submits a *link name* **fully matching** one of the elements in this list will get a 403 Forbidden HTTP status code.
+    - `url_to_softblacklist.list`: Any client that submits an *URL* **containing** one of the elements in this list will get denied with a friendly warning.
+    - `url_to_blacklist.list`: Any client that submits an *URL* **containing** one of the elements in this list will get a 403 Forbidden HTTP status code.
 
 You can configure a `fail2ban` instance and watch your favourite reverse-proxy logs to see which IPs are getting a 403 and ban accordingly for the duration of your choice.
 
@@ -76,12 +77,12 @@ Here are many ways to contribute:
 - Translate!
     - Add your entries in the `lang.json` file.
     - Once you're done, edit `init.rs` and add your language in the ValidLanguages structure.
-- Add PostgreSQL compatibility
+- Add PostgreSQL/MySQL compatibility (easy thanks to Diesel)
 - Add some more CSS themes
 - Rework default themes' CSS (they've gone a bit messy since then. hopefully they are commented)
 - Develop a more resilient protection to spambots
-    - Improve blacklist support?
-- Add the possibility to disable the captcha
+    - Add JS? :(
+- Add a toggle to disable the captcha
 - Experiment around captchas to match accessibility needs. I have no idea... :(
 
 This software is mainly developed and maintained by [Neil](https://shelter.moe/@Neil) for the [Association 42l](https://42l.fr). 

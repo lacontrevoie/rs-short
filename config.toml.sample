@@ -1,7 +1,8 @@
 # rs-short configuration file
 # See also:
-#   - banned_url_from.list: Forbidden redirection names
-#   - banned_url_to.list: Forbidden websites to redirect to 
+#   - url_from_blacklist.list: Forbidden redirection names
+#   - url_to_softblacklist.list: Forbidden websites to redirect to (gentle warning)
+#   - url_to_blacklist.list: Forbidden websites to redirect to (ban / 403 forbidden)
 
 # Do not edit this manually unless you know what you are doing
 config_version = 1
