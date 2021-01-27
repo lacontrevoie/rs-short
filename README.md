@@ -21,6 +21,7 @@ Features:
 - Easily customizable assets, contact details, and hoster information
 - Light / dark theme
 - Only needs a SQLite database to work
+- Robust caching features to serve content even with database locks
 - Localization (available in French and English, please translate!)
 - Basic protection against spambots (captcha with a customizable difficulty)
 - Active **detection of phishing links** (detects "suspicious activity")
