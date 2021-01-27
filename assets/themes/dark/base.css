@@ -58,6 +58,21 @@ a:hover {
     font-size: 16px;
 }
 
+.s-url-label {
+    display: flex;
+    align-items: center;
+}
+
+.s-url-label > label {
+    padding-right: 0.5rem;
+    font-size: 16px;
+}
+
+.s-url-label > input {
+    width: auto !important;
+    flex-grow: 5;
+}
+
 /* stylish - material design - form button. */
 .s-button {
     width: 100%;

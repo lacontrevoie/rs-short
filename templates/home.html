@@ -66,7 +66,7 @@
                                 </div>
                                 <div class="s-field">
                                     <label for="url_from">{{ loc|tr(l,"url_from_label") }}</label>
-                                    <input type="text" id="url_from" name="url_from" pattern="[^,*';?:@=&.<>#%\/\\\[\]\{\}|^~ ]*" maxlength="80" placeholder="{{ loc|tr(l,"url_from_placeholder") }}">
+                                    <div class="s-field s-url-label"><label>{{ config.instance_hostname }}/</label><input type="text" id="url_from" name="url_from" pattern="[^,*';?:@=&.<>#%\/\\\[\]\{\}|^~ ]*" maxlength="80" placeholder="{{ loc|tr(l,"url_from_placeholder") }}"></div>
                                 </div>
                                 <div class="s-field s-captcha-section">
                                     <div class="s-captcha-img">
