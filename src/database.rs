@@ -79,7 +79,7 @@ impl Link {
                 // if we fail to increment, just return the link
                 // and display an error message
                 if l.increment(conn).is_err() {
-                    eprintln!("Failed to increment a link: database is locked?");
+                    eprintln!("INFO: Failed to increment a link: database is locked?");
                 }
             }
             Ok(Some(l))

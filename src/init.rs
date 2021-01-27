@@ -46,7 +46,7 @@ pub const DEFAULT_LANGUAGE: ValidLanguages = ValidLanguages::En;
 
 pub const CAPTCHA_LETTERS: u32 = 6;
 
-pub const CONFIG_VERSION: u8 = 1;
+pub const CONFIG_VERSION: u8 = 2;
 
 // initializing configuration
 
@@ -148,6 +148,7 @@ pub struct ConfGeneral {
     pub theme: String,
     pub captcha_difficulty: u8,
     pub cookie_key: String,
+    pub max_cache_size: u16,
 }
 
 #[derive(Deserialize)]
@@ -180,7 +181,7 @@ impl Config {
     }
     pub fn check_version(&self) {
         if self.config_version != CONFIG_VERSION {
-            eprintln!("Your configuration file is obsolete! Please update it with config.toml.sample and update its version to {}.", CONFIG_VERSION);
+            eprintln!("Your configuration file is obsolete! Please update it using config.toml.sample and update its version to {}.", CONFIG_VERSION);
             panic!();
         }
     }

@@ -18,6 +18,7 @@ mod error_handlers;
 mod init;
 mod routes;
 mod spam;
+mod cache;
 mod structs;
 mod templates;
 
@@ -34,6 +35,7 @@ use chrono::Utc;
 use crate::handlers::*;
 use crate::error_handlers::*;
 use crate::init::*;
+use crate::database::Link;
 
 use base64::decode as base64_decode;
 
@@ -44,6 +46,9 @@ type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 
 // see the watch_visits function for more details on the watcher
 type SuspiciousWatcher = Mutex<HashMap<String, Vec<(DateTime<Utc>, String)>>>;
+
+// Failsafe preventing 500 Internal Server Errors because of db locks
+type LinkCache = Mutex<Vec<Link>>;
 
 embed_migrations!();
 
@@ -69,6 +74,8 @@ async fn main() -> std::io::Result<()> {
         Vec<(DateTime<Utc>, String)>,
     >::new()));
 
+    let link_cache = web::Data::new(Mutex::new(Vec::<Link>::new()));
+
     // check configuration version
     // and panic if it doesn't match CONFIG_VERSION
     CONFIG.check_version();
@@ -78,7 +85,9 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
+            .data(link_cache.clone())
             .app_data(suspicious_watch.clone())
+            .app_data(link_cache.clone())
             .wrap(
                 CookieSession::private(
                     &base64_decode(&CONFIG.general.cookie_key)

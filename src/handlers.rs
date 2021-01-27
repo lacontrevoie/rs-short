@@ -10,10 +10,12 @@ use crate::init::*;
 use crate::routes::*;
 use crate::spam::cookie_captcha_get;
 use crate::spam::watch_visits;
+use crate::cache::{check_cached_links, save_cached_links};
 use crate::structs::*;
 use crate::templates::*;
 use crate::DbPool;
 use crate::SuspiciousWatcher;
+use crate::LinkCache;
 
 // GET: flag a link as phishing
 // Can only be used by the server admin
@@ -368,6 +370,7 @@ pub async fn shortcut(
     params: web::Path<ShortcutInfo>,
     dbpool: web::Data<DbPool>,
     suspicious_watch: web::Data<SuspiciousWatcher>,
+    link_cache: web::Data<LinkCache>,
     s: Session,
 ) -> Result<HttpResponse> {
     let l = get_lang(&req);
@@ -377,15 +380,29 @@ pub async fn shortcut(
 
     // gets the link from database
     // and increments the click count
-    let selected_link = web::block(move || Link::get_link_and_incr(&params.url_from, &conn))
-        .await
-        .map_err(|e| {
-            eprintln!("ERROR: shortcut: get_link query failed: {}", e);
+    let thread_url_from = params.url_from.clone();
+    let mut selected_link = web::block(move || Link::get_link_and_incr(&thread_url_from, &conn))
+        .await;
+
+    // failover to link cache if we can't lock the db
+    if selected_link.is_err() && CONFIG.general.max_cache_size > 0 {
+        // if the link isn't in the link cache, return a 500.
+        if let Some(link) = check_cached_links(&params.url_from, &link_cache) {
+            //selected_link = Result::<Option<Link>, BlockingError<diesel::result::Error>>::Ok(Some(link))
+            println!("INFO: Database locked, hitting in link cache");
+            selected_link = Ok(Some(link))
+        }
+    }
+    
+    // hard fail (500 error) if query + failover query + cache isn't enough
+    let selected_link = selected_link.map_err(|e| {
+            eprintln!("ERROR: shortcut: get_link query failed and cache didn't help: {}",
+                e);
             let tpl = TplNotification::new("home", "error_db_fail", false, &l);
             HttpResponse::InternalServerError()
                 .content_type("text/html")
                 .body(gentpl_home(&l, &s, None, Some(tpl)));
-        })?;
+    })?;
 
     match selected_link {
         // if the link does not exist, renders home template
@@ -425,6 +442,11 @@ pub async fn shortcut(
                     get_ip(&req),
                 );
             }
+
+            if CONFIG.general.max_cache_size > 0 {
+                save_cached_links(link.clone(), &link_cache);
+            }
+
             web_redir(&link.url_to).await
         }
     }

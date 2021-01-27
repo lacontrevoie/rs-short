@@ -88,13 +88,18 @@ pub fn cookie_captcha_get(s: &Session) -> Option<(NaiveDateTime, String)> {
 // The data is kept in RAM and cleaned regularly and on program restart.
 pub fn watch_visits(watcher: web::Data<SuspiciousWatcher>, link: LinkInfo, ip: String) {
     // locks the mutex.
-    // If we can't get the lock, return early and prints an error.
-    let mut w = watcher
+    let w = watcher
         .lock()
         .map_err(|e| {
             eprintln!("ERROR: watch_visits: Failed to get the mutex lock: {}", e);
-        })
-        .unwrap();
+        });
+
+    // silently returns if we fail to get the lock (do NOT panic)
+    if w.is_err() {
+        return ;
+    }
+
+    let mut w = w.unwrap();
 
     // get the entry corresponding to the shortcut or create a new one
     let rate_shortcut = w.entry(link.url_from.to_string()).or_insert_with(Vec::new);
