@@ -163,7 +163,7 @@ pub fn gen_random(n_bytes: usize) -> Vec<u8> {
 }
 
 pub fn get_ip(req: &HttpRequest) -> String {
-    match req.connection_info().remote() {
+    match req.connection_info().realip_remote_addr() {
         Some(v) => v.to_owned(),
         // do not trim the port anymore since there is
         // no port with a reverse proxy.
@@ -172,7 +172,7 @@ pub fn get_ip(req: &HttpRequest) -> String {
         .trim_end_matches(':')*/
         None => {
             req.connection_info()
-                .remote()
+                .realip_remote_addr()
                 .expect("ERROR: Failed to get client IP.");
             eprintln!(
                 "More information:\nRequest: {:?}\nConnection info: {:?}",
