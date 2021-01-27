@@ -21,7 +21,7 @@ pub fn save_cached_links(new_link: Link, link_cache: &web::Data<LinkCache>) {
     let cache = link_cache
         .lock()
         .map_err(|e| {
-            eprintln!("ERROR: check_cached_links: Failed to get the mutex lock: {}", e);
+            eprintln!("ERROR: save_cached_links: Failed to get the mutex lock: {}", e);
         });
     
     // silently returns if we fail to get the lock
@@ -34,12 +34,12 @@ pub fn save_cached_links(new_link: Link, link_cache: &web::Data<LinkCache>) {
     // add the item if it doesn't exist yet 
     if cache.iter().find(|link| link.id == new_link.id).is_none() {
         cache.push(new_link);
-    }
 
-    // remove elements if the cache gets too big
-    if cache.len() > CONFIG.general.max_cache_size as usize
-    && cache.len() > (CONFIG.general.max_cache_size - CONFIG.general.max_cache_size / 10) as usize {
-        let to_remove = (CONFIG.general.max_cache_size / 10) as usize;
-        cache.drain(to_remove..);
+        // remove elements if the cache gets too big
+        if cache.len() > CONFIG.general.max_cache_size as usize
+            && cache.len() > (CONFIG.general.max_cache_size - CONFIG.general.max_cache_size / 10) as usize {
+                let to_remove = (CONFIG.general.max_cache_size / 10) as usize;
+                cache.drain(to_remove..);
+        }
     }
 }

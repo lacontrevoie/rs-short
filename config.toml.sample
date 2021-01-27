@@ -5,7 +5,7 @@
 #   - url_to_blacklist.list: Forbidden websites to redirect to (ban / 403 forbidden)
 
 # Do not edit this manually unless you know what you are doing
-config_version = 1
+config_version = 2
 
 [general]
 
@@ -47,6 +47,13 @@ cookie_key = "CHANGE ME"
 # protect you against human spammers, and lots of them **are** human.
 # 0 = easiest / 5 = hardest
 captcha_difficulty = 3
+
+# Maximum size for the RAM-stored link cache.
+# Link cache is used as a failover in case of DB locks.
+# 0 to disable.
+# If you're using SQLite, you can increase this value.
+# Note that rs-short might take some little more RAM.
+max_cache_size = 250
 
 [phishing]
 
