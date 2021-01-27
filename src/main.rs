@@ -14,6 +14,7 @@ extern crate url;
 mod database;
 mod db_schema;
 mod handlers;
+mod error_handlers;
 mod init;
 mod routes;
 mod spam;
@@ -22,7 +23,7 @@ mod templates;
 
 use actix_files as fs;
 use actix_session::CookieSession;
-use actix_web::{web, App, HttpServer};
+use actix_web::{web, App, HttpServer, guard, HttpResponse};
 
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
@@ -31,6 +32,7 @@ use chrono::DateTime;
 use chrono::Utc;
 
 use crate::handlers::*;
+use crate::error_handlers::*;
 use crate::init::*;
 
 use base64::decode as base64_decode;
@@ -93,6 +95,17 @@ async fn main() -> std::io::Result<()> {
             .service(shortcut_admin_del)
             .service(shortcut_admin_fallback)
             .service(post_link)
+            .default_service(
+                // 404 for GET request
+                web::resource("")
+                    .route(web::get().to(error_404))
+                    // all requests that are not `GET`
+                    .route(
+                        web::route()
+                            .guard(guard::Not(guard::Get()))
+                            .to(HttpResponse::MethodNotAllowed),
+                    ),
+            )
     })
     .bind(&CONFIG.general.listening_address)?
     .run()

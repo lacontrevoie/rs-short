@@ -127,6 +127,10 @@
                     "En": "That phishing link has been disabled and can't be deleted.",
                     "Fr": "Ce lien de phishing a été désactivé et ne peut être supprimé."
                 },
+                "error_404": {
+                    "En": "The page you are searching for doesn't exist.",
+                    "Fr": "La page que vous recherchez n'existe pas."
+                },
                 "form_success": {
                     "En": "Your link has been successfully created!",
                     "Fr": "Votre lien a été créé avec succès !"
