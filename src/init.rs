@@ -7,6 +7,7 @@ use std::path::Path;
 
 pub const URL_FROM_BL_FILE: &str = "./url_from_blacklist.txt";
 pub const URL_TO_BL_FILE: &str = "./url_to_blacklist.txt";
+pub const URL_TO_SOFTBL_FILE: &str = "./url_to_softblacklist.txt";
 pub const LANG_FILE: &str = "./lang.json";
 
 pub const ALLOWED_PROTOCOLS: &[&str] = &[
@@ -69,6 +70,11 @@ lazy_static! {
 lazy_static! {
     pub static ref URL_TO_BL: Vec<String> =
         lines_from_file(URL_TO_BL_FILE).expect("Failed to load url_to blacklist");
+}
+
+lazy_static! {
+    pub static ref URL_TO_SOFTBL: Vec<String> =
+        lines_from_file(URL_TO_SOFTBL_FILE).expect("Failed to load url_to soft blacklist");
 }
 
 fn lines_from_file(filename: impl AsRef<Path>) -> io::Result<Vec<String>> {

@@ -99,6 +99,10 @@
                     "En": "You can't shorten a link already shortened.",
                     "Fr": "Vous ne pouvez pas raccourcir un lien déjà raccourci."
                 },
+                "error_shortlink_forbidden": {
+                    "En": "Please do not chain shortened links with another link shortener.",
+                    "Fr": "Veuillez ne pas utiliser des raccourcisseurs de liens en chaîne."
+                },
                 "error_unsupported_protocol": {
                     "En": "Your link protocol is not allowed.",
                     "Fr": "Le protocole de votre lien n'est pas autorisé."

@@ -251,6 +251,23 @@ pub async fn post_link(
         return web_ok(gentpl_home(&l, &s, None, Some(tpl))).await;
     }
 
+    // check for soft blacklists
+    // Do not ban, just display a friendly error
+    if blacklist_check(&form.url_to, &URL_TO_SOFTBL, false) {
+        println!(
+            "INFO: [{}] matched an URL in the soft blacklist.\n\
+            Shortcut: {}\n\
+            Link: {}\n\
+            ---",
+            get_ip(&req),
+            &form.url_from,
+            &form.url_to
+        );
+        let tpl = TplNotification::new("home", "error_shortlink_forbidden", false, &l);
+        return web_ok(gentpl_home(&l, &s, None, Some(tpl))).await;
+
+    }
+
     // check for blacklists
     if blacklist_check(&form.url_from, &URL_FROM_BL, true)
         || blacklist_check(&form.url_to, &URL_TO_BL, false)
