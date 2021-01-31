@@ -291,7 +291,7 @@ pub async fn post_link(
     let mut is_allowed = false;
     // check protocols whitelist
     for r in ALLOWED_PROTOCOLS {
-        if form.url_to.starts_with(r) {
+        if form.url_to.trim().starts_with(r) {
             is_allowed = true;
         }
     }
@@ -321,7 +321,7 @@ pub async fn post_link(
     // query the database for an existing link
     // and creates a link if it doesn't exist
     let new_link =
-        web::block(move || Link::insert_if_not_exists(&new_url_from, &form.url_to, &conn))
+        web::block(move || Link::insert_if_not_exists(&new_url_from, &form.url_to.trim(), &conn))
             .await
             .map_err(|e| {
                 eprintln!("ERROR: post_link: insert_if_not_exists query failed: {}", e);
