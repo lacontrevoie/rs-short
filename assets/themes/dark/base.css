@@ -340,6 +340,7 @@ body {
 
 .s-phishing img {
     flex-basis: 40%;
+    width: 100px;
 }
 
 .s-section .s-inner {
