@@ -40,7 +40,7 @@
                                 <br />
                                 <div class="s-field s-link-group">
                                     <label for="old_link">{{ loc|tr(l,"notif_link_label_original") }}</label>
-                                    <input type="text" id="old_link" name="old_link" readonly value="{{ linkinfo.as_ref().unwrap().url_to|safe }}">
+                                    <input type="text" id="old_link" name="old_link" readonly value="{{ linkinfo.as_ref().unwrap().url_to }}">
                                 </div>
                                 <br />
                                 <div class="s-field s-link-group">
@@ -51,8 +51,6 @@
                                 <br />
                                 <p>{{ loc|tr(l,"notif_link_clickcount") }}{{ linkinfo.as_ref().unwrap().clicks }}</p>
                                 <a class="s-button s-danger" href="{{ linkinfo.as_ref().unwrap().deletelink|safe }}">{{ loc|tr(l,"notif_link_delete") }}</a>
-
-
                             </div>
                         </div>
                     {% endif %} 
