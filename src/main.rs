@@ -21,6 +21,8 @@ mod spam;
 mod cache;
 mod structs;
 mod templates;
+#[cfg(test)]
+mod tests;
 
 use actix_files as fs;
 use actix_session::CookieSession;
@@ -70,9 +72,9 @@ async fn main() -> std::io::Result<()> {
 
     // for verbose_suspicious option
     let suspicious_watch = web::Data::new(Mutex::new(HashMap::<
-        String,
-        Vec<(DateTime<Utc>, String)>,
-    >::new()));
+            String,
+            Vec<(DateTime<Utc>, String)>,
+            >::new()));
 
     let link_cache = web::Data::new(Mutex::new(Vec::<Link>::new()));
 
@@ -91,7 +93,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(
                 CookieSession::private(
                     &base64_decode(&CONFIG.general.cookie_key)
-                        .expect("Couldn't read the specified cookie_key"),
+                    .expect("Couldn't read the specified cookie_key"),
                 )
                 .name("rs-short-captcha")
                 .secure(true),
@@ -107,16 +109,17 @@ async fn main() -> std::io::Result<()> {
             .default_service(
                 // 404 for GET request
                 web::resource("")
-                    .route(web::get().to(error_404))
-                    // all requests that are not `GET`
-                    .route(
-                        web::route()
-                            .guard(guard::Not(guard::Get()))
-                            .to(HttpResponse::MethodNotAllowed),
-                    ),
+                .route(web::get().to(error_404))
+                // all requests that are not `GET`
+                .route(
+                    web::route()
+                    .guard(guard::Not(guard::Get()))
+                    .to(HttpResponse::MethodNotAllowed),
+                ),
             )
     })
     .bind(&CONFIG.general.listening_address)?
-    .run()
-    .await
+        .run()
+        .await
 }
+
