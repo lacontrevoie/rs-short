@@ -28,18 +28,19 @@ pub fn save_cached_links(new_link: Link, link_cache: &web::Data<LinkCache>) {
     if cache.is_err() {
         return ;
     }
-    
+
     let mut cache = cache.unwrap();
 
     // add the item if it doesn't exist yet 
     if cache.iter().find(|link| link.id == new_link.id).is_none() {
-        cache.push(new_link);
-
         // remove elements if the cache gets too big
         if cache.len() > CONFIG.general.max_cache_size as usize
             && cache.len() > (CONFIG.general.max_cache_size - CONFIG.general.max_cache_size / 10) as usize {
                 let to_remove = (CONFIG.general.max_cache_size / 10) as usize;
-                cache.drain(to_remove..);
+                cache.drain(..to_remove);
+                //println!("Removed {}", to_remove);
         }
+        // add new element to the list
+        cache.push(new_link);
     }
 }
