@@ -86,6 +86,7 @@ fn lines_from_file(filename: impl AsRef<Path>) -> io::Result<Vec<String>> {
 pub enum ValidLanguages {
     En,
     Fr,
+    Oc,
 }
 
 // The lang codes MUST correspond to the
@@ -95,6 +96,7 @@ impl ValidLanguages {
         match s.to_lowercase().as_str() {
             "en" => ValidLanguages::En,
             "fr" => ValidLanguages::Fr,
+            "oc" => ValidLanguages::Oc,
             _ => DEFAULT_LANGUAGE,
         }
     }
