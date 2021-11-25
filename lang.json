@@ -91,7 +91,7 @@
                 "error_cookie_parse_fail": {
                     "En": "We failed to read your cookie. That shouldn't happen, but please retry.",
                     "Fr": "Nous n'avons pas réussi à lire votre cookie. Cela ne devrait pas se produire, mais veuillez réessayer.",
-                    "Oc": "Avèm pas pogut legir vòstre cookie. Deuriá pas arribar, mas tornatz ensajar.",
+                    "Oc": "Avèm pas pogut legir vòstre cookie. Deuriá pas arribar, mas tornatz ensajar."
                 },
                 "error_db_fail": {
                     "En": "We failed to establish a connection with the database. That's quite unexpected, please contact us.",
@@ -206,7 +206,7 @@
                 "notif_link_delete": {
                     "En": "Delete link",
                     "Fr": "Supprimer le lien",
-                    "Oc": "Suprimir lo ligam",
+                    "Oc": "Suprimir lo ligam"
                 },
                 "footer_report_phishing": {
                     "En": "Report a fraudulent link",
