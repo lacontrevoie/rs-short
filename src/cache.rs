@@ -32,7 +32,7 @@ pub fn save_cached_links(new_link: Link, link_cache: &web::Data<LinkCache>) {
     let mut cache = cache.unwrap();
 
     // add the item if it doesn't exist yet 
-    if cache.iter().find(|link| link.id == new_link.id).is_none() {
+    if !cache.iter().any(|link| link.id == new_link.id) {
         // remove elements if the cache gets too big
         if cache.len() > CONFIG.general.max_cache_size as usize
             && cache.len() > (CONFIG.general.max_cache_size - CONFIG.general.max_cache_size / 10) as usize {

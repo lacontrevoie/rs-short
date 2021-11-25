@@ -77,7 +77,7 @@ pub fn gentpl_home(
             loc: &LANG.pages["home"].map,
             l,
             captcha: &String::from("Error"),
-            notification: Some(TplNotification::new("home", "error_captcha_gen", false, &l)),
+            notification: Some(TplNotification::new("home", "error_captcha_gen", false, l)),
             linkinfo,
             config: &CONFIG.general,
         }
@@ -130,7 +130,7 @@ mod filters {
         lang: &ValidLanguages,
         key: &str,
     ) -> Option<String> {
-        Some(loc.get(key)?.get(&lang)?.to_string())
+        Some(loc.get(key)?.get(lang)?.to_string())
     }
 }
 

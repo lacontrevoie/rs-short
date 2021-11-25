@@ -92,10 +92,10 @@ impl Link {
         i_url_from: &str,
         conn: &SqliteConnection,
     ) -> Result<Option<Link>, diesel::result::Error> {
-        Ok(all_links
+        all_links
             .filter(links::url_from.eq(i_url_from))
             .first(conn)
-            .optional()?)
+            .optional()
     }
 
     // click count increment
