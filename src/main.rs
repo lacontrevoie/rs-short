@@ -54,7 +54,7 @@ type LinkCache = Mutex<Vec<Link>>;
 
 embed_migrations!();
 
-#[actix_rt::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
     println!("rs-short, starting.");
 
