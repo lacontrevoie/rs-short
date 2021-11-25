@@ -5,179 +5,223 @@
             "map": {
                 "logo_alt": {
                     "En": "Link shortener",
-                    "Fr": "Raccourcisseur de liens"
+                    "Fr": "Raccourcisseur de liens",
+                    "Oc": "Acorchidor de ligams"            
                 },
                 "title": {
                     "En": "Link shortener",
-                    "Fr": "Raccourcisseur de liens"
+                    "Fr": "Raccourcisseur de liens",
+                    "Oc": "Acorchidor de ligams"                    
                 },
                 "desc" : {
                     "En": "Link shortener service",
-                    "Fr": "Service raccourcisseur de liens"
+                    "Fr": "Service raccourcisseur de liens",
+                    "Oc": "Servici d’acorchidor de ligams"
                 },
                 "captcha_alt": {
                     "En": "Captcha",
-                    "Fr": "Captcha"
+                    "Fr": "Captcha",
+                    "Oc": "Captcha"
                 },
                 "url_to_placeholder": {
                     "En": "Enter your long URL here...",
-                    "Fr": "Entrez votre longue URL ici..."
+                    "Fr": "Entrez votre longue URL ici...",
+                    "Oc": "Dintratz vòstra URL longa aquí..."
                 },
                 "url_from_placeholder": {
                     "En": "Custom shortcut name (optional)",
-                    "Fr": "Nom personnalisé de votre raccourci (facultatif)"
+                    "Fr": "Nom personnalisé de votre raccourci (facultatif)",
+                    "Oc": "Nom personalizat de vòstre acorchi (facultatiu)"
                 },
                 "url_to_label": {
                     "En": "URL to shortcut",
-                    "Fr": "URL à raccourcir"
+                    "Fr": "URL à raccourcir",
+                    "Oc": "URL d’acorchir"
                 },
                 "url_from_label": {
                     "En": "Shortcut name",
-                    "Fr": "Nom du raccourci"
+                    "Fr": "Nom du raccourci",
+                    "Oc": "Nom de l’acorchi"
                 },
                 "captcha_placeholder": {
                     "En": "Captcha",
-                    "Fr": "Captcha"
+                    "Fr": "Captcha",
+                    "Oc": "Captcha"
                 },
                 "captcha_label": {
                     "En": "Anti-spam check",
-                    "Fr": "Vérification anti-spam"
+                    "Fr": "Vérification anti-spam",
+                    "Oc": "Verificacion anti-spam"
                 },
                 "button_submit_text": {
                     "En": "Create!",
-                    "Fr": "Créer !"
+                    "Fr": "Créer !",
+                    "Oc": "Crear !"
                 },
                 "error_invalid_url_from": {
                     "En": "The shortcut name you specified contains forbidden characters.",
-                    "Fr": "Le nom du raccourci que vous avez entré contient des caractères interdits."
+                    "Fr": "Le nom du raccourci que vous avez entré contient des caractères interdits.",
+                    "Oc": "Lo nom de l’acorchi qu’avètz dintrat conten de caractèrs defenduts."
                 },
                 "error_invalid_url_to": {
                     "En": "The URL you specified does not like a valid URL.",
-                    "Fr": "Le lien que vous avez spécifié semble être invalide."
+                    "Fr": "Le lien que vous avez spécifié semble être invalide.",
+                    "Oc": "Lo ligam qu’avètz especificat sembla èsser invalid."
                 },
                 "error_invalid_link": {
                     "En": "The link you tried to visit has been deleted or doesn't exist.",
-                    "Fr": "Le lien que vous avez essayé de visiter a été supprimé ou n'existe pas."
+                    "Fr": "Le lien que vous avez essayé de visiter a été supprimé ou n'existe pas.",
+                    "Oc": "Lo ligam qu’avètz ensajat de visitar foguèt suprimit o existís pas."
                 },
                 "error_session_expired": {
                     "En": "Your session has expired, please retry.",
-                    "Fr": "Votre session a expiré, veuillez réessayer."
+                    "Fr": "Votre session a expiré, veuillez réessayer.",
+                    "Oc": "Vòstra session a expirat, volgatz tornar ensajar."
                 },
                 "error_captcha_fail": {
                     "En": "You failed the captcha, please retry.",
-                    "Fr": "Vous avez raté le captcha, veuillez réessayer."
+                    "Fr": "Vous avez raté le captcha, veuillez réessayer.",
+                    "Oc": "Avètz pas reüssida la captcha, tornatz ensajar."
                 },
                 "error_link_already_exists": {
                     "En": "This shortcut name is already taken, please take another one.",
-                    "Fr": "Ce nom de raccourci est déjà pris, veuillez en trouver un autre."
+                    "Fr": "Ce nom de raccourci est déjà pris, veuillez en trouver un autre.",
+                    "Oc": "Aqueste nom d’acorchi es ja pres, mercés de ne prendre un autre."
                 },
                 "error_cookie_parse_fail": {
                     "En": "We failed to read your cookie. That shouldn't happen, but please retry.",
-                    "Fr": "Nous n'avons pas réussi à lire votre cookie. Cela ne devrait pas se produire, mais veuillez réessayer."
+                    "Fr": "Nous n'avons pas réussi à lire votre cookie. Cela ne devrait pas se produire, mais veuillez réessayer.",
+                    "Oc": "Avèm pas pogut legir vòstre cookie. Deuriá pas arribar, mas tornatz ensajar.",
                 },
                 "error_db_fail": {
                     "En": "We failed to establish a connection with the database. That's quite unexpected, please contact us.",
-                    "Fr": "Nous n'avons pas pu établir de lien avec la base de données. C'est assez inattendu, veuillez nous contacter."
+                    "Fr": "Nous n'avons pas pu établir de lien avec la base de données. C'est assez inattendu, veuillez nous contacter.",
+                    "Oc": "Avèm pas pogut establir un ligam amb la basa de donadas. Es pauc costumièr, volgatz nos contactar."
                 },
                 "error_invalid_form": {
                     "En": "Some of the fields are invalid. Please retry.",
-                    "Fr": "La plupart des champs sont invalides. Veuillez réessayer."
+                    "Fr": "La plupart des champs sont invalides. Veuillez réessayer.",
+                    "Oc": "La màger part dels camps son invalids. Volgatz tornar ensajar."
                 },
                 "error_link_not_found": {
                     "En": "The link you're searching for doesn't exist or has been deleted.",
-                    "Fr": "Le lien que vous recherchez n'existe pas ou a été supprimé."
+                    "Fr": "Le lien que vous recherchez n'existe pas ou a été supprimé.",
+                    "Oc": "Lo ligam que cercatz existís pas o foguèt suprimit."
                 },
                 "error_invalid_key": {
                     "En": "The link administration key you specified is invalid.",
-                    "Fr": "La clé d'administration du lien que vous avez spécifiée est invalide."
+                    "Fr": "La clé d'administration du lien que vous avez spécifiée est invalide.",
+                    "Oc": "La clau d’administracion del ligam qu’avètz especificada es invalida."
                 },
                 "error_link_delete_db_fail": {
                     "En": "Sorry, we failed to delete your link. This is a problem from our side, please reach us.",
-                    "Fr": "Désolés, nous avons échoué à supprimer votre lien. Il s'agit d'un problème de notre côté, veuillez nous contacter."
+                    "Fr": "Désolés, nous avons échoué à supprimer votre lien. Il s'agit d'un problème de notre côté, veuillez nous contacter.",
+                    "Oc": "O planhèm, avèm pas capitat a suprimir vòstre ligam. S’agís d’un problèma de nòstra costat, volgatz nos contactar."
                 },
                 "error_selflink_forbidden": {
                     "En": "You can't shorten a link already shortened.",
-                    "Fr": "Vous ne pouvez pas raccourcir un lien déjà raccourci."
+                    "Fr": "Vous ne pouvez pas raccourcir un lien déjà raccourci.",
+                    "Oc": "Podètz pas acorchir un ligam ja acorchit."
                 },
                 "error_shortlink_forbidden": {
                     "En": "Please do not chain shortened links with another link shortener.",
-                    "Fr": "Veuillez ne pas utiliser des raccourcisseurs de liens en chaîne."
+                    "Fr": "Veuillez ne pas utiliser des raccourcisseurs de liens en chaîne.",
+                    "Oc": "Mercés d’utilizar pas mantun acorchidor de ligam a la seguida."
                 },
                 "error_unsupported_protocol": {
                     "En": "Your link protocol is not allowed.",
-                    "Fr": "Le protocole de votre lien n'est pas autorisé."
+                    "Fr": "Le protocole de votre lien n'est pas autorisé.",
+                    "Oc": "Lo protocòl de vòstre ligam es pas permés."
                 },
                 "error_blacklisted_link": {
                     "En": "You do not have the permission to create shortened links with this URL. Your IP address has been banned.",
-                    "Fr": "Vous n'avez pas le droit de créer des raccourcis avec ce lien. Votre adresse IP a été bannie."
+                    "Fr": "Vous n'avez pas le droit de créer des raccourcis avec ce lien. Votre adresse IP a été bannie.",
+                    "Oc": "Avètz pas lo drech de crear d’acorchis amb aqueste ligam. Fòrabandiguèrem vòstra adreça IP"
                 },
                 "error_captcha_gen": {
                     "En": "Error during captcha generation. Please try again.",
-                    "Fr": "Erreur lors de la génération du captcha. Veuillez réessayer."
+                    "Fr": "Erreur lors de la génération du captcha. Veuillez réessayer.",
+                    "Oc": "Error pendent la generacion de la captcha. Tornatz ensajar."
                 },
                 "error_bad_server_admin_key": {
                     "En": "The administrator password entered is invalid.",
-                    "Fr": "Le mot de passe administrateur entré est invalide."
+                    "Fr": "Le mot de passe administrateur entré est invalide.",
+                    "Oc": "Lo senhal administrator picat es invalid."
                 },
                 "error_not_managing_phishing": {
                     "En": "That phishing link has been disabled and can't be deleted.",
-                    "Fr": "Ce lien de phishing a été désactivé et ne peut pas être administré."
+                    "Fr": "Ce lien de phishing a été désactivé et ne peut pas être administré.",
+                    "Oc": "Aqueste ligam de pesca electronica enganaira foguèt desactivat e pòt pas èsser administrat."
                 },
                 "error_not_deleting_phishing": {
                     "En": "That phishing link has been disabled and can't be deleted.",
-                    "Fr": "Ce lien de phishing a été désactivé et ne peut être supprimé."
+                    "Fr": "Ce lien de phishing a été désactivé et ne peut être supprimé.",
+                    "Oc": "Aqueste ligam de pesca electronica enganaira foguèt desactivat e pòt pas èsser suprimit."
                 },
                 "error_404": {
                     "En": "The page you are searching for doesn't exist.",
-                    "Fr": "La page que vous recherchez n'existe pas."
+                    "Fr": "La page que vous recherchez n'existe pas.",
+                    "Oc": "La pagina que cercatz existís pas."
                 },
                 "form_success": {
                     "En": "Your link has been successfully created!",
-                    "Fr": "Votre lien a été créé avec succès !"
+                    "Fr": "Votre lien a été créé avec succès !",
+                    "Oc": "Vòstre ligam es estat creat amb succès !"
                 },
                 "link_delete_success": {
                     "En": "Your link has been successfully deleted!",
-                    "Fr": "Votre lien a été supprimé avec succès !"
+                    "Fr": "Votre lien a été supprimé avec succès !",
+                    "Oc": "Vòstre ligam es estat suprimit amb succès !"
                 },
                 "link_flag_success": {
                     "En": "Link marked as phishing.",
-                    "Fr": "Lien marqué comme tentative de hameçonnage."
+                    "Fr": "Lien marqué comme tentative de hameçonnage.",
+                    "Oc": "Ligam marcat coma temptativa de pesca electronica engaira."
                 },
                 "notif_link_label_shortcut": {
                     "En": "Your shortcut",
-                    "Fr": "Votre raccourci"
+                    "Fr": "Votre raccourci",
+                    "Oc": "Vòstre acorchi"
                 },
                 "notif_link_label_original": {
                     "En": "Original link",
-                    "Fr": "Lien original"
+                    "Fr": "Lien original",
+                    "Oc": "Ligam original"
                 },
                 "notif_link_label_admin": {
                     "En": "Administration link",
-                    "Fr": "Lien d'administration"
+                    "Fr": "Lien d'administration",
+                    "Oc": "Ligam d'administracion"
                 },
                 "notif_link_admin_desc": {
                     "En": "This link allows you to check the link counter and delete the shortcut.",
-                    "Fr": "Ce lien vous permet de compter le nombre de clics et de supprimer le raccourci."
+                    "Fr": "Ce lien vous permet de compter le nombre de clics et de supprimer le raccourci.",
+                    "Oc": "Aqueste ligam vos permet de comptar lo nombre de clics e de suprimir l’acorchi."
                 },
                 "notif_link_clickcount": {
                     "En": "Click count: ",
-                    "Fr": "Nombre de clics : "
+                    "Fr": "Nombre de clics : ",
+                    "Oc": "Nombre de clics : "
                 },
                 "notif_link_delete": {
                     "En": "Delete link",
-                    "Fr": "Supprimer le lien"
+                    "Fr": "Supprimer le lien",
+                    "Oc": "Suprimir lo ligam",
                 },
                 "footer_report_phishing": {
                     "En": "Report a fraudulent link",
-                    "Fr": "Signaler un lien frauduleux"
+                    "Fr": "Signaler un lien frauduleux",
+                    "Oc": "Senhalar un ligam fraudulós"
                 },
                 "footer_source_code": {
                     "En": "Source code, license and credits",
-                    "Fr": "Code source, licence et crédits"
+                    "Fr": "Code source, licence et crédits",
+                    "Oc": "Còdi font, licéncia e crèdits"
                 },
                 "footer_tos": {
                     "En": "Terms of use",
-                    "Fr": "Conditions d'utilisation"
+                    "Fr": "Conditions d'utilisation",
+                    "Oc": "Condicions d'utilizacion"
                 }
             }
         },
@@ -186,59 +230,74 @@
             "map": {
                 "logo_alt": {
                     "En": "Link shortener",
-                    "Fr": "Raccourcisseur de liens"
+                    "Fr": "Raccourcisseur de liens",
+                    "Oc": "Acorchidor de ligams"
                 },
                 "title": {
                     "En": "Link shortener",
-                    "Fr": "Raccourcisseur de liens"
+                    "Fr": "Raccourcisseur de liens",
+                    "Oc": "Acorchidor de ligams"
+                    
                 },
                 "desc" : {
                     "En": "Link shortener service",
-                    "Fr": "Service raccourcisseur de liens"
+                    "Fr": "Service raccourcisseur de liens",
+                    "Oc": "Servici d’acorchi de ligams"
                 },
                 "warning_title": {
                     "En": "You have clicked on a fraudulent link",
-                    "Fr": "Vous avez cliqué sur un lien frauduleux"
+                    "Fr": "Vous avez cliqué sur un lien frauduleux",
+                    "Oc": "Avètz clicat un ligam fraudulós"
                 },
                 "warning1": {
                     "En": "A malicious person abused of our link shortener service for phishing.",
-                    "Fr": "Une personne malintentionnée a abusé notre service de raccourcisseur de lien afin de vous hameçonner."
+                    "Fr": "Une personne malintentionnée a abusé notre service de raccourcisseur de lien afin de vous hameçonner.",
+                    "Oc": "Una persona malvolenta a abusat de nòstre servici d’acorchi de ligam per vos pescar."
                 },
                 "warning2": {
                     "En": "Phishing consists of tricking you to give personal information (password, email address, credit card number, ...) through a fake website.",
-                    "Fr": "Le hameçonnage consiste à vous soutirer des informations personnelles (mots de passe, adresse email, numéro de carte de crédit, ...) à travers un faux site web."
+                    "Fr": "Le hameçonnage consiste à vous soutirer des informations personnelles (mots de passe, adresse email, numéro de carte de crédit, ...) à travers un faux site web.",
+                    "Oc": "La pesca electronica enganaira es l’ensag de recuperar d’informacions personalas (senhals, adreça email, numèro de carta de crèdit, ...) a travèrs un fals site web."
                 },
                 "warning3": {
                     "En": "We have detected this fraudulent link and deleted it.",
-                    "Fr": "Nous avons détecté ce lien frauduleux et l'avons supprimé."
+                    "Fr": "Nous avons détecté ce lien frauduleux et l'avons supprimé.",
+                    "Oc": "Avèm detectat aqueste ligam fraudulós e l’avèm suprimit."
                 },
                 "warning4": {
                     "En": "Be more careful in the future!",
-                    "Fr": "Faites preuve de vigilance à l'avenir !"
+                    "Fr": "Faites preuve de vigilance à l'avenir !",
+                    "Oc": "Siatz vigilant !"
                 },
                 "more_info1": {
                     "En": "More information",
-                    "Fr": "Plus d'informations"
+                    "Fr": "Plus d'informations",
+                    "Oc": "Mai d’informacions"
                 },
                 "more_info2": {
                     "En": "We offer a free and open-source link shortener service that respects your privacy.",
-                    "Fr": "Nous proposons un service de raccourcisseur de liens libre et open-source qui respecte votre vie privée."
+                    "Fr": "Nous proposons un service de raccourcisseur de liens libre et open-source qui respecte votre vie privée.",
+                    "Oc": "Prepausam un servici d’acorchidor de ligams liure e open-source que respècta vòstra vida privada."
                 },
                 "more_info3": {
                     "En": "We do our best effort to avoid the abuse of our services by malicious people.",
-                    "Fr": "Nous faisons de notre possible pour éviter l'abus de nos services par une personne malveillante."
+                    "Fr": "Nous faisons de notre possible pour éviter l'abus de nos services par une personne malveillante.",
+                    "Oc": "Fasèm nòstre possible per evitar l’abús de nòstres servicis per de personas malvolentas."
                 },
                 "more_info4": {
                     "En": "We are not responsible of those phishing attempts.",
-                    "Fr": "Nous ne sommes pas responsables de ces tentatives de hameçonnage."
+                    "Fr": "Nous ne sommes pas responsables de ces tentatives de hameçonnage.",
+                    "Oc": "Sèm pas responsables d’aquelas temptativas de pescas electronicas enganairas."
                 },
                 "our_website": {
                     "En": "Our website",
-                    "Fr": "Notre site web"
+                    "Fr": "Notre site web",
+                    "Oc": "Nòstre site web"
                 },
                 "back_to_website": {
                     "En": "Back",
-                    "Fr": "Retour"
+                    "Fr": "Retour",
+                    "Oc": "Retorn"
                 }
             }
         }
