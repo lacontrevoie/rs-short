@@ -10,8 +10,8 @@ use crate::db_schema::links::dsl::links as all_links;
 use crate::init::CONFIG;
 use crate::templates::gen_random;
 
-#[table_name = "links"]
 #[derive(Serialize, Queryable, Insertable, Debug, Clone)]
+#[table_name = "links"]
 pub struct Link {
     pub id: Option<i32>,
     pub url_from: String,
