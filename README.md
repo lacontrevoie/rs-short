@@ -1,10 +1,11 @@
 # rs-short
 
-**Warning:** A few steps are necessary to migrate the database from rs-short 1.x.x. Please check the release notes for details.
+> Warning : the code base will need some cleanup (see opened tickets). Hopefully, it’s very small so it shouldn’t be so hard. You can still use and install the software in its current state without trouble.
+
 
 Link shortener in Rust.
 
-Developed to be as minimalist and lightweight as possible.
+Developed to be as minimal and lightweight as possible.
 
 Powered by the [Actix](https://actix.rs) framework using (server-side) [Askama](https://github.com/djc/askama) templates.
 
