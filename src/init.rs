@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::Read;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
+use actix_web::cookie::Key;
 
 pub const URL_FROM_BL_FILE: &str = "./url_from_blacklist.txt";
 pub const URL_TO_BL_FILE: &str = "./url_to_blacklist.txt";
@@ -187,4 +188,10 @@ impl Config {
             panic!();
         }
     }
+}
+
+
+pub fn get_cookie_key(cookie_key: &str) -> Key {
+    let key = base64::decode(cookie_key).expect("Failed to read cookie key!");
+    Key::from(&key[..64])
 }

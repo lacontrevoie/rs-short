@@ -55,7 +55,7 @@ pub fn gen_captcha() -> Option<(String, Vec<u8>)> {
 // Returns the captcha image as a Vec<u8>.
 pub fn cookie_captcha_set(s: &Session) -> Option<Vec<u8>> {
     let captcha = gen_captcha()?;
-    s.set(
+    s.insert(
         "captcha-key",
         format!("{}|{}", Utc::now().naive_utc().format("%s"), captcha.0),
     )

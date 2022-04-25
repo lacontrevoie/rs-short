@@ -1,7 +1,10 @@
 use actix_web::{HttpResponse, HttpRequest, Result};
 use actix_session::Session;
-use actix_web::dev::HttpResponseBuilder;
+use actix_web::HttpResponseBuilder;
 use actix_web::{error, http::header, http::StatusCode};
+use actix_web::Either;
+use actix_web::Responder;
+use actix_web::http::Method;
 use std::fmt;
 
 use crate::templates::{gentpl_home, TplNotification, get_lang};
@@ -10,16 +13,22 @@ use crate::init::ValidLanguages;
 
 
 // 404 handler
-pub async fn error_404(req: HttpRequest, s: Session) -> Result<HttpResponse> {
-    let l = get_lang(&req);
-    let captcha = cookie_captcha_set(&s);
+pub async fn default_handler(req_method: Method, req: HttpRequest, s: Session) -> Result<impl Responder> {
+    match req_method {
+        Method::GET => {
+            let l = get_lang(&req);
+            let captcha = cookie_captcha_set(&s);
 
-    let tpl = TplNotification::new("home", "error_404", false, &l);
-    return HttpResponse::NotFound().content_type("text/html").body(
-        gentpl_home(&l, captcha.as_deref(), None, Some(&tpl))
-    ).await;
+            let tpl = TplNotification::new("home", "error_404", false, &l);
+            Ok(Either::Left(HttpResponse::NotFound().content_type("text/html").body(
+                gentpl_home(&l, captcha.as_deref(), None, Some(&tpl))
+            )))
+            /*let file = NamedFile::open("static/404.html")?.set_status_code(StatusCode::NOT_FOUND);
+            Ok(Either::Left(file))*/
+        }
+        _ => Ok(Either::Right(HttpResponse::MethodNotAllowed().finish())),
+    }
 }
-
 
 pub fn crash(error_msg: &'static str, lang: ValidLanguages, captcha: Option<Vec<u8>>) -> ShortCircuit {
     ShortCircuit { error_msg, lang, captcha }
@@ -43,11 +52,11 @@ impl fmt::Display for ShortCircuit {
 impl error::ResponseError for ShortCircuit {
     fn error_response(&self) -> HttpResponse {
         eprintln!("Error reached: {}", self.error_msg);
-        
+
         let tpl = TplNotification::new("home", self.error_msg, false, &self.lang);
 
         HttpResponseBuilder::new(self.status_code())
-            .set_header(header::CONTENT_TYPE, "text/html; charset=utf-8")
+            .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
             .body(gentpl_home(&self.lang, self.captcha.as_deref(), None, Some(&tpl)))
     }
     fn status_code(&self) -> StatusCode {
