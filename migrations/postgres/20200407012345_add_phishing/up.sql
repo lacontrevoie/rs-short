@@ -1,0 +1,1 @@
+ALTER TABLE links ADD phishing INTEGER DEFAULT 0;

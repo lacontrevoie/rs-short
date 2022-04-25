@@ -47,12 +47,31 @@ use crate::init::{get_cookie_key, CONFIG};
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
+// default to sqlite
+#[cfg(feature = "default")]
+type DbConn = SqliteConnection;
+#[cfg(feature = "default")]
+embed_migrations!("migrations/sqlite");
+
+#[cfg(feature = "postgres")]
+type DbConn = PgConnection;
+#[cfg(feature = "postgres")]
+embed_migrations!("migrations/postgres");
+
+#[cfg(feature = "sqlite")]
+type DbConn = SqliteConnection;
+#[cfg(feature = "sqlite")]
+embed_migrations!("migrations/sqlite");
+
+#[cfg(feature = "mysql")]
+type DbConn = MysqlConnection;
+#[cfg(feature = "mysql")]
+embed_migrations!("migrations/mysql");
+
+type DbPool = r2d2::Pool<ConnectionManager<DbConn>>;
 
 // see the watch_visits function for more details on the watcher
 type SuspiciousWatcher = Mutex<HashMap<String, Vec<(DateTime<Utc>, String)>>>;
-
-embed_migrations!();
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -60,7 +79,7 @@ async fn main() -> std::io::Result<()> {
 
     println!("Opening database {}", CONFIG.general.database_path);
     // connecting the sqlite database
-    let manager = ConnectionManager::<SqliteConnection>::new(&CONFIG.general.database_path);
+    let manager = ConnectionManager::<DbConn>::new(&CONFIG.general.database_path);
     let pool = r2d2::Pool::builder()
         .build(manager)
         .expect("Failed to create pool.");

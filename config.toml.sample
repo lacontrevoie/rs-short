@@ -12,7 +12,11 @@ config_version = 2
 # Address and port to listen on
 listening_address = "0.0.0.0:8080"
 
-# SQLite database path
+# Database path
+# MySQL: mysql://user:password@address:port/database
+# PostgreSQL: postgres://user:password@address:port/database
+# SQLite: /path/to/db.sqlite (can be relative)
+# Warning: SQLite *will* trigger database locks.
 database_path = "./db/db.sqlite"
 
 # Your (sub)domain for rs-short
