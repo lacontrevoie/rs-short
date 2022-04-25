@@ -32,13 +32,12 @@ pub async fn shortcut_admin_flag(
     // admin password defined in config.toml.
     // We just used the same struct for convenience.
 
-    let l = get_lang(&req);
     let captcha = cookie_captcha_set(&s);
 
     // if the admin phishing password doesn't match, return early.
     if params.admin_key != CONFIG.phishing.phishing_password {
         println!("INFO: [{}] tried to flag a link as phishing.", get_ip(&req));
-        return Err(crash("error_bad_server_admin_key", l, captcha));
+        return Err(crash("error_bad_server_admin_key", get_lang(&req), captcha));
     }
 
     // get database connection
@@ -64,10 +63,10 @@ pub async fn shortcut_admin_flag(
     // if flag_as_phishing returned 0, it means it affected 0 rows.
     // so link not found
     if flag_result == 0 {
-        return Err(crash("error_link_not_found", l, captcha));
+        return Err(crash("error_link_not_found", get_lang(&req), captcha));
     } else {
-        let tpl = TplNotification::new("home", "link_flag_success", true, &l);
-        Ok(HttpResponse::Ok().body(gentpl_home(&l, captcha.as_deref(), None, Some(&tpl))))
+        let tpl = TplNotification::new("home", "link_flag_success", true, &get_lang(&req));
+        Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), captcha.as_deref(), None, Some(&tpl))))
     }
 }
 
@@ -81,7 +80,6 @@ pub async fn shortcut_admin_del(
 ) -> Result<HttpResponse, ShortCircuit> {
     // INFO: Copy-paste from shortcut_admin
 
-    let l = get_lang(&req);
     let captcha = cookie_captcha_set(&s);
 
     // get database connection
@@ -146,8 +144,8 @@ pub async fn shortcut_admin_del(
         })?;
 
     // displaying success message
-    let tpl = TplNotification::new("home", "link_delete_success", true, &l);
-    Ok(HttpResponse::Ok().body(gentpl_home(&l, captcha.as_deref(), None, Some(&tpl))))
+    let tpl = TplNotification::new("home", "link_delete_success", true, &get_lang(&req));
+    Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), captcha.as_deref(), None, Some(&tpl))))
 }
 
 // GET: link administration page, fallback compatibility
@@ -169,7 +167,6 @@ pub async fn shortcut_admin(
     s: Session,
     query: web::Query<HashMap<String, String>>,
 ) -> Result<HttpResponse, ShortCircuit> {
-    let l = get_lang(&req);
     let captcha = cookie_captcha_set(&s);
 
     // get database connection
@@ -220,15 +217,15 @@ pub async fn shortcut_admin(
 
     // if created=true, display a green notification
     if query.get("created").is_some() {
-        let tpl = TplNotification::new("home", "form_success", true, &l);
+        let tpl = TplNotification::new("home", "form_success", true, &get_lang(&req));
         Ok(HttpResponse::Ok().body(gentpl_home(
-            &l,
+            &get_lang(&req),
             captcha.as_deref(),
             Some(&linkinfo),
             Some(&tpl),
         )))
     } else {
-        Ok(HttpResponse::Ok().body(gentpl_home(&l, captcha.as_deref(), Some(&linkinfo), None)))
+        Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), captcha.as_deref(), Some(&linkinfo), None)))
     }
 }
 
@@ -400,7 +397,6 @@ pub async fn shortcut(
     suspicious_watch: web::Data<SuspiciousWatcher>,
     s: Session,
 ) -> Result<HttpResponse, ShortCircuit> {
-    let l = get_lang(&req);
     let captcha = cookie_captcha_set(&s);
 
     // get database connection
@@ -426,10 +422,10 @@ pub async fn shortcut(
         // if the link does not exist, renders home template
         // with a 404 Not Found http status code
         None => {
-            let tpl = TplNotification::new("home", "error_invalid_link", false, &l);
+            let tpl = TplNotification::new("home", "error_invalid_link", false, &get_lang(&req));
             Ok(HttpResponse::NotFound()
                 .content_type("text/html")
-                .body(gentpl_home(&l, captcha.as_deref(), None, Some(&tpl))))
+                .body(gentpl_home(&get_lang(&req), captcha.as_deref(), None, Some(&tpl))))
         }
         // if the link exists but phishing=1, renders home
         // with a 410 Gone http status code
@@ -439,7 +435,7 @@ pub async fn shortcut(
             Ok(HttpResponse::Gone().content_type("text/html").body(
                 PhishingTemplate {
                     loc: &LANG.pages["phishing"].map,
-                    l: &l,
+                    l: &get_lang(&req),
                     config: &CONFIG.general,
                 }
                 .render()
