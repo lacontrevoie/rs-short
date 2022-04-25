@@ -11,7 +11,7 @@ use chrono::{NaiveDateTime, Utc};
 use rand::Rng;
 
 use crate::database::LinkInfo;
-use crate::init::{CONFIG, CAPTCHA_LETTERS};
+use crate::init::{CAPTCHA_LETTERS, CONFIG};
 use crate::SuspiciousWatcher;
 
 pub fn gen_captcha() -> Option<(String, Vec<u8>)> {
@@ -88,15 +88,13 @@ pub fn cookie_captcha_get(s: &Session) -> Option<(NaiveDateTime, String)> {
 // The data is kept in RAM and cleaned regularly and on program restart.
 pub fn watch_visits(watcher: web::Data<SuspiciousWatcher>, link: LinkInfo, ip: String) {
     // locks the mutex.
-    let w = watcher
-        .lock()
-        .map_err(|e| {
-            eprintln!("ERROR: watch_visits: Failed to get the mutex lock: {}", e);
-        });
+    let w = watcher.lock().map_err(|e| {
+        eprintln!("ERROR: watch_visits: Failed to get the mutex lock: {}", e);
+    });
 
     // silently returns if we fail to get the lock (do NOT panic)
     if w.is_err() {
-        return ;
+        return;
     }
 
     let mut w = w.unwrap();

@@ -6,13 +6,15 @@ use base64::URL_SAFE_NO_PAD;
 use std::collections::HashMap;
 
 use crate::database::{Link, LinkInfo};
-use crate::init::{LANG, CONFIG, ALLOWED_PROTOCOLS, URL_TO_BL, URL_TO_SOFTBL, URL_FROM_BL};
-use crate::routes::{ShortcutAdminInfo, ShortcutInfo};
-use crate::spam::{cookie_captcha_get, cookie_captcha_set};
-use crate::spam::watch_visits;
 use crate::error_handlers::{crash, ShortCircuit};
+use crate::init::{ALLOWED_PROTOCOLS, CONFIG, LANG, URL_FROM_BL, URL_TO_BL, URL_TO_SOFTBL};
+use crate::routes::{ShortcutAdminInfo, ShortcutInfo};
+use crate::spam::watch_visits;
+use crate::spam::{cookie_captcha_get, cookie_captcha_set};
 use crate::structs::NewLink;
-use crate::templates::{get_lang, gentpl_home, get_ip, PhishingTemplate, TplNotification, gen_random, blacklist_check};
+use crate::templates::{
+    blacklist_check, gen_random, gentpl_home, get_ip, get_lang, PhishingTemplate, TplNotification,
+};
 use crate::DbPool;
 use crate::SuspiciousWatcher;
 
@@ -108,13 +110,21 @@ pub async fn shortcut_admin_del(
         Some(v) => v,
         // if the link doesn't exist, return early
         None => {
-            return Err(crash("error_link_not_found", get_lang(&req), captcha.clone()));
+            return Err(crash(
+                "error_link_not_found",
+                get_lang(&req),
+                captcha.clone(),
+            ));
         }
     };
 
     // if the link is a phishing link, prevent deletion. Early return
     if link.phishing > 0 {
-        return Err(crash("error_not_deleting_phishing", get_lang(&req), captcha.clone()));
+        return Err(crash(
+            "error_not_deleting_phishing",
+            get_lang(&req),
+            captcha.clone(),
+        ));
     }
 
     // get a new database connection
@@ -124,14 +134,16 @@ pub async fn shortcut_admin_del(
         .expect("ERROR: shortcut_admin_del: 2th DB connection failed");
 
     // deleting the link
-    web::block(move || link.delete(&conn)).await.map_err(|e| {
-        eprintln!("ERROR: shortcut_admin: delete query failed: {}", e);
-        crash("error_link_delete_db_fail", get_lang(&req), captcha.clone())
-    })?
-    .map_err(|e| {
-        eprintln!("ERROR: shortcut_admin delete query failed: {}", e);
-        crash("error_async", get_lang(&req), captcha.clone())
-    })?;
+    web::block(move || link.delete(&conn))
+        .await
+        .map_err(|e| {
+            eprintln!("ERROR: shortcut_admin: delete query failed: {}", e);
+            crash("error_link_delete_db_fail", get_lang(&req), captcha.clone())
+        })?
+        .map_err(|e| {
+            eprintln!("ERROR: shortcut_admin delete query failed: {}", e);
+            crash("error_async", get_lang(&req), captcha.clone())
+        })?;
 
     // displaying success message
     let tpl = TplNotification::new("home", "link_delete_success", true, &l);
@@ -173,10 +185,10 @@ pub async fn shortcut_admin(
             eprintln!("ERROR: shortcut_admin: get_link query failed: {}", e);
             crash("error_db_fail", get_lang(&req), captcha.clone())
         })?
-    .map_err(|e| {
-        eprintln!("ERROR: shortcut_admin get_link (3) query failed: {}", e);
-        crash("error_async", get_lang(&req), captcha.clone())
-    })?;
+        .map_err(|e| {
+            eprintln!("ERROR: shortcut_admin get_link (3) query failed: {}", e);
+            crash("error_async", get_lang(&req), captcha.clone())
+        })?;
 
     let linkinfo = match selected_link {
         // if the administration key doesn't match, return early
@@ -186,13 +198,21 @@ pub async fn shortcut_admin(
         // if the link is marked as phishing, the administration page
         // can't be accessed anymore
         Some(v) if v.phishing >= 1 => {
-            return Err(crash("error_not_managing_phishing", get_lang(&req), captcha.clone()));
+            return Err(crash(
+                "error_not_managing_phishing",
+                get_lang(&req),
+                captcha.clone(),
+            ));
         }
         // generate linkinfo for templating purposes
         Some(v) => LinkInfo::create_from(v),
         // if the link doesn't exist, return early
         None => {
-            return Err(crash("error_link_not_found", get_lang(&req), captcha.clone()));
+            return Err(crash(
+                "error_link_not_found",
+                get_lang(&req),
+                captcha.clone(),
+            ));
         }
     };
 
@@ -201,7 +221,12 @@ pub async fn shortcut_admin(
     // if created=true, display a green notification
     if query.get("created").is_some() {
         let tpl = TplNotification::new("home", "form_success", true, &l);
-        Ok(HttpResponse::Ok().body(gentpl_home(&l, captcha.as_deref(), Some(&linkinfo), Some(&tpl))))
+        Ok(HttpResponse::Ok().body(gentpl_home(
+            &l,
+            captcha.as_deref(),
+            Some(&linkinfo),
+            Some(&tpl),
+        )))
     } else {
         Ok(HttpResponse::Ok().body(gentpl_home(&l, captcha.as_deref(), Some(&linkinfo), None)))
     }
@@ -216,7 +241,6 @@ pub async fn post_link(
     dbpool: web::Data<DbPool>,
     form: web::Form<NewLink>,
 ) -> Result<HttpResponse, ShortCircuit> {
-
     // Get the cookie, returning early if the cookie
     // can't be retrieved or parsed.
     let cookie = match cookie_captcha_get(&s) {
@@ -245,7 +269,8 @@ pub async fn post_link(
     ) {
         eprintln!(
             "INFO: [{}] tried to create a shortening loop with link {}",
-            get_ip(&req), form.url_to
+            get_ip(&req),
+            form.url_to
         );
         let captcha = cookie_captcha_set(&s);
         return Err(crash("error_selflink_forbidden", get_lang(&req), captcha));
@@ -265,7 +290,6 @@ pub async fn post_link(
         );
         let captcha = cookie_captcha_set(&s);
         return Err(crash("error_shortlink_forbidden", get_lang(&req), captcha));
-
     }
 
     // check for blacklists
@@ -297,7 +321,8 @@ pub async fn post_link(
     if !is_allowed {
         eprintln!(
             "INFO: [{}] submitted an URL with an unsupported protocol: {}",
-            get_ip(&req), &form.url_to,
+            get_ip(&req),
+            &form.url_to,
         );
         let captcha = cookie_captcha_set(&s);
         return Err(crash("error_unsupported_protocol", get_lang(&req), captcha));
@@ -325,11 +350,11 @@ pub async fn post_link(
                 let captcha = cookie_captcha_set(&s);
                 crash("error_db_fail", get_lang(&req), captcha)
             })?
-    .map_err(|e| {
-        eprintln!("ERROR: post_link insert query failed: {}", e);
-        let captcha = cookie_captcha_set(&s);
-        crash("error_async", get_lang(&req), captcha)
-    })?;
+            .map_err(|e| {
+                eprintln!("ERROR: post_link insert query failed: {}", e);
+                let captcha = cookie_captcha_set(&s);
+                crash("error_async", get_lang(&req), captcha)
+            })?;
 
     // if the link already exists, early return.
     let new_link = match new_link {
@@ -360,7 +385,10 @@ pub async fn post_link(
     }
 
     // redirects to the link admin page
-    Ok(web_redir(&format!("{}{}", &linkinfo.adminlink, "?created=true")))
+    Ok(web_redir(&format!(
+        "{}{}",
+        &linkinfo.adminlink, "?created=true"
+    )))
 }
 
 // get routed through a shortcut
@@ -383,16 +411,15 @@ pub async fn shortcut(
     let thread_url_from = params.url_from.clone();
     let selected_link = web::block(move || Link::get_link_and_incr(&thread_url_from, &conn))
         .await
-    .map_err(|e| {
-        eprintln!("ERROR: shortcut get-incr query failed: {}", e);
-        crash("error_async", get_lang(&req), captcha.clone())
-    })?;
+        .map_err(|e| {
+            eprintln!("ERROR: shortcut get-incr query failed: {}", e);
+            crash("error_async", get_lang(&req), captcha.clone())
+        })?;
 
     // hard fail (500 error) if query + failover query isn't enough
     let selected_link = selected_link.map_err(|e| {
-            eprintln!("ERROR: shortcut: get_link query failed: {}",
-                e);
-            crash("error_db_fail", get_lang(&req), captcha.clone())
+        eprintln!("ERROR: shortcut: get_link query failed: {}", e);
+        crash("error_db_fail", get_lang(&req), captcha.clone())
     })?;
 
     match selected_link {
@@ -409,17 +436,15 @@ pub async fn shortcut(
         Some(link) if link.phishing > 0 => {
             // render the phishing template
             // (only used once)
-            Ok(HttpResponse::Gone()
-                .content_type("text/html")
-                .body(
-                    PhishingTemplate {
-                        loc: &LANG.pages["phishing"].map,
-                        l: &l,
-                        config: &CONFIG.general,
-                    }
-                    .render()
-                    .expect("Failed to render phishing template"),
-                ))
+            Ok(HttpResponse::Gone().content_type("text/html").body(
+                PhishingTemplate {
+                    loc: &LANG.pages["phishing"].map,
+                    l: &l,
+                    config: &CONFIG.general,
+                }
+                .render()
+                .expect("Failed to render phishing template"),
+            ))
         }
         // else, redirects with a 303 See Other.
         // if verbose_suspicious is enabled, play with the Mutex.

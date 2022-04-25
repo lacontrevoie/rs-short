@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use askama::Template;
 
 use crate::database::LinkInfo;
-use crate::init::{ValidLanguages, DEFAULT_LANGUAGE, LANG, CONFIG, ConfGeneral};
+use crate::init::{ConfGeneral, ValidLanguages, CONFIG, DEFAULT_LANGUAGE, LANG};
 
 use actix_web::HttpRequest;
 

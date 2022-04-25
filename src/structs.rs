@@ -34,8 +34,9 @@ impl NewLink {
         captcha_key: (NaiveDateTime, String),
     ) -> Result<(), &'static str> {
         lazy_static! {
-            static ref RE_URL_FROM: Regex = Regex::new(r#"^[^,*';?:@=&.<>#%/\\\[\]\{\}"|^~ ]{0,80}$"#)
-                .expect("Failed to read NewLink url_from sanitize regular expression");
+            static ref RE_URL_FROM: Regex =
+                Regex::new(r#"^[^,*';?:@=&.<>#%/\\\[\]\{\}"|^~ ]{0,80}$"#)
+                    .expect("Failed to read NewLink url_from sanitize regular expression");
         }
         if self.url_from.len() > 50 || !RE_URL_FROM.is_match(&self.url_from) {
             Err("error_invalid_url_from")

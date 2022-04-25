@@ -13,8 +13,8 @@ extern crate url;
 
 mod database;
 mod db_schema;
-mod handlers;
 mod error_handlers;
+mod handlers;
 mod init;
 mod routes;
 mod spam;
@@ -24,12 +24,12 @@ mod templates;
 mod tests;
 
 use actix_files as fs;
-use actix_session::SessionMiddleware;
-use actix_session::CookieContentSecurity;
 use actix_session::storage::CookieSessionStore;
-use actix_web::{web, App, HttpServer};
-use actix_web::web::Data;
+use actix_session::CookieContentSecurity;
+use actix_session::SessionMiddleware;
 use actix_web::cookie::SameSite;
+use actix_web::web::Data;
+use actix_web::{web, App, HttpServer};
 
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
@@ -37,9 +37,12 @@ use diesel::r2d2::{self, ConnectionManager};
 use chrono::DateTime;
 use chrono::Utc;
 
-use crate::handlers::{shortcut_admin_flag, shortcut_admin_del, shortcut_admin_fallback, post_link, shortcut, shortcut_admin, index};
 use crate::error_handlers::default_handler;
-use crate::init::{CONFIG, get_cookie_key};
+use crate::handlers::{
+    index, post_link, shortcut, shortcut_admin, shortcut_admin_del, shortcut_admin_fallback,
+    shortcut_admin_flag,
+};
+use crate::init::{get_cookie_key, CONFIG};
 
 use std::collections::HashMap;
 use std::sync::Mutex;
@@ -69,9 +72,9 @@ async fn main() -> std::io::Result<()> {
 
     // for verbose_suspicious option
     let suspicious_watch = web::Data::new(Mutex::new(HashMap::<
-            String,
-            Vec<(DateTime<Utc>, String)>,
-            >::new()));
+        String,
+        Vec<(DateTime<Utc>, String)>,
+    >::new()));
 
     // check configuration version
     // and panic if it doesn't match CONFIG_VERSION
@@ -85,14 +88,16 @@ async fn main() -> std::io::Result<()> {
             .app_data(suspicious_watch.clone())
             .wrap(
                 SessionMiddleware::builder(
-                    CookieSessionStore::default(), get_cookie_key(&CONFIG.general.cookie_key)
-                    )
+                    CookieSessionStore::default(),
+                    get_cookie_key(&CONFIG.general.cookie_key),
+                )
                 .cookie_content_security(CookieContentSecurity::Signed)
                 .cookie_secure(true)
                 .cookie_name("rs-short-captcha".to_string())
                 .cookie_same_site(SameSite::Strict)
-                .cookie_http_only(true).build()
-                )
+                .cookie_http_only(true)
+                .build(),
+            )
             /*.wrap(
                 CookieSession::private(
                     &base64_decode(&CONFIG.general.cookie_key)
@@ -110,19 +115,18 @@ async fn main() -> std::io::Result<()> {
             .service(shortcut_admin_fallback)
             .service(post_link)
             .default_service(web::to(default_handler))
-            /*.default_service(
-                // 404 for GET request
-                web::resource("")
-                .route(web::get().to(error_404))
-                .route(
-                    web::route()
-                    .guard(guard::Not(guard::Get()))
-                    .to(HttpResponse::MethodNotAllowed),
-                ),
-            )*/
+        /*.default_service(
+            // 404 for GET request
+            web::resource("")
+            .route(web::get().to(error_404))
+            .route(
+                web::route()
+                .guard(guard::Not(guard::Get()))
+                .to(HttpResponse::MethodNotAllowed),
+            ),
+        )*/
     })
     .bind(&CONFIG.general.listening_address)?
-        .run()
-        .await
+    .run()
+    .await
 }
-
