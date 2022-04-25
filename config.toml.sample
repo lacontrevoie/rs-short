@@ -39,7 +39,7 @@ theme = "light"
 
 # Key used to encrypt the cookie key.
 # Don't leave it empty!!
-# `openssl rand -base64 48`
+# `openssl rand -base64 64`
 cookie_key = "CHANGE ME"
 
 # Find a compromise between accessibility and protection
@@ -47,13 +47,6 @@ cookie_key = "CHANGE ME"
 # protect you against human spammers, and lots of them **are** human.
 # 0 = easiest / 5 = hardest
 captcha_difficulty = 3
-
-# Maximum size for the RAM-stored link cache.
-# Link cache is used as a failover in case of DB locks.
-# 0 to disable.
-# If you're using SQLite, you can increase this value.
-# Note that rs-short might take some little more RAM.
-max_cache_size = 250
 
 [phishing]
 

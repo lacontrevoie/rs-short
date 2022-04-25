@@ -151,7 +151,6 @@ pub struct ConfGeneral {
     pub theme: String,
     pub captcha_difficulty: u8,
     pub cookie_key: String,
-    pub max_cache_size: u16,
 }
 
 #[derive(Deserialize)]
