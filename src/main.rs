@@ -34,9 +34,9 @@ use diesel::r2d2::{self, ConnectionManager};
 use chrono::DateTime;
 use chrono::Utc;
 
-use crate::handlers::*;
-use crate::error_handlers::*;
-use crate::init::*;
+use crate::handlers::{shortcut_admin_flag, shortcut_admin_del, shortcut_admin_fallback, post_link, shortcut, shortcut_admin, index};
+use crate::error_handlers::error_404;
+use crate::init::CONFIG;
 use crate::database::Link;
 
 use base64::decode as base64_decode;

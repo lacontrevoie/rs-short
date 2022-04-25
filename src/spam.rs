@@ -11,7 +11,7 @@ use chrono::{NaiveDateTime, Utc};
 use rand::Rng;
 
 use crate::database::LinkInfo;
-use crate::init::*;
+use crate::init::{CONFIG, CAPTCHA_LETTERS};
 use crate::SuspiciousWatcher;
 
 pub fn gen_captcha() -> Option<(String, Vec<u8>)> {

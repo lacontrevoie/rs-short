@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use askama::Template;
 
-use crate::database::*;
-use crate::init::*;
+use crate::database::LinkInfo;
+use crate::init::{ValidLanguages, DEFAULT_LANGUAGE, LANG, CONFIG, ConfGeneral};
 
 use actix_web::HttpRequest;
 
@@ -105,7 +105,7 @@ fn try_get_lang(req: &HttpRequest) -> Option<ValidLanguages> {
 
 mod filters {
     // translation filter
-    use crate::init::*;
+    use crate::init::ValidLanguages;
     use std::collections::HashMap;
 
     pub fn tr(

@@ -1,7 +1,7 @@
 use crate::cache::{check_cached_links, save_cached_links};
 use chrono::Utc;
 
-use crate::init::*;
+use crate::init::CONFIG;
 use crate::database::Link;
 
 use std::sync::Mutex;

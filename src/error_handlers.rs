@@ -6,7 +6,7 @@ use std::fmt;
 
 use crate::templates::{gentpl_home, TplNotification, get_lang};
 use crate::spam::cookie_captcha_set;
-use crate::ValidLanguages;
+use crate::init::ValidLanguages;
 
 
 // 404 handler
