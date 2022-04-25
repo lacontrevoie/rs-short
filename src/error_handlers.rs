@@ -28,8 +28,6 @@ pub async fn default_handler(
                     .content_type("text/html")
                     .body(gentpl_home(&l, captcha.as_deref(), None, Some(&tpl))),
             ))
-            /*let file = NamedFile::open("static/404.html")?.set_status_code(StatusCode::NOT_FOUND);
-            Ok(Either::Left(file))*/
         }
         _ => Ok(Either::Right(HttpResponse::MethodNotAllowed().finish())),
     }

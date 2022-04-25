@@ -117,14 +117,6 @@ async fn main() -> std::io::Result<()> {
                 .cookie_http_only(true)
                 .build(),
             )
-            /*.wrap(
-                CookieSession::private(
-                    &base64_decode(&CONFIG.general.cookie_key)
-                    .expect("Couldn't read the specified cookie_key"),
-                )
-                .name("rs-short-captcha")
-                .secure(true),
-            )*/
             .service(fs::Files::new("/assets", "./assets"))
             .service(index)
             .service(shortcut)
@@ -134,16 +126,6 @@ async fn main() -> std::io::Result<()> {
             .service(shortcut_admin_fallback)
             .service(post_link)
             .default_service(web::to(default_handler))
-        /*.default_service(
-            // 404 for GET request
-            web::resource("")
-            .route(web::get().to(error_404))
-            .route(
-                web::route()
-                .guard(guard::Not(guard::Get()))
-                .to(HttpResponse::MethodNotAllowed),
-            ),
-        )*/
     })
     .bind(&CONFIG.general.listening_address)?
     .run()
