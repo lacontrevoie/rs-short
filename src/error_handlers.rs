@@ -7,7 +7,6 @@ use std::fmt;
 use crate::templates::{gentpl_home, TplNotification, get_lang};
 use crate::spam::cookie_captcha_set;
 use crate::ValidLanguages;
-use crate::database::LinkInfo;
 
 
 // 404 handler
@@ -22,8 +21,8 @@ pub async fn error_404(req: HttpRequest, s: Session) -> Result<HttpResponse> {
 }
 
 
-pub fn crash(error_msg: &'static str, lang: ValidLanguages, captcha: Option<Vec<u8>>, linkinfo: Option<LinkInfo>) -> ShortCircuit {
-    ShortCircuit { error_msg, lang, captcha, linkinfo }
+pub fn crash(error_msg: &'static str, lang: ValidLanguages, captcha: Option<Vec<u8>>) -> ShortCircuit {
+    ShortCircuit { error_msg, lang, captcha }
 }
 
 #[derive(Debug)]
@@ -31,7 +30,6 @@ pub struct ShortCircuit {
     pub error_msg: &'static str,
     pub lang: ValidLanguages,
     pub captcha: Option<Vec<u8>>,
-    pub linkinfo: Option<LinkInfo>,
 }
 
 // gonna avoid using failure crate
@@ -50,7 +48,7 @@ impl error::ResponseError for ShortCircuit {
 
         HttpResponseBuilder::new(self.status_code())
             .set_header(header::CONTENT_TYPE, "text/html; charset=utf-8")
-            .body(gentpl_home(&self.lang, self.captcha.as_deref(), self.linkinfo.as_ref(), Some(&tpl)))
+            .body(gentpl_home(&self.lang, self.captcha.as_deref(), None, Some(&tpl)))
     }
     fn status_code(&self) -> StatusCode {
         match self.error_msg {

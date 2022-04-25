@@ -38,7 +38,7 @@ pub async fn shortcut_admin_flag(
     // if the admin phishing password doesn't match, return early.
     if params.admin_key != CONFIG.phishing.phishing_password {
         println!("INFO: [{}] tried to flag a link as phishing.", get_ip(&req));
-        return Err(crash("error_bad_server_admin_key", l, captcha, None));
+        return Err(crash("error_bad_server_admin_key", l, captcha));
     }
 
     // get database connection
@@ -54,18 +54,18 @@ pub async fn shortcut_admin_flag(
                 "ERROR: shortcut_admin: shortcut_admin_flag query failed: {}",
                 e
             );
-            crash("error_db_fail", get_lang(&req), captcha.clone(), None)
+            crash("error_db_fail", get_lang(&req), captcha.clone())
         })?;
 
     // if flag_as_phishing returned 0, it means it affected 0 rows.
     // so link not found
     if flag_result == 0 {
-        return Err(crash("error_link_not_found", l, captcha, None));
+        return Err(crash("error_link_not_found", l, captcha));
     } else {
         let tpl = TplNotification::new("home", "link_flag_success", true, &l);
         Ok(web_ok(gentpl_home(&l, captcha.as_deref(), None, Some(&tpl))).await.map_err(|e| {
             eprintln!("error_async: {}", e);
-            crash("error_async", l, captcha, None)
+            crash("error_async", l, captcha)
         })?)
     }
 }
@@ -94,24 +94,24 @@ pub async fn shortcut_admin_del(
         .await
         .map_err(|e| {
             eprintln!("ERROR: shortcut_admin: get_link query failed: {}", e);
-            crash("error_db_fail", get_lang(&req), captcha.clone(), None)
+            crash("error_db_fail", get_lang(&req), captcha.clone())
         })?;
 
     let link = match selected_link {
         // if the administration key doesn't match, return early
         Some(v) if base64_encode_config(&v.key, URL_SAFE_NO_PAD) != params.admin_key => {
-            return Err(crash("error_invalid_key", get_lang(&req), captcha.clone(), None));
+            return Err(crash("error_invalid_key", get_lang(&req), captcha.clone()));
         }
         Some(v) => v,
         // if the link doesn't exist, return early
         None => {
-            return Err(crash("error_link_not_found", get_lang(&req), captcha.clone(), None));
+            return Err(crash("error_link_not_found", get_lang(&req), captcha.clone()));
         }
     };
 
     // if the link is a phishing link, prevent deletion. Early return
     if link.phishing > 0 {
-        return Err(crash("error_not_deleting_phishing", get_lang(&req), captcha.clone(), None));
+        return Err(crash("error_not_deleting_phishing", get_lang(&req), captcha.clone()));
     }
 
     // get a new database connection
@@ -123,14 +123,14 @@ pub async fn shortcut_admin_del(
     // deleting the link
     web::block(move || link.delete(&conn)).await.map_err(|e| {
         eprintln!("ERROR: shortcut_admin: delete query failed: {}", e);
-        crash("error_link_delete_db_fail", get_lang(&req), captcha.clone(), None)
+        crash("error_link_delete_db_fail", get_lang(&req), captcha.clone())
     })?;
 
     // displaying success message
     let tpl = TplNotification::new("home", "link_delete_success", true, &l);
     Ok(web_ok(gentpl_home(&l, captcha.as_deref(), None, Some(&tpl))).await.map_err(|e| {
         eprintln!("error_async: {}", e);
-        crash("error_async", l, captcha, None)
+        crash("error_async", l, captcha)
     })?)
 }
 
@@ -168,24 +168,24 @@ pub async fn shortcut_admin(
         .await
         .map_err(|e| {
             eprintln!("ERROR: shortcut_admin: get_link query failed: {}", e);
-            crash("error_db_fail", get_lang(&req), captcha.clone(), None)
+            crash("error_db_fail", get_lang(&req), captcha.clone())
         })?;
 
     let linkinfo = match selected_link {
         // if the administration key doesn't match, return early
         Some(v) if base64_encode_config(&v.key, URL_SAFE_NO_PAD) != params.admin_key => {
-            return Err(crash("error_invalid_key", get_lang(&req), captcha.clone(), None));
+            return Err(crash("error_invalid_key", get_lang(&req), captcha.clone()));
         }
         // if the link is marked as phishing, the administration page
         // can't be accessed anymore
         Some(v) if v.phishing >= 1 => {
-            return Err(crash("error_not_managing_phishing", get_lang(&req), captcha.clone(), None));
+            return Err(crash("error_not_managing_phishing", get_lang(&req), captcha.clone()));
         }
         // generate linkinfo for templating purposes
         Some(v) => LinkInfo::create_from(v),
         // if the link doesn't exist, return early
         None => {
-            return Err(crash("error_link_not_found", get_lang(&req), captcha.clone(), None));
+            return Err(crash("error_link_not_found", get_lang(&req), captcha.clone()));
         }
     };
 
@@ -200,7 +200,7 @@ pub async fn shortcut_admin(
     }
     .map_err(|e| {
         eprintln!("error_async: {}", e);
-        crash("error_async", l, captcha, None)
+        crash("error_async", l, captcha)
     })?)
 }
 
@@ -222,7 +222,7 @@ pub async fn post_link(
         None => {
             eprintln!("WARN: [{}]: failed to parse cookie", get_ip(&req));
             let captcha = cookie_captcha_set(&s);
-            return Err(crash("error_cookie_parse_fail", get_lang(&req), captcha, None));
+            return Err(crash("error_cookie_parse_fail", get_lang(&req), captcha));
         }
     };
 
@@ -230,7 +230,7 @@ pub async fn post_link(
     // if it returns Err(template), early return
     if let Some(tpl_error) = form.validate(&req, cookie).err() {
         let captcha = cookie_captcha_set(&s);
-        return Err(crash(tpl_error, get_lang(&req), captcha, None));
+        return Err(crash(tpl_error, get_lang(&req), captcha));
     }
 
     // prevent shortening loop
@@ -246,7 +246,7 @@ pub async fn post_link(
             get_ip(&req), form.url_to
         );
         let captcha = cookie_captcha_set(&s);
-        return Err(crash("error_selflink_forbidden", get_lang(&req), captcha, None));
+        return Err(crash("error_selflink_forbidden", get_lang(&req), captcha));
     }
 
     // check for soft blacklists
@@ -262,7 +262,7 @@ pub async fn post_link(
             &form.url_to
         );
         let captcha = cookie_captcha_set(&s);
-        return Err(crash("error_shortlink_forbidden", get_lang(&req), captcha, None));
+        return Err(crash("error_shortlink_forbidden", get_lang(&req), captcha));
 
     }
 
@@ -280,7 +280,7 @@ pub async fn post_link(
             &form.url_to
         );
         let captcha = cookie_captcha_set(&s);
-        return Err(crash("error_blacklisted_link", get_lang(&req), captcha, None));
+        return Err(crash("error_blacklisted_link", get_lang(&req), captcha));
     }
 
     let mut is_allowed = false;
@@ -298,7 +298,7 @@ pub async fn post_link(
             get_ip(&req), &form.url_to,
         );
         let captcha = cookie_captcha_set(&s);
-        return Err(crash("error_unsupported_protocol", get_lang(&req), captcha, None));
+        return Err(crash("error_unsupported_protocol", get_lang(&req), captcha));
     }
 
     // if the user hasn't chosen a shortcut name, decide for them.
@@ -321,7 +321,7 @@ pub async fn post_link(
             .map_err(|e| {
                 eprintln!("ERROR: post_link: insert_if_not_exists query failed: {}", e);
                 let captcha = cookie_captcha_set(&s);
-                crash("error_db_fail", get_lang(&req), captcha, None)
+                crash("error_db_fail", get_lang(&req), captcha)
             })?;
 
     // if the link already exists, early return.
@@ -333,7 +333,7 @@ pub async fn post_link(
                 get_ip(&req)
             );
             let captcha = cookie_captcha_set(&s);
-            return Err(crash("error_link_already_exists", get_lang(&req), captcha, None));
+            return Err(crash("error_link_already_exists", get_lang(&req), captcha));
         }
     };
 
@@ -357,7 +357,7 @@ pub async fn post_link(
     .map_err(|e| {
         eprintln!("error_async: {}", e);
         let captcha = cookie_captcha_set(&s);
-        crash("error_async", l, captcha, None)
+        crash("error_async", l, captcha)
     })?)
 }
 
@@ -457,7 +457,7 @@ pub async fn index(req: HttpRequest, s: Session) -> Result<HttpResponse, ShortCi
     Ok(web_ok(gentpl_home(&get_lang(&req), captcha.as_deref(), None, None)).await
     .map_err(|e| {
         eprintln!("error_async: {}", e);
-        crash("error_async", get_lang(&req), captcha, None)
+        crash("error_async", get_lang(&req), captcha)
     })?)
 }
 
