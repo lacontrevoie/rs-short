@@ -10,13 +10,11 @@ use crate::init::{LANG, CONFIG, ALLOWED_PROTOCOLS, URL_TO_BL, URL_TO_SOFTBL, URL
 use crate::routes::{ShortcutAdminInfo, ShortcutInfo};
 use crate::spam::{cookie_captcha_get, cookie_captcha_set};
 use crate::spam::watch_visits;
-use crate::cache::{check_cached_links, save_cached_links};
 use crate::error_handlers::{crash, ShortCircuit};
 use crate::structs::NewLink;
 use crate::templates::{get_lang, gentpl_home, get_ip, PhishingTemplate, TplNotification, gen_random, blacklist_check};
 use crate::DbPool;
 use crate::SuspiciousWatcher;
-use crate::LinkCache;
 
 // GET: flag a link as phishing
 // Can only be used by the server admin
@@ -372,7 +370,6 @@ pub async fn shortcut(
     params: web::Path<ShortcutInfo>,
     dbpool: web::Data<DbPool>,
     suspicious_watch: web::Data<SuspiciousWatcher>,
-    link_cache: web::Data<LinkCache>,
     s: Session,
 ) -> Result<HttpResponse, ShortCircuit> {
     let l = get_lang(&req);
@@ -384,26 +381,16 @@ pub async fn shortcut(
     // gets the link from database
     // and increments the click count
     let thread_url_from = params.url_from.clone();
-    let mut selected_link = web::block(move || Link::get_link_and_incr(&thread_url_from, &conn))
+    let selected_link = web::block(move || Link::get_link_and_incr(&thread_url_from, &conn))
         .await
     .map_err(|e| {
         eprintln!("ERROR: shortcut get-incr query failed: {}", e);
         crash("error_async", get_lang(&req), captcha.clone())
     })?;
 
-    // failover to link cache if we can't lock the db
-    if selected_link.is_err() && CONFIG.general.max_cache_size > 0 {
-        // if the link isn't in the link cache, return a 500.
-        if let Some(link) = check_cached_links(&params.url_from, &link_cache) {
-            //selected_link = Result::<Option<Link>, BlockingError<diesel::result::Error>>::Ok(Some(link))
-            println!("INFO: Database locked, hitting in link cache");
-            selected_link = Ok(Some(link))
-        }
-    }
-    
-    // hard fail (500 error) if query + failover query + cache isn't enough
+    // hard fail (500 error) if query + failover query isn't enough
     let selected_link = selected_link.map_err(|e| {
-            eprintln!("ERROR: shortcut: get_link query failed and cache didn't help: {}",
+            eprintln!("ERROR: shortcut: get_link query failed: {}",
                 e);
             crash("error_db_fail", get_lang(&req), captcha.clone())
     })?;
@@ -443,10 +430,6 @@ pub async fn shortcut(
                     LinkInfo::create_from(link.clone()),
                     get_ip(&req),
                 );
-            }
-
-            if CONFIG.general.max_cache_size > 0 {
-                save_cached_links(link.clone(), &link_cache);
             }
 
             Ok(web_redir(&link.url_to))

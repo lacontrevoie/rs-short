@@ -18,7 +18,6 @@ mod error_handlers;
 mod init;
 mod routes;
 mod spam;
-mod cache;
 mod structs;
 mod templates;
 #[cfg(test)]
@@ -41,7 +40,6 @@ use chrono::Utc;
 use crate::handlers::{shortcut_admin_flag, shortcut_admin_del, shortcut_admin_fallback, post_link, shortcut, shortcut_admin, index};
 use crate::error_handlers::default_handler;
 use crate::init::{CONFIG, get_cookie_key};
-use crate::database::Link;
 
 use std::collections::HashMap;
 use std::sync::Mutex;
@@ -50,9 +48,6 @@ type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 
 // see the watch_visits function for more details on the watcher
 type SuspiciousWatcher = Mutex<HashMap<String, Vec<(DateTime<Utc>, String)>>>;
-
-// Failsafe preventing 500 Internal Server Errors because of db locks
-type LinkCache = Mutex<Vec<Link>>;
 
 embed_migrations!();
 
@@ -78,8 +73,6 @@ async fn main() -> std::io::Result<()> {
             Vec<(DateTime<Utc>, String)>,
             >::new()));
 
-    let link_cache = web::Data::new(Mutex::new(Vec::<Link>::new()));
-
     // check configuration version
     // and panic if it doesn't match CONFIG_VERSION
     CONFIG.check_version();
@@ -89,9 +82,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
-            .app_data(Data::new(link_cache.clone()))
             .app_data(suspicious_watch.clone())
-            .app_data(link_cache.clone())
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(), get_cookie_key(&CONFIG.general.cookie_key)
