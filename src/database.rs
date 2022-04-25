@@ -22,6 +22,7 @@ pub struct Link {
     pub phishing: i32,
 }
 
+#[derive(Debug)]
 pub struct LinkInfo {
     pub url_from: String,
     pub url_to: String,

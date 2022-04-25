@@ -4,9 +4,7 @@ use askama::Template;
 
 use crate::database::*;
 use crate::init::*;
-use crate::spam::cookie_captcha_set;
 
-use actix_session::Session;
 use actix_web::HttpRequest;
 
 use base64::encode as base64_encode;
@@ -14,6 +12,7 @@ use base64::encode as base64_encode;
 use rand::rngs::OsRng;
 use rand::RngCore;
 
+#[derive(Debug)]
 pub struct TplNotification<'a> {
     pub message: &'a str,
     pub is_valid: bool,
@@ -40,8 +39,8 @@ pub struct HomeTemplate<'a> {
     pub loc: &'a HashMap<String, HashMap<ValidLanguages, String>>,
     pub l: &'a ValidLanguages,
     pub captcha: &'a String,
-    pub notification: Option<TplNotification<'a>>,
-    pub linkinfo: Option<LinkInfo>,
+    pub notification: Option<&'a TplNotification<'a>>,
+    pub linkinfo: Option<&'a LinkInfo>,
     pub config: &'static ConfGeneral,
 }
 
@@ -56,11 +55,11 @@ pub struct PhishingTemplate<'a> {
 // needs cookie access for captcha purposes
 pub fn gentpl_home(
     l: &ValidLanguages,
-    s: &Session,
-    linkinfo: Option<LinkInfo>,
-    notification: Option<TplNotification>,
+    captcha: Option<&[u8]>,
+    linkinfo: Option<&LinkInfo>,
+    notification: Option<&TplNotification>,
 ) -> String {
-    if let Some(captcha_image) = cookie_captcha_set(s) {
+    if let Some(captcha_image) = captcha {
         // if it succeeds, renders the template
         HomeTemplate {
             loc: &LANG.pages["home"].map,
@@ -77,7 +76,7 @@ pub fn gentpl_home(
             loc: &LANG.pages["home"].map,
             l,
             captcha: &String::from("Error"),
-            notification: Some(TplNotification::new("home", "error_captcha_gen", false, l)),
+            notification: Some(&TplNotification::new("home", "error_captcha_gen", false, l)),
             linkinfo,
             config: &CONFIG.general,
         }
