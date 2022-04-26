@@ -47,7 +47,7 @@ pub const DEFAULT_LANGUAGE: ValidLanguages = ValidLanguages::En;
 
 pub const CAPTCHA_LETTERS: u32 = 6;
 
-pub const CONFIG_VERSION: u8 = 2;
+pub const CONFIG_VERSION: u8 = 3;
 
 // initializing configuration
 
@@ -157,6 +157,7 @@ pub struct ConfGeneral {
 pub struct ConfPhishing {
     pub verbose_console: bool,
     pub verbose_suspicious: bool,
+    pub verbose_level: VerboseLevel,
     pub suspicious_click_count: usize,
     pub suspicious_click_timeframe: u8,
     pub phishing_password: String,
@@ -167,6 +168,15 @@ pub struct Config {
     pub config_version: u8,
     pub general: ConfGeneral,
     pub phishing: ConfPhishing,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum VerboseLevel {
+    Info,
+    Notice,
+    Warn,
+    Crit,
 }
 
 impl Config {

@@ -5,7 +5,7 @@
 #   - url_to_blacklist.list: Forbidden websites to redirect to (ban / 403 forbidden)
 
 # Do not edit this manually unless you know what you are doing
-config_version = 2
+config_version = 3
 
 [general]
 
@@ -62,6 +62,10 @@ verbose_console = false
 # Warns in console when there is an unusual activity on a link.
 # Needs to temporarily store user IPs and timestamps to RAM.
 verbose_suspicious = true
+
+# General verbose level.
+# info | notice | warn | crit
+verbose_level = notice
 
 # Per link, starting from how many clicks per suspicious_click_delay
 # a link is considered suspicious.

@@ -21,12 +21,19 @@ pub struct TplNotification<'a> {
 impl TplNotification<'_> {
     pub fn new<'a>(
         page: &'static str,
-        message_key: &'static str,
+        message_key: &str,
         p_is_valid: bool,
         l: &'a ValidLanguages,
     ) -> Self {
+        let tr_msg = if let Some(tr) = LANG.pages[page].map.get(message_key) {
+            &tr[l]
+        } else {
+            eprintln!("FATAL: Missing translation for key {}", message_key);
+            &LANG.pages[page].map["fatal_missing_translation"][l]
+        };
+
         TplNotification {
-            message: &LANG.pages[page].map[message_key][l],
+            message: &tr_msg,
             is_valid: p_is_valid,
         }
     }
@@ -72,17 +79,18 @@ pub fn gentpl_home(
         .render()
     } else {
         // if it fails, returns an error message
+        eprintln!("FATAL: Failed to generate the captcha");
         HomeTemplate {
             loc: &LANG.pages["home"].map,
             l,
             captcha: &String::from("Error"),
-            notification: Some(&TplNotification::new("home", "error_captcha_gen", false, l)),
+            notification: Some(&TplNotification::new("home", "fatal_captcha_gen", false, l)),
             linkinfo,
             config: &CONFIG.general,
         }
         .render()
     }
-    .expect("Failed to render home template")
+    .expect("FATAL: Failed to render home template")
 }
 
 // determine the user language for i18n purposes

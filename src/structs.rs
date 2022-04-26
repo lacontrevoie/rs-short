@@ -1,10 +1,10 @@
-use actix_web::HttpRequest;
 use chrono::Duration;
 use chrono::{NaiveDateTime, Utc};
 use regex::Regex;
 use url::Url;
+use crate::error_handlers::ErrorKind;
 
-use crate::templates::get_ip;
+//use crate::templates::get_ip;
 
 #[derive(Serialize, Deserialize)]
 pub struct NewLink {
@@ -30,28 +30,28 @@ impl NewLink {
     // ---------------------------------------------------------------
     pub fn validate(
         &self,
-        req: &HttpRequest,
+        /*req: &HttpRequest,*/
         captcha_key: (NaiveDateTime, String),
-    ) -> Result<(), &'static str> {
+    ) -> Result<(), ErrorKind> {
         lazy_static! {
             static ref RE_URL_FROM: Regex =
                 Regex::new(r#"^[^,*';?:@=&.<>#%/\\\[\]\{\}"|^~ ]{0,80}$"#)
                     .expect("Failed to read NewLink url_from sanitize regular expression");
         }
         if self.url_from.len() > 50 || !RE_URL_FROM.is_match(&self.url_from) {
-            Err("error_invalid_url_from")
+            Err(ErrorKind::InfoInvalidUrlFrom)
         } else if self.url_to.len() > 4096 || Url::parse(&self.url_to).is_err() {
-            Err("error_invalid_url_to")
+            Err(ErrorKind::InfoInvalidUrlTo)
         } else if captcha_key.0 < (Utc::now().naive_utc() - Duration::minutes(30)) {
-            Err("error_session_expired")
+            Err(ErrorKind::InfoSessionExpired)
         } else if self.captcha.to_lowercase() != captcha_key.1.to_lowercase() {
-            println!(
+            /*println!(
                 "INFO: [{}] failed the captcha (input: \"{}\", answer: \"{}\").",
                 get_ip(req),
                 self.captcha,
                 captcha_key.1
-            );
-            Err("error_captcha_fail")
+            );*/
+            Err(ErrorKind::WarnCaptchaFail)
         } else {
             Ok(())
         }
