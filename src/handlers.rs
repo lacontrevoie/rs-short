@@ -5,15 +5,13 @@ use base64::URL_SAFE_NO_PAD;
 use std::collections::HashMap;
 
 use crate::database::{Link, LinkInfo};
-use crate::error_handlers::{crash, throw, pass, ShortCircuit, ErrorKind};
+use crate::error_handlers::{crash, pass, throw, ErrorKind, ShortCircuit};
 use crate::init::{CONFIG, POLICY};
 use crate::routes::{ShortcutAdminInfo, ShortcutInfo};
 use crate::spam::watch_visits;
 use crate::spam::{cookie_captcha_get, cookie_captcha_set};
 use crate::structs::NewLink;
-use crate::templates::{
-    gen_random, gentpl_home, get_ip, get_lang, TplNotification,
-};
+use crate::templates::{gen_random, gentpl_home, get_ip, get_lang, TplNotification};
 use crate::DbPool;
 use crate::SuspiciousWatcher;
 
@@ -34,38 +32,48 @@ pub async fn shortcut_admin_flag(
     // if the admin phishing password doesn't match, return early.
     if params.admin_key != CONFIG.phishing.phishing_password {
         return Err(crash(
-                throw(ErrorKind::WarnBadServerAdminKey, "tried to flag a link as phishing".into()),
-                pass(&req, &s)
-            ));
+            throw(
+                ErrorKind::WarnBadServerAdminKey,
+                "tried to flag a link as phishing".into(),
+            ),
+            pass(&req, &s),
+        ));
     }
 
     // get database connection
     let conn = dbpool
         .get()
-        .map_err(|e| {
-            crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s))
-        })?;
+        .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     // mark the link as phishing
     let flag_result = web::block(move || Link::flag_as_phishing(&params.url_from, &conn))
         .await
+        .map_err(|e| crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s)))?
         .map_err(|e| {
-            crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s))
-        })?
-        .map_err(|e| {
-            crash(throw(ErrorKind::CritAwaitFail, e.to_string()), pass(&req, &s))
+            crash(
+                throw(ErrorKind::CritAwaitFail, e.to_string()),
+                pass(&req, &s),
+            )
         })?;
 
     // if flag_as_phishing returned 0, it means it affected 0 rows.
     // so link not found
     if flag_result == 0 {
         return Err(crash(
-                throw(ErrorKind::InfoLinkNotFound, "tried to flag a non-existing phishing link".into()),
-                pass(&req, &s)
-            ));
+            throw(
+                ErrorKind::InfoLinkNotFound,
+                "tried to flag a non-existing phishing link".into(),
+            ),
+            pass(&req, &s),
+        ));
     } else {
         let tpl = TplNotification::new("home", "link_flag_success", true, &get_lang(&req));
-        Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), cookie_captcha_set(&s).as_deref(), None, Some(&tpl))))
+        Ok(HttpResponse::Ok().body(gentpl_home(
+            &get_lang(&req),
+            cookie_captcha_set(&s).as_deref(),
+            None,
+            Some(&tpl),
+        )))
     }
 }
 
@@ -82,74 +90,93 @@ pub async fn shortcut_admin_del(
     // get database connection
     let conn = dbpool
         .get()
-        .map_err(|e| {
-            crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s))
-        })?;
+        .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     // getting the link from database
     let move_url_from = params.url_from.to_owned();
     let selected_link = web::block(move || Link::get_link(&move_url_from, &conn))
         .await
+        .map_err(|e| crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s)))?
         .map_err(|e| {
-            crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s))
-        })?
-        .map_err(|e| {
-            crash(throw(ErrorKind::CritAwaitFail, e.to_string()), pass(&req, &s))
+            crash(
+                throw(ErrorKind::CritAwaitFail, e.to_string()),
+                pass(&req, &s),
+            )
         })?;
 
     let link = match selected_link {
         // if the administration key doesn't match, return early
         Some(v) if base64_encode_config(&v.key, URL_SAFE_NO_PAD) != params.admin_key => {
             return Err(crash(
-                    throw(ErrorKind::NoticeInvalidKey, "the provided link admin key is incorrect".into()),
-                    pass(&req, &s)
-                ));
+                throw(
+                    ErrorKind::NoticeInvalidKey,
+                    "the provided link admin key is incorrect".into(),
+                ),
+                pass(&req, &s),
+            ));
         }
         Some(v) => v,
         // if the link doesn't exist, return early
         None => {
             return Err(crash(
-                    throw(ErrorKind::InfoLinkNotFound, "the link to delete doesn’t exist".into()),
-                    pass(&req, &s)
-                ));
+                throw(
+                    ErrorKind::InfoLinkNotFound,
+                    "the link to delete doesn’t exist".into(),
+                ),
+                pass(&req, &s),
+            ));
         }
     };
 
     // if the link is a phishing link, prevent deletion. Early return
     if link.phishing > 0 {
         return Err(crash(
-                throw(ErrorKind::NoticeNotDeletingPhishing, "tried to delete a phishing link".into()),
-                pass(&req, &s)
-            ));
+            throw(
+                ErrorKind::NoticeNotDeletingPhishing,
+                "tried to delete a phishing link".into(),
+            ),
+            pass(&req, &s),
+        ));
     }
 
     // get a new database connection
     // because the other one has been consumed by another thread...
     let conn = dbpool
         .get()
-        .map_err(|e| {
-            crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s))
-        })?;
+        .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     // deleting the link
     web::block(move || link.delete(&conn))
         .await
         .map_err(|e| {
-            crash(throw(ErrorKind::CritLinkDeleteDbFail, e.to_string()), pass(&req, &s))
+            crash(
+                throw(ErrorKind::CritLinkDeleteDbFail, e.to_string()),
+                pass(&req, &s),
+            )
         })?
         .map_err(|e| {
-            crash(throw(ErrorKind::CritAwaitFail, e.to_string()), pass(&req, &s))
+            crash(
+                throw(ErrorKind::CritAwaitFail, e.to_string()),
+                pass(&req, &s),
+            )
         })?;
 
     // displaying success message
     let tpl = TplNotification::new("home", "link_delete_success", true, &get_lang(&req));
-    Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), cookie_captcha_set(&s).as_deref(), None, Some(&tpl))))
+    Ok(HttpResponse::Ok().body(gentpl_home(
+        &get_lang(&req),
+        cookie_captcha_set(&s).as_deref(),
+        None,
+        Some(&tpl),
+    )))
 }
 
 // GET: link administration page, fallback compatibility
 // for older links
 #[get("/{url_from}/{admin_key}")]
-pub async fn shortcut_admin_fallback(params: web::Path<ShortcutAdminInfo>) -> Result<HttpResponse, ShortCircuit> {
+pub async fn shortcut_admin_fallback(
+    params: web::Path<ShortcutAdminInfo>,
+) -> Result<HttpResponse, ShortCircuit> {
     Ok(web_redir(&format!(
         "{}/{}/admin/{}",
         &CONFIG.general.instance_hostname, params.url_from, params.admin_key
@@ -165,49 +192,56 @@ pub async fn shortcut_admin(
     s: Session,
     query: web::Query<HashMap<String, String>>,
 ) -> Result<HttpResponse, ShortCircuit> {
-
     // get database connection
     let conn = dbpool
         .get()
-        .map_err(|e| {
-            crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s))
-        })?;
+        .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     // getting the link from database
     let move_url_from = params.url_from.to_owned();
     let selected_link = web::block(move || Link::get_link(&move_url_from, &conn))
         .await
+        .map_err(|e| crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s)))?
         .map_err(|e| {
-            crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s))
-        })?
-        .map_err(|e| {
-            crash(throw(ErrorKind::CritAwaitFail, e.to_string()), pass(&req, &s))
+            crash(
+                throw(ErrorKind::CritAwaitFail, e.to_string()),
+                pass(&req, &s),
+            )
         })?;
 
     let linkinfo = match selected_link {
         // if the administration key doesn't match, return early
         Some(v) if base64_encode_config(&v.key, URL_SAFE_NO_PAD) != params.admin_key => {
             return Err(crash(
-                    throw(ErrorKind::NoticeInvalidKey, "the provided link admin key is invalid".into()),
-                    pass(&req, &s)
-                ));
+                throw(
+                    ErrorKind::NoticeInvalidKey,
+                    "the provided link admin key is invalid".into(),
+                ),
+                pass(&req, &s),
+            ));
         }
         // if the link is marked as phishing, the administration page
         // can't be accessed anymore
         Some(v) if v.phishing >= 1 => {
             return Err(crash(
-                    throw(ErrorKind::NoticeNotManagingPhishing, "tried to manage a phishing link".into()),
-                    pass(&req, &s)
-                ));
+                throw(
+                    ErrorKind::NoticeNotManagingPhishing,
+                    "tried to manage a phishing link".into(),
+                ),
+                pass(&req, &s),
+            ));
         }
         // generate linkinfo for templating purposes
         Some(v) => LinkInfo::create_from(v),
         // if the link doesn't exist, return early
         None => {
             return Err(crash(
-                    throw(ErrorKind::InfoLinkNotFound, "the link to manage doesn’t exist".into()),
-                    pass(&req, &s)
-                ));
+                throw(
+                    ErrorKind::InfoLinkNotFound,
+                    "the link to manage doesn’t exist".into(),
+                ),
+                pass(&req, &s),
+            ));
         }
     };
 
@@ -223,7 +257,12 @@ pub async fn shortcut_admin(
             Some(&tpl),
         )))
     } else {
-        Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), cookie_captcha_set(&s).as_deref(), Some(&linkinfo), None)))
+        Ok(HttpResponse::Ok().body(gentpl_home(
+            &get_lang(&req),
+            cookie_captcha_set(&s).as_deref(),
+            Some(&linkinfo),
+            None,
+        )))
     }
 }
 
@@ -242,34 +281,48 @@ pub async fn post_link(
         Some(v) => v,
         None => {
             return Err(crash(
-                    throw(ErrorKind::NoticeCookieParseFail, "failed to parse cookie".into()),
-                    pass(&req, &s)
-                ));
+                throw(
+                    ErrorKind::NoticeCookieParseFail,
+                    "failed to parse cookie".into(),
+                ),
+                pass(&req, &s),
+            ));
         }
     };
 
     // checking the form
 
     // if it returns Err(ErrorKind), early return
-    let uri = form.validate(cookie.clone()).map_err(|e| {
-        crash(e, pass(&req, &s))
-    })?;
+    let uri = form
+        .validate(cookie.clone())
+        .map_err(|e| crash(e, pass(&req, &s)))?;
 
     // prevent shortening loop. Host string has already been checked
-    if uri.host().unwrap() ==
-        &CONFIG
+    if uri.host().unwrap()
+        == &CONFIG
             .general
             .instance_hostname
             .replace("http://", "")
             .replace("https://", "")
     {
-        return Err(crash(throw(ErrorKind::InfoSelflinkForbidden, format!("tried to create a shortening loop with link {}", form.url_to)), pass(&req, &s)));
+        return Err(crash(
+            throw(
+                ErrorKind::InfoSelflinkForbidden,
+                format!(
+                    "tried to create a shortening loop with link {}",
+                    form.url_to
+                ),
+            ),
+            pass(&req, &s),
+        ));
     }
 
-    POLICY.blocklist_check_from(&form.url_from)
-        .map_err(|e| { crash(e, pass(&req, &s)) })?;
-    POLICY.blocklist_check_to(uri)
-        .map_err(|e| { crash(e, pass(&req, &s)) })?;
+    POLICY
+        .blocklist_check_from(&form.url_from)
+        .map_err(|e| crash(e, pass(&req, &s)))?;
+    POLICY
+        .blocklist_check_to(uri)
+        .map_err(|e| crash(e, pass(&req, &s)))?;
 
     // if the user hasn't chosen a shortcut name, decide for them.
     let new_url_from = if form.url_from.is_empty() {
@@ -281,9 +334,7 @@ pub async fn post_link(
     // get database connection
     let conn = dbpool
         .get()
-        .map_err(|e| {
-            crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s))
-        })?;
+        .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     let url_from_copy = form.url_from.clone();
     // query the database for an existing link
@@ -291,18 +342,28 @@ pub async fn post_link(
     let new_link =
         web::block(move || Link::insert_if_not_exists(&new_url_from, form.url_to.trim(), &conn))
             .await
+            .map_err(|e| crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s)))?
             .map_err(|e| {
-                crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s))
-            })?
-            .map_err(|e| {
-                crash(throw(ErrorKind::CritAwaitFail, e.to_string()), pass(&req, &s))
+                crash(
+                    throw(ErrorKind::CritAwaitFail, e.to_string()),
+                    pass(&req, &s),
+                )
             })?;
 
     // if the link already exists, early return.
     let new_link = match new_link {
         Some(v) => v,
         None => {
-            return Err(crash(throw(ErrorKind::NoticeLinkAlreadyExists, format!("tried to create a shortcut which already exists: {}", &url_from_copy.trim())), pass(&req, &s)));
+            return Err(crash(
+                throw(
+                    ErrorKind::NoticeLinkAlreadyExists,
+                    format!(
+                        "tried to create a shortcut which already exists: {}",
+                        &url_from_copy.trim()
+                    ),
+                ),
+                pass(&req, &s),
+            ));
         }
     };
 
@@ -337,12 +398,10 @@ pub async fn shortcut(
     suspicious_watch: web::Data<SuspiciousWatcher>,
     s: Session,
 ) -> Result<HttpResponse, ShortCircuit> {
-    
     // get database connection
-    let conn = dbpool.get()
-        .map_err(|e| {
-            crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s))
-        })?;
+    let conn = dbpool
+        .get()
+        .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     // gets the link from database
     // and increments the click count
@@ -350,7 +409,10 @@ pub async fn shortcut(
     let selected_link = web::block(move || Link::get_link_and_incr(&thread_url_from, &conn))
         .await
         .map_err(|e| {
-            crash(throw(ErrorKind::CritAwaitFail, e.to_string()), pass(&req, &s))
+            crash(
+                throw(ErrorKind::CritAwaitFail, e.to_string()),
+                pass(&req, &s),
+            )
         })?;
 
     // hard fail (500 error) if query + failover query isn't enough
@@ -362,15 +424,22 @@ pub async fn shortcut(
     match selected_link {
         // if the link does not exist, renders home template
         // with a 404 Not Found http status code
-        None => {
-            Err(crash(throw(ErrorKind::InfoInvalidLink, "link not found in DB".into()), pass(&req, &s)))
-        }
+        None => Err(crash(
+            throw(ErrorKind::InfoInvalidLink, "link not found in DB".into()),
+            pass(&req, &s),
+        )),
         // if the link exists but phishing=1, renders home
         // with a 410 Gone http status code
         Some(link) if link.phishing > 0 => {
             // render the phishing template
             // (only used once)
-            Err(crash(throw(ErrorKind::InfoPhishingLinkReached, format!("phishing link reached. shortcut name: {}", link.url_from)), pass(&req, &s)))
+            Err(crash(
+                throw(
+                    ErrorKind::InfoPhishingLinkReached,
+                    format!("phishing link reached. shortcut name: {}", link.url_from),
+                ),
+                pass(&req, &s),
+            ))
         }
         // else, redirects with a 303 See Other.
         // if verbose_suspicious is enabled, play with the Mutex.
@@ -390,7 +459,12 @@ pub async fn shortcut(
 
 #[get("/")]
 pub async fn index(req: HttpRequest, s: Session) -> Result<HttpResponse, ShortCircuit> {
-    Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), cookie_captcha_set(&s).as_deref(), None, None)))
+    Ok(HttpResponse::Ok().body(gentpl_home(
+        &get_lang(&req),
+        cookie_captcha_set(&s).as_deref(),
+        None,
+        None,
+    )))
 }
 
 fn web_redir(location: &str) -> HttpResponse {

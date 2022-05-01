@@ -48,7 +48,6 @@ pub const CAPTCHA_LETTERS: u32 = 6;
 
 pub const CONFIG_VERSION: u8 = 3;
 
-
 lazy_static! {
     // initializing configuration
     pub static ref CONFIG: Config = Config::init();
@@ -57,7 +56,6 @@ lazy_static! {
     // initializing policy list
     pub static ref POLICY: PolicyList = PolicyList::init();
 }
-
 
 // DEFINE VALID LANGUAGES HERE
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]

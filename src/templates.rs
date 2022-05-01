@@ -138,9 +138,12 @@ mod filters {
         lang: &ValidLanguages,
         key: &str,
     ) -> Option<String> {
-        Some(loc.get(key)?.get(lang).unwrap_or(
-                loc.get(key)?.get(&DEFAULT_LANGUAGE)?
-                ).to_string())
+        Some(
+            loc.get(key)?
+                .get(lang)
+                .unwrap_or(loc.get(key)?.get(&DEFAULT_LANGUAGE)?)
+                .to_string(),
+        )
     }
 }
 

@@ -7,9 +7,9 @@ use askama::Template;
 use std::fmt;
 
 use crate::init::{ValidLanguages, VerboseLevel};
+use crate::init::{CONFIG, LANG};
 use crate::spam::cookie_captcha_set;
-use crate::init::{LANG, CONFIG};
-use crate::templates::{gentpl_home, get_lang, get_ip, TplNotification, PhishingTemplate};
+use crate::templates::{gentpl_home, get_ip, get_lang, PhishingTemplate, TplNotification};
 
 #[derive(Debug, PartialEq)]
 pub enum ErrorKind {
@@ -52,18 +52,17 @@ pub async fn default_handler(
     s: Session,
 ) -> Result<HttpResponse, ShortCircuit> {
     match req_method {
-        Method::GET => {
-            Err(crash(throw(ErrorKind::InfoNotFound, "link not found".into()), pass(&req, &s)))
-        }
+        Method::GET => Err(crash(
+            throw(ErrorKind::InfoNotFound, "link not found".into()),
+            pass(&req, &s),
+        )),
         _ => Ok(HttpResponse::MethodNotAllowed().finish()),
     }
 }
 
 // easily create an ErrorInfo to throw an error
 pub fn throw(kind: ErrorKind, msg: String) -> ErrorInfo {
-    ErrorInfo {
-        kind, msg
-    }
+    ErrorInfo { kind, msg }
 }
 
 // prepare all the required information to throw an error
@@ -76,14 +75,8 @@ pub fn pass(req: &HttpRequest, s: &Session) -> RequestInfo {
 }
 
 // throw the actual error with crash(throw(…), pass(…))
-pub fn crash(
-    error: ErrorInfo,
-    req: RequestInfo,
-) -> ShortCircuit {
-    ShortCircuit {
-        error,
-        req,
-    }
+pub fn crash(error: ErrorInfo, req: RequestInfo) -> ShortCircuit {
+    ShortCircuit { error, req }
 }
 
 #[derive(Debug)]
@@ -122,25 +115,26 @@ impl ShortCircuit {
                 if self.error.kind.is_critical() {
                     self.print_format();
                 }
-            },
+            }
             VerboseLevel::Warn => {
                 if self.error.kind.is_critical() || self.error.kind.is_warning() {
                     self.print_format();
                 }
             }
             VerboseLevel::Notice => {
-                if self.error.kind.is_critical() || self.error.kind.is_warning() || self.error.kind.is_notice() {
+                if self.error.kind.is_critical()
+                    || self.error.kind.is_warning()
+                    || self.error.kind.is_notice()
+                {
                     self.print_format();
                 }
             }
             VerboseLevel::Info => self.print_format(),
         }
-
     }
 }
 
 impl error::ResponseError for ShortCircuit {
-
     fn error_response(&self) -> HttpResponse {
         // print to console
         self.print_error();
@@ -148,20 +142,24 @@ impl error::ResponseError for ShortCircuit {
         // display the error message.
         // special case for the PhishingLinkReached error
         match self.error.kind {
-            ErrorKind::InfoPhishingLinkReached => {
-                HttpResponseBuilder::new(self.status_code())
-                    .content_type("text/html").body(
+            ErrorKind::InfoPhishingLinkReached => HttpResponseBuilder::new(self.status_code())
+                .content_type("text/html")
+                .body(
                     PhishingTemplate {
                         loc: &LANG.pages["phishing"].map,
                         l: &self.req.lang,
                         config: &CONFIG.general,
                     }
                     .render()
-                    .expect("FATAL: Failed to render phishing template")
-                )
-            },
+                    .expect("FATAL: Failed to render phishing template"),
+                ),
             _ => {
-                let tpl = TplNotification::new("home", &format!("{}", self.error.kind), false, &self.req.lang);
+                let tpl = TplNotification::new(
+                    "home",
+                    &format!("{}", self.error.kind),
+                    false,
+                    &self.req.lang,
+                );
 
                 HttpResponseBuilder::new(self.status_code())
                     .content_type("text/html")
@@ -178,28 +176,28 @@ impl error::ResponseError for ShortCircuit {
     fn status_code(&self) -> StatusCode {
         match &self.error.kind {
             ErrorKind::CritDbPool
-                | ErrorKind::CritDbFail
-                | ErrorKind::CritLinkDeleteDbFail
-                | ErrorKind::CritAwaitFail => StatusCode::INTERNAL_SERVER_ERROR,
+            | ErrorKind::CritDbFail
+            | ErrorKind::CritLinkDeleteDbFail
+            | ErrorKind::CritAwaitFail => StatusCode::INTERNAL_SERVER_ERROR,
             ErrorKind::WarnBadServerAdminKey
-                | ErrorKind::NoticeInvalidKey
-                | ErrorKind::NoticeNotManagingPhishing
-                | ErrorKind::NoticeNotDeletingPhishing => StatusCode::UNAUTHORIZED,
+            | ErrorKind::NoticeInvalidKey
+            | ErrorKind::NoticeNotManagingPhishing
+            | ErrorKind::NoticeNotDeletingPhishing => StatusCode::UNAUTHORIZED,
             ErrorKind::WarnBlockedLinkShortener
-                | ErrorKind::WarnBlockedLinkSpam
-                | ErrorKind::WarnBlockedLinkFreehost
-                | ErrorKind::WarnBlockedName
-                | ErrorKind::NoticeLinkAlreadyExists
-                | ErrorKind::InfoSelflinkForbidden => StatusCode::FORBIDDEN,
+            | ErrorKind::WarnBlockedLinkSpam
+            | ErrorKind::WarnBlockedLinkFreehost
+            | ErrorKind::WarnBlockedName
+            | ErrorKind::NoticeLinkAlreadyExists
+            | ErrorKind::InfoSelflinkForbidden => StatusCode::FORBIDDEN,
             ErrorKind::WarnCaptchaFail
-                | ErrorKind::NoticeUnsupportedProtocol
-                | ErrorKind::NoticeCookieParseFail
-                | ErrorKind::InfoInvalidUrlFrom
-                | ErrorKind::InfoInvalidUrlTo
-                | ErrorKind::InfoSessionExpired => StatusCode::BAD_REQUEST,
-            ErrorKind::InfoLinkNotFound
-                | ErrorKind::InfoInvalidLink
-                | ErrorKind::InfoNotFound => StatusCode::NOT_FOUND,
+            | ErrorKind::NoticeUnsupportedProtocol
+            | ErrorKind::NoticeCookieParseFail
+            | ErrorKind::InfoInvalidUrlFrom
+            | ErrorKind::InfoInvalidUrlTo
+            | ErrorKind::InfoSessionExpired => StatusCode::BAD_REQUEST,
+            ErrorKind::InfoLinkNotFound | ErrorKind::InfoInvalidLink | ErrorKind::InfoNotFound => {
+                StatusCode::NOT_FOUND
+            }
             ErrorKind::InfoPhishingLinkReached => StatusCode::GONE,
         }
     }
@@ -223,32 +221,32 @@ impl ErrorKind {
         matches!(
             self,
             ErrorKind::NoticeCookieParseFail
-            | ErrorKind::NoticeNotDeletingPhishing
-            | ErrorKind::NoticeNotManagingPhishing
-            | ErrorKind::NoticeInvalidKey
-            | ErrorKind::NoticeLinkAlreadyExists
-            | ErrorKind::NoticeUnsupportedProtocol
+                | ErrorKind::NoticeNotDeletingPhishing
+                | ErrorKind::NoticeNotManagingPhishing
+                | ErrorKind::NoticeInvalidKey
+                | ErrorKind::NoticeLinkAlreadyExists
+                | ErrorKind::NoticeUnsupportedProtocol
         )
     }
     pub fn is_warning(&self) -> bool {
         matches!(
             self,
             ErrorKind::WarnCaptchaFail
-            | ErrorKind::WarnBlockedLinkFreehost
-            | ErrorKind::WarnBlockedLinkShortener
-            | ErrorKind::WarnBlockedLinkSpam
-            | ErrorKind::WarnBlockedName
-            | ErrorKind::WarnBadServerAdminKey
+                | ErrorKind::WarnBlockedLinkFreehost
+                | ErrorKind::WarnBlockedLinkShortener
+                | ErrorKind::WarnBlockedLinkSpam
+                | ErrorKind::WarnBlockedName
+                | ErrorKind::WarnBadServerAdminKey
         )
     }
-    
+
     pub fn is_critical(&self) -> bool {
         matches!(
             self,
             ErrorKind::CritAwaitFail
-            | ErrorKind::CritLinkDeleteDbFail
-            | ErrorKind::CritDbFail
-            | ErrorKind::CritDbPool
+                | ErrorKind::CritLinkDeleteDbFail
+                | ErrorKind::CritDbFail
+                | ErrorKind::CritDbPool
         )
     }
 }
