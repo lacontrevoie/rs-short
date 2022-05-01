@@ -5,14 +5,14 @@ use base64::URL_SAFE_NO_PAD;
 use std::collections::HashMap;
 
 use crate::database::{Link, LinkInfo};
-use crate::error_handlers::{crash, ShortCircuit, ErrorKind};
-use crate::init::{ALLOWED_PROTOCOLS, CONFIG, URL_FROM_BL, URL_TO_BL, URL_TO_SOFTBL};
+use crate::error_handlers::{crash, throw, pass, ShortCircuit, ErrorKind};
+use crate::init::{CONFIG, POLICY};
 use crate::routes::{ShortcutAdminInfo, ShortcutInfo};
 use crate::spam::watch_visits;
 use crate::spam::{cookie_captcha_get, cookie_captcha_set};
 use crate::structs::NewLink;
 use crate::templates::{
-    blacklist_check, gen_random, gentpl_home, get_ip, get_lang, TplNotification,
+    gen_random, gentpl_home, get_ip, get_lang, TplNotification,
 };
 use crate::DbPool;
 use crate::SuspiciousWatcher;
@@ -31,37 +31,41 @@ pub async fn shortcut_admin_flag(
     // admin password defined in config.toml.
     // We just used the same struct for convenience.
 
-    let captcha = cookie_captcha_set(&s);
-
     // if the admin phishing password doesn't match, return early.
     if params.admin_key != CONFIG.phishing.phishing_password {
-        return Err(crash(ErrorKind::WarnBadServerAdminKey, "tried to flag a link as phishing".into(), get_ip(&req), get_lang(&req), captcha));
+        return Err(crash(
+                throw(ErrorKind::WarnBadServerAdminKey, "tried to flag a link as phishing".into()),
+                pass(&req, &s)
+            ));
     }
 
     // get database connection
     let conn = dbpool
         .get()
         .map_err(|e| {
-            crash(ErrorKind::CritDbPool, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s))
         })?;
 
     // mark the link as phishing
     let flag_result = web::block(move || Link::flag_as_phishing(&params.url_from, &conn))
         .await
         .map_err(|e| {
-            crash(ErrorKind::CritDbFail, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s))
         })?
         .map_err(|e| {
-            crash(ErrorKind::CritAwaitFail, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritAwaitFail, e.to_string()), pass(&req, &s))
         })?;
 
     // if flag_as_phishing returned 0, it means it affected 0 rows.
     // so link not found
     if flag_result == 0 {
-        return Err(crash(ErrorKind::InfoLinkNotFound, "tried to flag a non-existing phishing link".into(), get_ip(&req), get_lang(&req), captcha));
+        return Err(crash(
+                throw(ErrorKind::InfoLinkNotFound, "tried to flag a non-existing phishing link".into()),
+                pass(&req, &s)
+            ));
     } else {
         let tpl = TplNotification::new("home", "link_flag_success", true, &get_lang(&req));
-        Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), captcha.as_deref(), None, Some(&tpl))))
+        Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), cookie_captcha_set(&s).as_deref(), None, Some(&tpl))))
     }
 }
 
@@ -75,13 +79,11 @@ pub async fn shortcut_admin_del(
 ) -> Result<HttpResponse, ShortCircuit> {
     // INFO: Copy-paste from shortcut_admin
 
-    let captcha = cookie_captcha_set(&s);
-
     // get database connection
     let conn = dbpool
         .get()
         .map_err(|e| {
-            crash(ErrorKind::CritDbPool, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s))
         })?;
 
     // getting the link from database
@@ -89,27 +91,36 @@ pub async fn shortcut_admin_del(
     let selected_link = web::block(move || Link::get_link(&move_url_from, &conn))
         .await
         .map_err(|e| {
-            crash(ErrorKind::CritDbFail, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s))
         })?
         .map_err(|e| {
-            crash(ErrorKind::CritAwaitFail, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritAwaitFail, e.to_string()), pass(&req, &s))
         })?;
 
     let link = match selected_link {
         // if the administration key doesn't match, return early
         Some(v) if base64_encode_config(&v.key, URL_SAFE_NO_PAD) != params.admin_key => {
-            return Err(crash(ErrorKind::NoticeInvalidKey, "the provided link admin key is incorrect".into(), get_ip(&req), get_lang(&req), captcha.clone()));
+            return Err(crash(
+                    throw(ErrorKind::NoticeInvalidKey, "the provided link admin key is incorrect".into()),
+                    pass(&req, &s)
+                ));
         }
         Some(v) => v,
         // if the link doesn't exist, return early
         None => {
-            return Err(crash(ErrorKind::InfoLinkNotFound, "the link to delete doesn’t exist".into(), get_ip(&req), get_lang(&req), captcha.clone()));
+            return Err(crash(
+                    throw(ErrorKind::InfoLinkNotFound, "the link to delete doesn’t exist".into()),
+                    pass(&req, &s)
+                ));
         }
     };
 
     // if the link is a phishing link, prevent deletion. Early return
     if link.phishing > 0 {
-        return Err(crash(ErrorKind::NoticeNotDeletingPhishing, "tried to delete a phishing link".into(), get_ip(&req), get_lang(&req), captcha.clone()));
+        return Err(crash(
+                throw(ErrorKind::NoticeNotDeletingPhishing, "tried to delete a phishing link".into()),
+                pass(&req, &s)
+            ));
     }
 
     // get a new database connection
@@ -117,22 +128,22 @@ pub async fn shortcut_admin_del(
     let conn = dbpool
         .get()
         .map_err(|e| {
-            crash(ErrorKind::CritDbPool, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s))
         })?;
 
     // deleting the link
     web::block(move || link.delete(&conn))
         .await
         .map_err(|e| {
-            crash(ErrorKind::CritLinkDeleteDbFail, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritLinkDeleteDbFail, e.to_string()), pass(&req, &s))
         })?
         .map_err(|e| {
-            crash(ErrorKind::CritAwaitFail, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritAwaitFail, e.to_string()), pass(&req, &s))
         })?;
 
     // displaying success message
     let tpl = TplNotification::new("home", "link_delete_success", true, &get_lang(&req));
-    Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), captcha.as_deref(), None, Some(&tpl))))
+    Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), cookie_captcha_set(&s).as_deref(), None, Some(&tpl))))
 }
 
 // GET: link administration page, fallback compatibility
@@ -154,13 +165,12 @@ pub async fn shortcut_admin(
     s: Session,
     query: web::Query<HashMap<String, String>>,
 ) -> Result<HttpResponse, ShortCircuit> {
-    let captcha = cookie_captcha_set(&s);
 
     // get database connection
     let conn = dbpool
         .get()
         .map_err(|e| {
-            crash(ErrorKind::CritDbPool, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s))
         })?;
 
     // getting the link from database
@@ -168,27 +178,36 @@ pub async fn shortcut_admin(
     let selected_link = web::block(move || Link::get_link(&move_url_from, &conn))
         .await
         .map_err(|e| {
-            crash(ErrorKind::CritDbFail, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s))
         })?
         .map_err(|e| {
-            crash(ErrorKind::CritAwaitFail, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritAwaitFail, e.to_string()), pass(&req, &s))
         })?;
 
     let linkinfo = match selected_link {
         // if the administration key doesn't match, return early
         Some(v) if base64_encode_config(&v.key, URL_SAFE_NO_PAD) != params.admin_key => {
-            return Err(crash(ErrorKind::NoticeInvalidKey, "the provided link admin key is invalid".into(), get_ip(&req), get_lang(&req), captcha.clone()));
+            return Err(crash(
+                    throw(ErrorKind::NoticeInvalidKey, "the provided link admin key is invalid".into()),
+                    pass(&req, &s)
+                ));
         }
         // if the link is marked as phishing, the administration page
         // can't be accessed anymore
         Some(v) if v.phishing >= 1 => {
-            return Err(crash(ErrorKind::NoticeNotManagingPhishing, "tried to manage a phishing link".into(), get_ip(&req), get_lang(&req), captcha.clone()))
+            return Err(crash(
+                    throw(ErrorKind::NoticeNotManagingPhishing, "tried to manage a phishing link".into()),
+                    pass(&req, &s)
+                ));
         }
         // generate linkinfo for templating purposes
         Some(v) => LinkInfo::create_from(v),
         // if the link doesn't exist, return early
         None => {
-            return Err(crash(ErrorKind::InfoLinkNotFound, "the link to manage doesn’t exist".into(), get_ip(&req), get_lang(&req), captcha.clone()))
+            return Err(crash(
+                    throw(ErrorKind::InfoLinkNotFound, "the link to manage doesn’t exist".into()),
+                    pass(&req, &s)
+                ));
         }
     };
 
@@ -199,12 +218,12 @@ pub async fn shortcut_admin(
         let tpl = TplNotification::new("home", "form_success", true, &get_lang(&req));
         Ok(HttpResponse::Ok().body(gentpl_home(
             &get_lang(&req),
-            captcha.as_deref(),
+            cookie_captcha_set(&s).as_deref(),
             Some(&linkinfo),
             Some(&tpl),
         )))
     } else {
-        Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), captcha.as_deref(), Some(&linkinfo), None)))
+        Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), cookie_captcha_set(&s).as_deref(), Some(&linkinfo), None)))
     }
 }
 
@@ -222,62 +241,35 @@ pub async fn post_link(
     let cookie = match cookie_captcha_get(&s) {
         Some(v) => v,
         None => {
-            let captcha = cookie_captcha_set(&s);
-            return Err(crash(ErrorKind::NoticeCookieParseFail, "failed to parse cookie".into(), get_ip(&req), get_lang(&req), captcha.clone()))
+            return Err(crash(
+                    throw(ErrorKind::NoticeCookieParseFail, "failed to parse cookie".into()),
+                    pass(&req, &s)
+                ));
         }
     };
 
     // checking the form
-    // if it returns Err(template), early return
-    if let Some(tpl_error) = form.validate(cookie.clone()).err() {
-        let captcha = cookie_captcha_set(&s);
-        if tpl_error == ErrorKind::WarnCaptchaFail {
-            return Err(crash(tpl_error, format!("captcha failed: {} | {}", form.captcha.to_lowercase(), cookie.1.to_lowercase()), get_ip(&req), get_lang(&req), captcha.clone()));
-        } else {
-            return Err(crash(tpl_error, "form validation failed".into(), get_ip(&req), get_lang(&req), captcha.clone()));
-        }
-    }
 
-    // prevent shortening loop
-    if form.url_to.contains(
+    // if it returns Err(ErrorKind), early return
+    let uri = form.validate(cookie.clone()).map_err(|e| {
+        crash(e, pass(&req, &s))
+    })?;
+
+    // prevent shortening loop. Host string has already been checked
+    if uri.host().unwrap() ==
         &CONFIG
             .general
             .instance_hostname
             .replace("http://", "")
-            .replace("https://", ""),
-    ) {
-        let captcha = cookie_captcha_set(&s);
-        return Err(crash(ErrorKind::InfoSelflinkForbidden, format!("tried to create a shortening loop with link {}", form.url_to), get_ip(&req), get_lang(&req), captcha.clone()))
-    }
-
-    // check for soft blacklists
-    // Do not ban, just display a friendly error
-    if blacklist_check(&form.url_to, &URL_TO_SOFTBL, false) {
-        let captcha = cookie_captcha_set(&s);
-        return Err(crash(ErrorKind::WarnShortlinkForbidden, format!("matched an URL in the soft blocklist. URL: {} | Shortcut name: {}", form.url_to, &form.url_from), get_ip(&req), get_lang(&req), captcha.clone()))
-    }
-
-    // check for blacklists
-    if blacklist_check(&form.url_from, &URL_FROM_BL, true)
-        || blacklist_check(&form.url_to, &URL_TO_BL, false)
+            .replace("https://", "")
     {
-        let captcha = cookie_captcha_set(&s);
-        return Err(crash(ErrorKind::WarnBlocklistedLink, format!("matched an URL in the hard blocklist. URL: {} | Shortcut name: {}", form.url_to, &form.url_from), get_ip(&req), get_lang(&req), captcha.clone()))
+        return Err(crash(throw(ErrorKind::InfoSelflinkForbidden, format!("tried to create a shortening loop with link {}", form.url_to)), pass(&req, &s)));
     }
 
-    let mut is_allowed = false;
-    // check protocols whitelist
-    for r in ALLOWED_PROTOCOLS {
-        if form.url_to.trim().starts_with(r) {
-            is_allowed = true;
-        }
-    }
-
-    // if the protocol is forbidden, throws a friendly error
-    if !is_allowed {
-        let captcha = cookie_captcha_set(&s);
-        return Err(crash(ErrorKind::NoticeUnsupportedProtocol, format!("submitted an URL with an unsupported protocol. URL: {}", form.url_to), get_ip(&req), get_lang(&req), captcha.clone()))
-    }
+    POLICY.blocklist_check_from(&form.url_from)
+        .map_err(|e| { crash(e, pass(&req, &s)) })?;
+    POLICY.blocklist_check_to(uri)
+        .map_err(|e| { crash(e, pass(&req, &s)) })?;
 
     // if the user hasn't chosen a shortcut name, decide for them.
     let new_url_from = if form.url_from.is_empty() {
@@ -290,8 +282,7 @@ pub async fn post_link(
     let conn = dbpool
         .get()
         .map_err(|e| {
-            let captcha = cookie_captcha_set(&s);
-            crash(ErrorKind::CritDbPool, e.to_string(), get_ip(&req), get_lang(&req), captcha)
+            crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s))
         })?;
 
     let url_from_copy = form.url_from.clone();
@@ -301,20 +292,17 @@ pub async fn post_link(
         web::block(move || Link::insert_if_not_exists(&new_url_from, form.url_to.trim(), &conn))
             .await
             .map_err(|e| {
-                let captcha = cookie_captcha_set(&s);
-                crash(ErrorKind::CritDbFail, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+                crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s))
             })?
             .map_err(|e| {
-                let captcha = cookie_captcha_set(&s);
-                crash(ErrorKind::CritAwaitFail, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+                crash(throw(ErrorKind::CritAwaitFail, e.to_string()), pass(&req, &s))
             })?;
 
     // if the link already exists, early return.
     let new_link = match new_link {
         Some(v) => v,
         None => {
-            let captcha = cookie_captcha_set(&s);
-            return Err(crash(ErrorKind::NoticeLinkAlreadyExists, format!("tried to create a shortcut which already exists: {}", &url_from_copy.trim()), get_ip(&req), get_lang(&req), captcha.clone()));
+            return Err(crash(throw(ErrorKind::NoticeLinkAlreadyExists, format!("tried to create a shortcut which already exists: {}", &url_from_copy.trim())), pass(&req, &s)));
         }
     };
 
@@ -349,12 +337,11 @@ pub async fn shortcut(
     suspicious_watch: web::Data<SuspiciousWatcher>,
     s: Session,
 ) -> Result<HttpResponse, ShortCircuit> {
-    let captcha = cookie_captcha_set(&s);
-
+    
     // get database connection
     let conn = dbpool.get()
         .map_err(|e| {
-            crash(ErrorKind::CritDbPool, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s))
         })?;
 
     // gets the link from database
@@ -363,27 +350,27 @@ pub async fn shortcut(
     let selected_link = web::block(move || Link::get_link_and_incr(&thread_url_from, &conn))
         .await
         .map_err(|e| {
-            crash(ErrorKind::CritAwaitFail, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+            crash(throw(ErrorKind::CritAwaitFail, e.to_string()), pass(&req, &s))
         })?;
 
     // hard fail (500 error) if query + failover query isn't enough
     let selected_link = selected_link.map_err(|e| {
         eprintln!("ERROR: shortcut: get_link query failed: {}", e);
-        crash(ErrorKind::CritDbFail, e.to_string(), get_ip(&req), get_lang(&req), captcha.clone())
+        crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s))
     })?;
 
     match selected_link {
         // if the link does not exist, renders home template
         // with a 404 Not Found http status code
         None => {
-            Err(crash(ErrorKind::InfoInvalidLink, "link not found in DB".into(), get_ip(&req), get_lang(&req), captcha.clone()))
+            Err(crash(throw(ErrorKind::InfoInvalidLink, "link not found in DB".into()), pass(&req, &s)))
         }
         // if the link exists but phishing=1, renders home
         // with a 410 Gone http status code
         Some(link) if link.phishing > 0 => {
             // render the phishing template
             // (only used once)
-            Err(crash(ErrorKind::InfoPhishingLinkReached, format!("phishing link reached. Shortcut name: {}", link.url_from), get_ip(&req), get_lang(&req), captcha.clone()))
+            Err(crash(throw(ErrorKind::InfoPhishingLinkReached, format!("phishing link reached. shortcut name: {}", link.url_from)), pass(&req, &s)))
         }
         // else, redirects with a 303 See Other.
         // if verbose_suspicious is enabled, play with the Mutex.
@@ -403,8 +390,7 @@ pub async fn shortcut(
 
 #[get("/")]
 pub async fn index(req: HttpRequest, s: Session) -> Result<HttpResponse, ShortCircuit> {
-    let captcha = cookie_captcha_set(&s);
-    Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), captcha.as_deref(), None, None)))
+    Ok(HttpResponse::Ok().body(gentpl_home(&get_lang(&req), cookie_captcha_set(&s).as_deref(), None, None)))
 }
 
 fn web_redir(location: &str) -> HttpResponse {

@@ -17,6 +17,7 @@ askama = "0.11"
 serde = "1.0"
 serde_json = "1.0"
 serde_derive = "1.0"
+serde_regex = "1.1"
 toml = "0.5"
 lazy_static = "1.4"
 captcha = "0.0.8"
@@ -25,5 +26,8 @@ diesel = { version = "1.4", features = ["r2d2", "chrono"] }
 diesel_migrations = "1.4"
 chrono = { version = "0.4", features = ["serde"] }
 base64 = "0.13"
-url = "2.2"
-regex = "1.5"
+
+[dependencies.regex]
+version = "1.5"
+default-features = false
+features = ["std", "perf"]

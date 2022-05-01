@@ -9,10 +9,156 @@ use captcha::Captcha;
 use chrono::Duration;
 use chrono::{NaiveDateTime, Utc};
 use rand::Rng;
+use regex::Regex;
+use std::io::Read;
+use std::fs::File;
+use actix_web::http::Uri;
 
 use crate::database::LinkInfo;
-use crate::init::{CAPTCHA_LETTERS, CONFIG};
+use crate::init::{CAPTCHA_LETTERS, CONFIG, LISTS_FILE, POLICY};
 use crate::SuspiciousWatcher;
+use crate::error_handlers::{ErrorKind, ErrorInfo, throw};
+
+#[derive(Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum BlocklistCategory {
+    Shortener,
+    Freehost,
+    Spam
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum BlocklistMatching {
+    #[serde(rename = "full-uri")]
+    FullUri,
+    Host,
+    Port,
+    Authority,
+    Path,
+    Query,
+}
+
+#[derive(Deserialize)]
+pub struct PolicyList {
+    pub names: PolicyListNames,
+    pub urls: PolicyListURLs
+}
+
+#[derive(Deserialize)]
+pub struct PolicyListNames {
+    pub allowlist: Vec<AllowEntry>,
+    pub blocklist: Vec<BlockEntryName>,
+}
+
+#[derive(Deserialize)]
+pub struct PolicyListURLs {
+    pub allowlist: Vec<AllowEntry>,
+    pub blocklist: Vec<BlockEntryURL>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct AllowEntry {
+    #[serde(with = "serde_regex")]
+    pub expr: Regex
+}
+
+#[derive(Deserialize)]
+pub struct BlockEntryName {
+    #[serde(with = "serde_regex")]
+    pub expr: Regex,
+    pub category: BlocklistCategory
+}
+
+#[derive(Deserialize)]
+pub struct BlockEntryURL {
+    #[serde(with = "serde_regex")]
+    pub expr: Regex,
+    pub category: BlocklistCategory,
+    pub matching: Option<BlocklistMatching>,
+}
+
+impl PolicyList {
+    pub fn init() -> Self {
+        let mut listfile = File::open(LISTS_FILE).expect(
+            "Policy list file lists.toml not found. Please create it.",
+        );
+        let mut liststr = String::new();
+        listfile
+            .read_to_string(&mut liststr)
+            .expect("Couldn't read listfile to string");
+        toml::from_str(&liststr).unwrap()
+    }
+
+    pub fn blocklist_check_from(&self, url_from: &str) -> Result<(), ErrorInfo> {
+        if let Some(bl_entry) = POLICY.names.blocklist.iter().find(|&r| r.expr.is_match(&url_from.to_lowercase())) {
+            Err(throw(bl_entry.errkind(), format!("shortcut name blocklisted: {}", url_from)))
+        } else {
+            Ok(())
+        }
+    }
+
+    pub fn blocklist_check_to(&self, uri: Uri) -> Result<(), ErrorInfo> {
+        for bl_entry in &POLICY.urls.blocklist {
+            match bl_entry.matching {
+                Some(BlocklistMatching::Host) | None => {
+                    // host string already checked in parent function
+                    if bl_entry.expr.is_match(&uri.host().unwrap().to_lowercase()) {
+                        return Err(throw(bl_entry.errkind(), format!("URL blocklisted [host]: {}", uri.to_string())));
+                    }
+                },
+                Some(BlocklistMatching::FullUri) => {
+                    if bl_entry.expr.is_match(&uri.to_string().to_lowercase()) {
+                        return Err(throw(bl_entry.errkind(), format!("URL blocklisted [full-uri]: {}", uri.to_string())));
+                    }
+                },
+                Some(BlocklistMatching::Port) => {
+                    if let Some(up) = uri.port() {
+                        if bl_entry.expr.is_match(&up.as_str().to_lowercase()) {
+                            return Err(throw(bl_entry.errkind(), format!("URL blocklisted [port]: {}", uri.to_string())));
+                        }
+                    }
+                },
+                Some(BlocklistMatching::Authority) => {
+                    if let Some(ua) = uri.authority() {
+                        if bl_entry.expr.is_match(&ua.as_str().to_lowercase()) {
+                            return Err(throw(bl_entry.errkind(), format!("URL blocklisted [authority]: {}", uri.to_string())));
+                        }
+                    }
+                },
+                Some(BlocklistMatching::Path) => {
+                    if bl_entry.expr.is_match(&uri.path().to_lowercase()) {
+                        return Err(throw(bl_entry.errkind(), format!("URL blocklisted [path]: {}", uri.to_string())));
+                    }
+                },
+                Some(BlocklistMatching::Query) => {
+                    if let Some(uq) = uri.query() {
+                        if bl_entry.expr.is_match(&uq.to_lowercase()) {
+                            return Err(throw(bl_entry.errkind(), format!("URL blocklisted [query]: {}", uri.to_string())));
+                        }
+                    }
+                },
+            }
+        }
+        Ok(())
+    }
+}
+
+impl BlockEntryName {
+    pub fn errkind(&self) -> ErrorKind {
+        ErrorKind::WarnBlockedName
+    }
+}
+
+impl BlockEntryURL {
+    pub fn errkind(&self) -> ErrorKind {
+        match self.category {
+           BlocklistCategory::Shortener => ErrorKind::WarnBlockedLinkShortener,
+           BlocklistCategory::Freehost => ErrorKind::WarnBlockedLinkFreehost,
+           BlocklistCategory::Spam => ErrorKind::WarnBlockedLinkSpam,
+        }
+    }
+}
 
 pub fn gen_captcha() -> Option<(String, Vec<u8>)> {
     let mut rng = rand::thread_rng();

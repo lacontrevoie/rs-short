@@ -18,8 +18,10 @@ pub enum ErrorKind {
     CritLinkDeleteDbFail,       // => StatusCode::INTERNAL_SERVER_ERROR,
     CritAwaitFail,              // => StatusCode::INTERNAL_SERVER_ERROR,
     WarnBadServerAdminKey,      // => StatusCode::UNAUTHORIZED,
-    WarnShortlinkForbidden,     // => StatusCode::FORBIDDEN,
-    WarnBlocklistedLink,        // => StatusCode::FORBIDDEN,
+    WarnBlockedLinkShortener,   // => StatusCode::FORBIDDEN,
+    WarnBlockedLinkSpam,        // => StatusCode::FORBIDDEN,
+    WarnBlockedLinkFreehost,    // => StatusCode::FORBIDDEN,
+    WarnBlockedName,            // => StatusCode::FORBIDDEN,
     WarnCaptchaFail,            // => StatusCode::BAD_REQUEST,
     NoticeUnsupportedProtocol,  // => StatusCode::BAD_REQUEST,
     NoticeLinkAlreadyExists,    // => StatusCode::FORBIDDEN,
@@ -37,6 +39,11 @@ pub enum ErrorKind {
     InfoPhishingLinkReached,    // => StatusCode::GONE,
 }
 
+#[derive(Debug)]
+pub struct ErrorInfo {
+    pub kind: ErrorKind,
+    pub msg: String,
+}
 
 // 404 handler
 pub async fn default_handler(
@@ -46,37 +53,50 @@ pub async fn default_handler(
 ) -> Result<HttpResponse, ShortCircuit> {
     match req_method {
         Method::GET => {
-            let captcha = cookie_captcha_set(&s);
-
-            Err(crash(ErrorKind::InfoNotFound, "link not found".into(), get_ip(&req), get_lang(&req), captcha))
+            Err(crash(throw(ErrorKind::InfoNotFound, "link not found".into()), pass(&req, &s)))
         }
         _ => Ok(HttpResponse::MethodNotAllowed().finish()),
     }
 }
 
+// easily create an ErrorInfo to throw an error
+pub fn throw(kind: ErrorKind, msg: String) -> ErrorInfo {
+    ErrorInfo {
+        kind, msg
+    }
+}
+
+// prepare all the required information to throw an error
+pub fn pass(req: &HttpRequest, s: &Session) -> RequestInfo {
+    RequestInfo {
+        ip: get_ip(&req),
+        lang: get_lang(&req),
+        captcha: cookie_captcha_set(s),
+    }
+}
+
+// throw the actual error with crash(throw(…), pass(…))
 pub fn crash(
-    error_kind: ErrorKind,
-    error_msg: String,
-    ip: String,
-    lang: ValidLanguages,
-    captcha: Option<Vec<u8>>,
+    error: ErrorInfo,
+    req: RequestInfo,
 ) -> ShortCircuit {
     ShortCircuit {
-        error_kind,
-        error_msg,
-        ip,
-        lang,
-        captcha,
+        error,
+        req,
     }
 }
 
 #[derive(Debug)]
-pub struct ShortCircuit {
-    pub error_kind: ErrorKind,
-    pub error_msg: String,
+pub struct RequestInfo {
     pub ip: String,
     pub lang: ValidLanguages,
     pub captcha: Option<Vec<u8>>,
+}
+
+#[derive(Debug)]
+pub struct ShortCircuit {
+    pub error: ErrorInfo,
+    pub req: RequestInfo,
 }
 
 impl fmt::Display for ErrorKind {
@@ -87,29 +107,29 @@ impl fmt::Display for ErrorKind {
 
 impl fmt::Display for ShortCircuit {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?} - {:?}", self.error_kind, self.error_msg)
+        write!(f, "{:?} - {:?}", self.error.kind, self.error.msg)
     }
 }
 
 impl ShortCircuit {
     fn print_format(&self) {
-        eprintln!("[{}] {}: {}", self.ip, self.error_kind, self.error_msg);
+        eprintln!("[{}] {}: {}", self.req.ip, self.error.kind, self.error.msg);
     }
 
     fn print_error(&self) {
         match &CONFIG.phishing.verbose_level {
             VerboseLevel::Crit => {
-                if self.error_kind.is_critical() {
+                if self.error.kind.is_critical() {
                     self.print_format();
                 }
             },
             VerboseLevel::Warn => {
-                if self.error_kind.is_critical() || self.error_kind.is_warning() {
+                if self.error.kind.is_critical() || self.error.kind.is_warning() {
                     self.print_format();
                 }
             }
             VerboseLevel::Notice => {
-                if self.error_kind.is_critical() || self.error_kind.is_warning() || self.error_kind.is_notice() {
+                if self.error.kind.is_critical() || self.error.kind.is_warning() || self.error.kind.is_notice() {
                     self.print_format();
                 }
             }
@@ -127,13 +147,13 @@ impl error::ResponseError for ShortCircuit {
 
         // display the error message.
         // special case for the PhishingLinkReached error
-        match self.error_kind {
+        match self.error.kind {
             ErrorKind::InfoPhishingLinkReached => {
                 HttpResponseBuilder::new(self.status_code())
                     .content_type("text/html").body(
                     PhishingTemplate {
                         loc: &LANG.pages["phishing"].map,
-                        l: &self.lang,
+                        l: &self.req.lang,
                         config: &CONFIG.general,
                     }
                     .render()
@@ -141,13 +161,13 @@ impl error::ResponseError for ShortCircuit {
                 )
             },
             _ => {
-                let tpl = TplNotification::new("home", &format!("{}", self.error_kind), false, &self.lang);
+                let tpl = TplNotification::new("home", &format!("{}", self.error.kind), false, &self.req.lang);
 
                 HttpResponseBuilder::new(self.status_code())
                     .content_type("text/html")
                     .body(gentpl_home(
-                        &self.lang,
-                        self.captcha.as_deref(),
+                        &self.req.lang,
+                        self.req.captcha.as_deref(),
                         None,
                         Some(&tpl),
                     ))
@@ -156,7 +176,7 @@ impl error::ResponseError for ShortCircuit {
     }
 
     fn status_code(&self) -> StatusCode {
-        match self.error_kind {
+        match self.error.kind {
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
@@ -191,8 +211,9 @@ impl ErrorKind {
         matches!(
             self,
             ErrorKind::WarnCaptchaFail
-            | ErrorKind::WarnBlocklistedLink
-            | ErrorKind::WarnShortlinkForbidden
+            | ErrorKind::WarnBlockedLinkFreehost
+            | ErrorKind::WarnBlockedLinkShortener
+            | ErrorKind::WarnBlockedLinkSpam
             | ErrorKind::WarnBadServerAdminKey
         )
     }

@@ -141,22 +141,6 @@ mod filters {
     }
 }
 
-// checks if the specified url isn't written in link blacklists.
-// `url` can be both url_from or url_to.
-// if strict_match is specified, only full matches will return true.
-pub fn blacklist_check(url: &str, blacklist: &[String], strict_match: bool) -> bool {
-    for elem in blacklist.iter() {
-        if strict_match {
-            if url.to_lowercase() == elem.to_lowercase() {
-                return true;
-            }
-        } else if url.to_lowercase().contains(&elem.to_lowercase()) {
-            return true;
-        }
-    }
-    false
-}
-
 // used to generate random strings for:
 // - link admin panel (links.key field, 24 bytes)
 // - short link names when none is specified (links.url_from field, 6 bytes)

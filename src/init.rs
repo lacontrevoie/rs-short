@@ -3,44 +3,43 @@ use std::collections::HashMap;
 use std::fmt;
 use std::fs::File;
 use std::io::Read;
-use std::io::{self, BufRead, BufReader};
-use std::path::Path;
 
-pub const URL_FROM_BL_FILE: &str = "./url_from_blacklist.txt";
-pub const URL_TO_BL_FILE: &str = "./url_to_blacklist.txt";
-pub const URL_TO_SOFTBL_FILE: &str = "./url_to_softblacklist.txt";
+use crate::spam::PolicyList;
+
+pub const CONFIG_FILE: &str = "./config.toml";
+pub const LISTS_FILE: &str = "./lists.toml";
 pub const LANG_FILE: &str = "./lang.json";
 
 pub const ALLOWED_PROTOCOLS: &[&str] = &[
-    "http://",
-    "https://",
-    "dat://",
-    "dweb://",
-    "ipfs://",
-    "ipns://",
-    "ssb:",
-    "gopher://",
-    "xmpp:",
-    "matrix:",
-    "irc://",
-    "news:",
-    "svn://",
-    "scp://",
-    "ftp://",
-    "ftps://",
-    "ftpes://",
-    "magnet:",
-    "gemini://",
-    "nntp://",
-    "mailto:",
-    "ssh://",
-    "webcal:",
-    "feed:",
-    "rss:",
-    "rtsp:",
-    "file:",
-    "telnet:",
-    "realaudio:",
+    "http",
+    "https",
+    "dat",
+    "dweb",
+    "ipfs",
+    "ipns",
+    "ssb",
+    "gopher",
+    "xmpp",
+    "matrix",
+    "irc",
+    "news",
+    "svn",
+    "scp",
+    "ftp",
+    "ftps",
+    "ftpes",
+    "magnet",
+    "gemini",
+    "nntp",
+    "mailto",
+    "ssh",
+    "webcal",
+    "feed",
+    "rss",
+    "rtsp",
+    "file",
+    "telnet",
+    "realaudio",
 ];
 
 pub const DEFAULT_LANGUAGE: ValidLanguages = ValidLanguages::En;
@@ -49,38 +48,16 @@ pub const CAPTCHA_LETTERS: u32 = 6;
 
 pub const CONFIG_VERSION: u8 = 3;
 
-// initializing configuration
 
 lazy_static! {
+    // initializing configuration
     pub static ref CONFIG: Config = Config::init();
-}
-
-// initializing lang.json file
-
-lazy_static! {
+    // initializing lang.json file
     pub static ref LANG: Lang = Lang::init();
+    // initializing policy list
+    pub static ref POLICY: PolicyList = PolicyList::init();
 }
 
-// initializing blacklists
-
-lazy_static! {
-    pub static ref URL_FROM_BL: Vec<String> =
-        lines_from_file(URL_FROM_BL_FILE).expect("Failed to load url_from blacklist");
-}
-
-lazy_static! {
-    pub static ref URL_TO_BL: Vec<String> =
-        lines_from_file(URL_TO_BL_FILE).expect("Failed to load url_to blacklist");
-}
-
-lazy_static! {
-    pub static ref URL_TO_SOFTBL: Vec<String> =
-        lines_from_file(URL_TO_SOFTBL_FILE).expect("Failed to load url_to soft blacklist");
-}
-
-fn lines_from_file(filename: impl AsRef<Path>) -> io::Result<Vec<String>> {
-    BufReader::new(File::open(filename)?).lines().collect()
-}
 
 // DEFINE VALID LANGUAGES HERE
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
@@ -181,7 +158,7 @@ pub enum VerboseLevel {
 
 impl Config {
     pub fn init() -> Self {
-        let mut conffile = File::open("config.toml").expect(
+        let mut conffile = File::open(CONFIG_FILE).expect(
             r#"Config file config.toml not found.
                     Please create it using config.toml.sample."#,
         );

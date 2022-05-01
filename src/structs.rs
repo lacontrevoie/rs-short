@@ -1,10 +1,16 @@
 use chrono::Duration;
 use chrono::{NaiveDateTime, Utc};
 use regex::Regex;
-use url::Url;
-use crate::error_handlers::ErrorKind;
+use actix_web::http::Uri;
 
-//use crate::templates::get_ip;
+use crate::error_handlers::{ErrorKind, ErrorInfo, throw};
+use crate::init::ALLOWED_PROTOCOLS;
+
+lazy_static! {
+    static ref RE_URL_FROM: Regex =
+        Regex::new(r#"^[^,*';?:@=&.<>#%/\\\[\]\{\}"|^~ ]{0,80}$"#)
+            .expect("Failed to read NewLink url_from sanitize regular expression");
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct NewLink {
@@ -30,30 +36,43 @@ impl NewLink {
     // ---------------------------------------------------------------
     pub fn validate(
         &self,
-        /*req: &HttpRequest,*/
         captcha_key: (NaiveDateTime, String),
-    ) -> Result<(), ErrorKind> {
-        lazy_static! {
-            static ref RE_URL_FROM: Regex =
-                Regex::new(r#"^[^,*';?:@=&.<>#%/\\\[\]\{\}"|^~ ]{0,80}$"#)
-                    .expect("Failed to read NewLink url_from sanitize regular expression");
+    ) -> Result<Uri, ErrorInfo> {
+        // attempt to parse url_to as a valid URL
+        let uri: Uri = self.url_to.parse().map_err(|_| { throw(ErrorKind::InfoInvalidUrlTo, format!("couldn’t parse as Uri: {}", self.url_to)) })?;
+
+        // check the scheme
+        match uri.scheme_str() {
+            Some(s) => {
+                // check the allowed protocols
+                // if the uri scheme isn’t on the list, early return
+                if ALLOWED_PROTOCOLS.iter().any(|&p| p == s) {
+                    Ok(())
+                }
+                else {
+                    Err(throw(ErrorKind::NoticeUnsupportedProtocol, format!("invalid protocol: {}", s)))
+                }
+            }
+            None => {
+                Err(throw(ErrorKind::InfoInvalidUrlTo, format!("no scheme in URL: {}", self.url_to)))
+            }
+        }?;
+
+        // check the host
+        if uri.host().is_none() {
+            return Err(throw(ErrorKind::InfoInvalidUrlTo, format!("no host found in URL: {}", self.url_from)));
         }
+        
         if self.url_from.len() > 50 || !RE_URL_FROM.is_match(&self.url_from) {
-            Err(ErrorKind::InfoInvalidUrlFrom)
-        } else if self.url_to.len() > 4096 || Url::parse(&self.url_to).is_err() {
-            Err(ErrorKind::InfoInvalidUrlTo)
+            Err(throw(ErrorKind::InfoInvalidUrlFrom, format!("invalid shortcut name: {}", self.url_from)))
+        } else if self.url_to.len() > 4096 {
+            Err(throw(ErrorKind::InfoInvalidUrlTo, format!("too long URL: {}", self.url_to)))
         } else if captcha_key.0 < (Utc::now().naive_utc() - Duration::minutes(30)) {
-            Err(ErrorKind::InfoSessionExpired)
-        } else if self.captcha.to_lowercase() != captcha_key.1.to_lowercase() {
-            /*println!(
-                "INFO: [{}] failed the captcha (input: \"{}\", answer: \"{}\").",
-                get_ip(req),
-                self.captcha,
-                captcha_key.1
-            );*/
-            Err(ErrorKind::WarnCaptchaFail)
+            Err(throw(ErrorKind::InfoSessionExpired, "captcha session expired".into()))
+        } else if self.captcha.to_lowercase().trim() != captcha_key.1.to_lowercase().trim() {
+            Err(throw(ErrorKind::WarnCaptchaFail, format!("captcha failed: {} | {}", self.captcha.to_lowercase().trim(), captcha_key.1.to_lowercase().trim())))
         } else {
-            Ok(())
+            Ok(uri)
         }
     }
 }

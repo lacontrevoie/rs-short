@@ -9,7 +9,6 @@ extern crate diesel_migrations;
 
 extern crate base64;
 extern crate captcha;
-extern crate url;
 
 mod database;
 mod db_schema;
