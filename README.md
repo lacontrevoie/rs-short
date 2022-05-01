@@ -67,6 +67,8 @@ You can configure a `fail2ban` instance and watch your favourite reverse-proxy l
 
 - `cargo run --release`
 
+To integrate the service with a **systemd** or **nginx** configuration, please check [the wiki](https://git.42l.fr/42l/rs-short/wiki/Integration-with-nginx-%2F-systemd).
+
 ## Contributing
 
 Here are many ways to contribute:
