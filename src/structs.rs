@@ -33,7 +33,7 @@ impl NewLink {
     // It must match with the captcha answer in cookies.
     // All comparisons are lowercase.
     // ---------------------------------------------------------------
-    pub fn validate(&self, captcha_key: (NaiveDateTime, String)) -> Result<Uri, ErrorInfo> {
+    pub fn validate(&self, captcha_key: &(NaiveDateTime, String)) -> Result<Uri, ErrorInfo> {
         // attempt to parse url_to as a valid URL
         let uri: Uri = self.url_to.parse().map_err(|_| {
             throw(

@@ -93,7 +93,7 @@ pub async fn shortcut_admin_del(
         .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     // getting the link from database
-    let move_url_from = params.url_from.to_owned();
+    let move_url_from = params.url_from.clone();
     let selected_link = web::block(move || Link::get_link(&move_url_from, &conn))
         .await
         .map_err(|e| crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s)))?
@@ -198,7 +198,7 @@ pub async fn shortcut_admin(
         .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     // getting the link from database
-    let move_url_from = params.url_from.to_owned();
+    let move_url_from = params.url_from.clone();
     let selected_link = web::block(move || Link::get_link(&move_url_from, &conn))
         .await
         .map_err(|e| crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s)))?
@@ -294,7 +294,7 @@ pub async fn post_link(
 
     // if it returns Err(ErrorKind), early return
     let uri = form
-        .validate(cookie.clone())
+        .validate(&cookie.clone())
         .map_err(|e| crash(e, pass(&req, &s)))?;
 
     // prevent shortening loop. Host string has already been checked
@@ -321,7 +321,7 @@ pub async fn post_link(
         .blocklist_check_from(&form.url_from)
         .map_err(|e| crash(e, pass(&req, &s)))?;
     POLICY
-        .blocklist_check_to(uri)
+        .blocklist_check_to(&uri)
         .map_err(|e| crash(e, pass(&req, &s)))?;
 
     // if the user hasn't chosen a shortcut name, decide for them.
@@ -446,8 +446,8 @@ pub async fn shortcut(
         Some(link) => {
             if CONFIG.phishing.verbose_suspicious {
                 watch_visits(
-                    suspicious_watch,
-                    LinkInfo::create_from(link.clone()),
+                    &suspicious_watch,
+                    &LinkInfo::create_from(link.clone()),
                     get_ip(&req),
                 );
             }

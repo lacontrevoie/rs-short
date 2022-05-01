@@ -141,8 +141,8 @@ impl error::ResponseError for ShortCircuit {
 
         // display the error message.
         // special case for the PhishingLinkReached error
-        match self.error.kind {
-            ErrorKind::InfoPhishingLinkReached => HttpResponseBuilder::new(self.status_code())
+        if self.error.kind == ErrorKind::InfoPhishingLinkReached {
+            HttpResponseBuilder::new(self.status_code())
                 .content_type("text/html")
                 .body(
                     PhishingTemplate {
@@ -152,26 +152,25 @@ impl error::ResponseError for ShortCircuit {
                     }
                     .render()
                     .expect("FATAL: Failed to render phishing template"),
-                ),
-            _ => {
-                let tpl = TplNotification::new(
-                    "home",
-                    &format!("{}", self.error.kind),
-                    false,
-                    &self.req.lang,
-                );
+                )
+        } else {
+            let tpl = TplNotification::new(
+                "home",
+                &format!("{}", self.error.kind),
+                false,
+                &self.req.lang,
+            );
 
-                HttpResponseBuilder::new(self.status_code())
-                    .content_type("text/html")
-                    .body(gentpl_home(
-                        &self.req.lang,
-                        self.req.captcha.as_deref(),
-                        None,
-                        Some(&tpl),
-                    ))
+            HttpResponseBuilder::new(self.status_code())
+                .content_type("text/html")
+                .body(gentpl_home(
+                    &self.req.lang,
+                    self.req.captcha.as_deref(),
+                    None,
+                    Some(&tpl),
+                ))
             }
         }
-    }
 
     fn status_code(&self) -> StatusCode {
         match &self.error.kind {

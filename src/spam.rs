@@ -16,7 +16,7 @@ use std::io::Read;
 
 use crate::database::LinkInfo;
 use crate::error_handlers::{throw, ErrorInfo, ErrorKind};
-use crate::init::{CAPTCHA_LETTERS, CONFIG, LISTS_FILE, POLICY};
+use crate::init::{CAPTCHA_LETTERS, CONFIG, LISTS_FILE};
 use crate::SuspiciousWatcher;
 
 #[derive(Deserialize)]
@@ -90,7 +90,7 @@ impl PolicyList {
     }
 
     pub fn blocklist_check_from(&self, url_from: &str) -> Result<(), ErrorInfo> {
-        if let Some(bl_entry) = POLICY
+        if let Some(bl_entry) = self
             .names
             .blocklist
             .iter()
@@ -105,8 +105,8 @@ impl PolicyList {
         }
     }
 
-    pub fn blocklist_check_to(&self, uri: Uri) -> Result<(), ErrorInfo> {
-        for bl_entry in &POLICY.urls.blocklist {
+    pub fn blocklist_check_to(&self, uri: &Uri) -> Result<(), ErrorInfo> {
+        for bl_entry in &self.urls.blocklist {
             match bl_entry.matching {
                 Some(BlocklistMatching::Host) | None => {
                     // host string already checked in parent function
@@ -171,6 +171,7 @@ impl PolicyList {
 
 impl BlockEntryName {
     pub fn errkind(&self) -> ErrorKind {
+        // I see no point on writing a match for now
         ErrorKind::WarnBlockedName
     }
 }
@@ -196,22 +197,22 @@ pub fn gen_captcha() -> Option<(String, Vec<u8>)> {
             1 => captcha.apply_filter(Noise::new(0.1)),
             2 => captcha
                 .apply_filter(
-                    Wave::new(rng.gen_range(1..4) as f64, rng.gen_range(6..13) as f64).horizontal(),
+                    Wave::new(f64::from(rng.gen_range(1..4)), f64::from(rng.gen_range(6..13))).horizontal(),
                 )
                 .apply_filter(
-                    Wave::new(rng.gen_range(1..4) as f64, rng.gen_range(6..13) as f64).vertical(),
+                    Wave::new(f64::from(rng.gen_range(1..4)), f64::from(rng.gen_range(6..13))).vertical(),
                 ),
             3 => captcha.apply_filter(Grid::new(rng.gen_range(15..25), rng.gen_range(15..25))),
             4 => captcha
                 .apply_filter(
-                    Wave::new(rng.gen_range(1..4) as f64, rng.gen_range(5..9) as f64).horizontal(),
+                    Wave::new(f64::from(rng.gen_range(1..4)), f64::from(rng.gen_range(5..9))).horizontal(),
                 )
                 .apply_filter(
-                    Wave::new(rng.gen_range(1..4) as f64, rng.gen_range(5..9) as f64).vertical(),
+                    Wave::new(f64::from(rng.gen_range(1..4)), f64::from(rng.gen_range(5..9))).vertical(),
                 ),
             5 => captcha
                 .apply_filter(
-                    Wave::new(rng.gen_range(1..4) as f64, rng.gen_range(6..13) as f64).horizontal(),
+                    Wave::new(f64::from(rng.gen_range(1..4)), f64::from(rng.gen_range(6..13))).horizontal(),
                 )
                 .apply_filter(Noise::new(0.1)),
             _ => break,
@@ -257,7 +258,7 @@ pub fn cookie_captcha_get(s: &Session) -> Option<(NaiveDateTime, String)> {
 // HashMap<String, Vec<(DateTime<Utc>, String)>>
 // HashMap<{SHORTCUT NAME}, Vec<({TIMESTAMP}, {IP ADDRESS})>.
 // The data is kept in RAM and cleaned regularly and on program restart.
-pub fn watch_visits(watcher: web::Data<SuspiciousWatcher>, link: LinkInfo, ip: String) {
+pub fn watch_visits(watcher: &web::Data<SuspiciousWatcher>, link: &LinkInfo, ip: String) {
     // locks the mutex.
     let w = watcher.lock().map_err(|e| {
         eprintln!("ERROR: watch_visits: Failed to get the mutex lock: {}", e);
@@ -276,7 +277,7 @@ pub fn watch_visits(watcher: web::Data<SuspiciousWatcher>, link: LinkInfo, ip: S
     // clean up old entries
     rate_shortcut.retain(|timestamp| {
         timestamp.0
-            > (Utc::now() - Duration::hours(CONFIG.phishing.suspicious_click_timeframe as i64))
+            > (Utc::now() - Duration::hours(i64::from(CONFIG.phishing.suspicious_click_timeframe)))
     });
 
     // check click count
