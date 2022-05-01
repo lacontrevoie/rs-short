@@ -65,7 +65,7 @@ verbose_suspicious = true
 
 # General verbose level.
 # info | notice | warn | crit
-verbose_level = notice
+verbose_level = "notice"
 
 # Per link, starting from how many clicks per suspicious_click_delay
 # a link is considered suspicious.
