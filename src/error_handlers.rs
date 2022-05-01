@@ -13,30 +13,30 @@ use crate::templates::{gentpl_home, get_lang, get_ip, TplNotification, PhishingT
 
 #[derive(Debug, PartialEq)]
 pub enum ErrorKind {
-    CritDbPool,                 // => StatusCode::INTERNAL_SERVER_ERROR,
-    CritDbFail,                 // => StatusCode::INTERNAL_SERVER_ERROR,
-    CritLinkDeleteDbFail,       // => StatusCode::INTERNAL_SERVER_ERROR,
-    CritAwaitFail,              // => StatusCode::INTERNAL_SERVER_ERROR,
-    WarnBadServerAdminKey,      // => StatusCode::UNAUTHORIZED,
-    WarnBlockedLinkShortener,   // => StatusCode::FORBIDDEN,
-    WarnBlockedLinkSpam,        // => StatusCode::FORBIDDEN,
-    WarnBlockedLinkFreehost,    // => StatusCode::FORBIDDEN,
-    WarnBlockedName,            // => StatusCode::FORBIDDEN,
-    WarnCaptchaFail,            // => StatusCode::BAD_REQUEST,
-    NoticeUnsupportedProtocol,  // => StatusCode::BAD_REQUEST,
-    NoticeLinkAlreadyExists,    // => StatusCode::FORBIDDEN,
-    NoticeInvalidKey,           // => StatusCode::UNAUTHORIZED,
-    NoticeNotManagingPhishing,  // => StatusCode::UNAUTHORIZED,
-    NoticeNotDeletingPhishing,  // => StatusCode::UNAUTHORIZED,
-    NoticeCookieParseFail,      // => StatusCode::BAD_REQUEST,
-    InfoLinkNotFound,           // => StatusCode::NOT_FOUND,
-    InfoInvalidUrlFrom,         // => StatusCode::BAD_REQUEST,
-    InfoInvalidUrlTo,           // => StatusCode::BAD_REQUEST,
-    InfoInvalidLink,            // => StatusCode::NOT_FOUND,
-    InfoSessionExpired,         // => StatusCode::BAD_REQUEST,
-    InfoSelflinkForbidden,      // => StatusCode::FORBIDDEN,
-    InfoNotFound,               // => StatusCode::NOT_FOUND,
-    InfoPhishingLinkReached,    // => StatusCode::GONE,
+    CritDbPool,
+    CritDbFail,
+    CritLinkDeleteDbFail,
+    CritAwaitFail,
+    WarnBadServerAdminKey,
+    WarnBlockedLinkShortener,
+    WarnBlockedLinkSpam,
+    WarnBlockedLinkFreehost,
+    WarnBlockedName,
+    WarnCaptchaFail,
+    NoticeUnsupportedProtocol,
+    NoticeLinkAlreadyExists,
+    NoticeInvalidKey,
+    NoticeNotManagingPhishing,
+    NoticeNotDeletingPhishing,
+    NoticeCookieParseFail,
+    InfoLinkNotFound,
+    InfoInvalidUrlFrom,
+    InfoInvalidUrlTo,
+    InfoInvalidLink,
+    InfoSessionExpired,
+    InfoSelflinkForbidden,
+    InfoNotFound,
+    InfoPhishingLinkReached,
 }
 
 #[derive(Debug)]
@@ -176,8 +176,31 @@ impl error::ResponseError for ShortCircuit {
     }
 
     fn status_code(&self) -> StatusCode {
-        match self.error.kind {
-            _ => StatusCode::INTERNAL_SERVER_ERROR,
+        match &self.error.kind {
+            ErrorKind::CritDbPool
+                | ErrorKind::CritDbFail
+                | ErrorKind::CritLinkDeleteDbFail
+                | ErrorKind::CritAwaitFail => StatusCode::INTERNAL_SERVER_ERROR,
+            ErrorKind::WarnBadServerAdminKey
+                | ErrorKind::NoticeInvalidKey
+                | ErrorKind::NoticeNotManagingPhishing
+                | ErrorKind::NoticeNotDeletingPhishing => StatusCode::UNAUTHORIZED,
+            ErrorKind::WarnBlockedLinkShortener
+                | ErrorKind::WarnBlockedLinkSpam
+                | ErrorKind::WarnBlockedLinkFreehost
+                | ErrorKind::WarnBlockedName
+                | ErrorKind::NoticeLinkAlreadyExists
+                | ErrorKind::InfoSelflinkForbidden => StatusCode::FORBIDDEN,
+            ErrorKind::WarnCaptchaFail
+                | ErrorKind::NoticeUnsupportedProtocol
+                | ErrorKind::NoticeCookieParseFail
+                | ErrorKind::InfoInvalidUrlFrom
+                | ErrorKind::InfoInvalidUrlTo
+                | ErrorKind::InfoSessionExpired => StatusCode::BAD_REQUEST,
+            ErrorKind::InfoLinkNotFound
+                | ErrorKind::InfoInvalidLink
+                | ErrorKind::InfoNotFound => StatusCode::NOT_FOUND,
+            ErrorKind::InfoPhishingLinkReached => StatusCode::GONE,
         }
     }
 }
@@ -214,6 +237,7 @@ impl ErrorKind {
             | ErrorKind::WarnBlockedLinkFreehost
             | ErrorKind::WarnBlockedLinkShortener
             | ErrorKind::WarnBlockedLinkSpam
+            | ErrorKind::WarnBlockedName
             | ErrorKind::WarnBadServerAdminKey
         )
     }
