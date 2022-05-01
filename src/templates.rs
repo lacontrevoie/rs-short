@@ -19,11 +19,11 @@ pub struct TplNotification<'a> {
 }
 
 impl TplNotification<'_> {
-    pub fn new<'a>(
+    pub fn new(
         page: &'static str,
         message_key: &str,
         p_is_valid: bool,
-        l: &'a ValidLanguages,
+        l: &ValidLanguages,
     ) -> Self {
         let tr_msg = if let Some(tr) = LANG.pages[page].map.get(message_key) {
             &tr[l]
@@ -33,7 +33,7 @@ impl TplNotification<'_> {
         };
 
         TplNotification {
-            message: &tr_msg,
+            message: tr_msg,
             is_valid: p_is_valid,
         }
     }

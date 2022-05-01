@@ -68,8 +68,8 @@ pub fn throw(kind: ErrorKind, msg: String) -> ErrorInfo {
 // prepare all the required information to throw an error
 pub fn pass(req: &HttpRequest, s: &Session) -> RequestInfo {
     RequestInfo {
-        ip: get_ip(&req),
-        lang: get_lang(&req),
+        ip: get_ip(req),
+        lang: get_lang(req),
         captcha: cookie_captcha_set(s),
     }
 }

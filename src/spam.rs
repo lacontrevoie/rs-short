@@ -113,7 +113,7 @@ impl PolicyList {
                     if bl_entry.expr.is_match(&uri.host().unwrap().to_lowercase()) {
                         return Err(throw(
                             bl_entry.errkind(),
-                            format!("URL blocklisted [host]: {}", uri.to_string()),
+                            format!("URL blocklisted [host]: {}", uri),
                         ));
                     }
                 }
@@ -121,7 +121,7 @@ impl PolicyList {
                     if bl_entry.expr.is_match(&uri.to_string().to_lowercase()) {
                         return Err(throw(
                             bl_entry.errkind(),
-                            format!("URL blocklisted [full-uri]: {}", uri.to_string()),
+                            format!("URL blocklisted [full-uri]: {}", uri),
                         ));
                     }
                 }
@@ -130,7 +130,7 @@ impl PolicyList {
                         if bl_entry.expr.is_match(&up.as_str().to_lowercase()) {
                             return Err(throw(
                                 bl_entry.errkind(),
-                                format!("URL blocklisted [port]: {}", uri.to_string()),
+                                format!("URL blocklisted [port]: {}", uri),
                             ));
                         }
                     }
@@ -140,7 +140,7 @@ impl PolicyList {
                         if bl_entry.expr.is_match(&ua.as_str().to_lowercase()) {
                             return Err(throw(
                                 bl_entry.errkind(),
-                                format!("URL blocklisted [authority]: {}", uri.to_string()),
+                                format!("URL blocklisted [authority]: {}", uri),
                             ));
                         }
                     }
@@ -149,7 +149,7 @@ impl PolicyList {
                     if bl_entry.expr.is_match(&uri.path().to_lowercase()) {
                         return Err(throw(
                             bl_entry.errkind(),
-                            format!("URL blocklisted [path]: {}", uri.to_string()),
+                            format!("URL blocklisted [path]: {}", uri),
                         ));
                     }
                 }
@@ -158,7 +158,7 @@ impl PolicyList {
                         if bl_entry.expr.is_match(&uq.to_lowercase()) {
                             return Err(throw(
                                 bl_entry.errkind(),
-                                format!("URL blocklisted [query]: {}", uri.to_string()),
+                                format!("URL blocklisted [query]: {}", uri),
                             ));
                         }
                     }

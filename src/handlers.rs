@@ -59,13 +59,13 @@ pub async fn shortcut_admin_flag(
     // if flag_as_phishing returned 0, it means it affected 0 rows.
     // so link not found
     if flag_result == 0 {
-        return Err(crash(
+        Err(crash(
             throw(
                 ErrorKind::InfoLinkNotFound,
                 "tried to flag a non-existing phishing link".into(),
             ),
             pass(&req, &s),
-        ));
+        ))
     } else {
         let tpl = TplNotification::new("home", "link_flag_success", true, &get_lang(&req));
         Ok(HttpResponse::Ok().body(gentpl_home(
@@ -299,7 +299,7 @@ pub async fn post_link(
 
     // prevent shortening loop. Host string has already been checked
     if uri.host().unwrap()
-        == &CONFIG
+        == CONFIG
             .general
             .instance_hostname
             .replace("http://", "")
