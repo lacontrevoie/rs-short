@@ -1,8 +1,5 @@
 # rs-short
 
-> Warning : the code base will need some cleanup (see opened tickets). Hopefully, it’s very small so it shouldn’t be so hard. You can still use and install the software in its current state without trouble.
-
-
 Link shortener in Rust.
 
 Developed to be as minimal and lightweight as possible.
@@ -11,24 +8,24 @@ Powered by the [Actix](https://actix.rs) framework using (server-side) [Askama](
 
 - Around 1000 lines of code, including 20% of comments
 - Consumes between 5MB and 20MB of RAM
-- No JS
-- No CSS framework ; CSS is handmade and all rules are prefixed to avoid rule conflicts
-- No tracking features at all, user IPs are not saved in database
+- No JS, no CSS framework
+- No tracking features, user IPs are not saved in database
 - No `unsafe` block
 - Compiles on Rust stable
 
 Features:
 - Includes a captcha as a minimal protection against spamming
-- Easily customizable assets, contact details, and hoster information
+- Easily customizable assets, contact details and hoster information
 - Light / dark theme
 - Only needs a SQLite database to work
 - Robust caching features to serve content even with database locks
-- Localization (available in French and English, please translate!)
+- Localization (available in French, English and Occitan, please translate!)
 - Basic protection against spambots (captcha with a customizable difficulty)
 - Active **detection of phishing links** (detects "suspicious activity")
 - Counting clicks
 - Allows shortcut deletion by the user
 - Allows marking a shortcut as "phishing", which displays a awareness-raising message to victims
+- Blocks URL with regexes, includes a default blocklist
 
 **Official instance:** https://s.42l.fr/
 
@@ -64,12 +61,9 @@ git clone https://git.42l.fr/42l/rs-short.git
 - Copy `config.toml.sample` to `config.toml` and edit its values to suit your needs:
     - **Important**: Replace default values of `cookie_key` and `phishing_password`.
 
-- Edit blacklists at your convenience.
-    - `url_from_blacklist.list`: Any client that submits a *link name* **fully matching** one of the elements in this list will get a 403 Forbidden HTTP status code.
-    - `url_to_softblacklist.list`: Any client that submits an *URL* **containing** one of the elements in this list will get denied with a friendly warning.
-    - `url_to_blacklist.list`: Any client that submits an *URL* **containing** one of the elements in this list will get a 403 Forbidden HTTP status code.
+- Edit the policy lists in `lists.toml` at your convenience.
 
-You can configure a `fail2ban` instance and watch your favourite reverse-proxy logs to see which IPs are getting a 403 and ban accordingly for the duration of your choice.
+You can configure a `fail2ban` instance and watch your favourite reverse-proxy logs to see which IPs are getting a 403 Forbidden and ban accordingly for the duration of your choice.
 
 - `cargo run --release`
 
@@ -79,7 +73,6 @@ Here are many ways to contribute:
 - Translate!
     - Add your entries in the `lang.json` file.
     - Once you're done, edit `init.rs` and add your language in the ValidLanguages structure.
-- Add PostgreSQL/MySQL compatibility (easy thanks to Diesel)
 - Add some more CSS themes
 - Rework default themes' CSS (they've gone a bit messy since then. hopefully they are commented)
 - Develop a more resilient protection to spambots
