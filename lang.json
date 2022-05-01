@@ -58,6 +58,10 @@
                     "Fr": "Créer !",
                     "Oc": "Crear !"
                 },
+                "linkpolicy": {
+                    "En": "Links created with our service does not expire. Malicious links will be deleted.",
+                    "Fr": "Les liens créés avec notre service n’expirent pas. Tout lien qui redirige vers une arnaque ou du contenu malveillant sera supprimé."
+                },
                 "InfoInvalidUrlFrom": {
                     "En": "The shortcut name you specified contains forbidden characters.",
                     "Fr": "Le nom du raccourci que vous avez entré contient des caractères interdits.",
@@ -130,8 +134,7 @@
                 },
                 "WarnBlockedNameSpam": {
                     "En": "We have flagged this shortcut name as malicious, you can’t use it with our service.",
-                    "Fr": "Nous avons marqué ce nom de raccourci comme malveillant, vous ne pouvez pas l’utiliser avec notre service.",
-                    "En": "We have flagged this shortcut name as malicious, you can’t use it with our service."
+                    "Fr": "Nous avons marqué ce nom de raccourci comme malveillant, vous ne pouvez pas l’utiliser avec notre service."
                 },
                 "WarnBlockedLinkShortener": {
                     "En": "Please do not chain shortened links with another link shortener.",
@@ -140,13 +143,11 @@
                 },
                 "WarnBlockedLinkSpam": {
                     "En": "We have flagged this URL as malicious, you can’t use it with our service.",
-                    "Fr": "Nous avons marqué cette URL comme malveillante, vous ne pouvez pas l’utiliser avec notre service.",
-                    "Oc": "We have flagged this URL as malicious, you can’t use it with our service."
+                    "Fr": "Nous avons marqué cette URL comme malveillante, vous ne pouvez pas l’utiliser avec notre service."
                 },
                 "WarnBlockedLinkFreehost": {
                     "En": "The URL you entered corresponds to a web host that we have banned from our service due to abuse.",
-                    "Fr": "L’URL que vous avez entrée correspond à un hébergeur web que nous avons banni de notre service suite à des abus.",
-                    "Oc": "The URL you entered corresponds to a web host that we have banned from our service due to abuse."
+                    "Fr": "L’URL que vous avez entrée correspond à un hébergeur web que nous avons banni de notre service suite à des abus."
                 },
                 "WarnBadServerAdminKey": {
                     "En": "The administrator password entered is invalid.",
@@ -175,8 +176,7 @@
                 },
                 "fatal_missing_translation": {
                     "En": "Missing translation",
-                    "Fr": "Traduction manquante",
-                    "Oc": "Missing translation"
+                    "Fr": "Traduction manquante"
                 },
                 "fatal_captcha_gen": {
                     "En": "Error during captcha generation. Please try again.",

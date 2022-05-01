@@ -112,6 +112,7 @@ fn try_get_lang(req: &HttpRequest) -> Option<ValidLanguages> {
 }
 
 mod filters {
+    use crate::templates::DEFAULT_LANGUAGE;
     // translation filter
     use crate::init::ValidLanguages;
     use std::collections::HashMap;
@@ -137,7 +138,9 @@ mod filters {
         lang: &ValidLanguages,
         key: &str,
     ) -> Option<String> {
-        Some(loc.get(key)?.get(lang)?.to_string())
+        Some(loc.get(key)?.get(lang).unwrap_or(
+                loc.get(key)?.get(&DEFAULT_LANGUAGE)?
+                ).to_string())
     }
 }
 
