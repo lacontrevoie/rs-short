@@ -1,5 +1,6 @@
 use actix_session::Session;
 use actix_web::{get, http, post, web, HttpRequest, HttpResponse, Result};
+use actix_web::http::header::ContentType;
 use base64::encode_config as base64_encode_config;
 use base64::URL_SAFE_NO_PAD;
 use std::collections::HashMap;
@@ -68,7 +69,7 @@ pub async fn shortcut_admin_flag(
         ))
     } else {
         let tpl = TplNotification::new("home", "link_flag_success", true, &get_lang(&req));
-        Ok(HttpResponse::Ok().body(gentpl_home(
+        Ok(HttpResponse::Ok().content_type(ContentType::html()).body(gentpl_home(
             &get_lang(&req),
             cookie_captcha_set(&s).as_deref(),
             None,
@@ -163,7 +164,7 @@ pub async fn shortcut_admin_del(
 
     // displaying success message
     let tpl = TplNotification::new("home", "link_delete_success", true, &get_lang(&req));
-    Ok(HttpResponse::Ok().body(gentpl_home(
+    Ok(HttpResponse::Ok().content_type(ContentType::html()).body(gentpl_home(
         &get_lang(&req),
         cookie_captcha_set(&s).as_deref(),
         None,
@@ -250,14 +251,14 @@ pub async fn shortcut_admin(
     // if created=true, display a green notification
     if query.get("created").is_some() {
         let tpl = TplNotification::new("home", "form_success", true, &get_lang(&req));
-        Ok(HttpResponse::Ok().body(gentpl_home(
+        Ok(HttpResponse::Ok().content_type(ContentType::html()).body(gentpl_home(
             &get_lang(&req),
             cookie_captcha_set(&s).as_deref(),
             Some(&linkinfo),
             Some(&tpl),
         )))
     } else {
-        Ok(HttpResponse::Ok().body(gentpl_home(
+        Ok(HttpResponse::Ok().content_type(ContentType::html()).body(gentpl_home(
             &get_lang(&req),
             cookie_captcha_set(&s).as_deref(),
             Some(&linkinfo),
@@ -460,7 +461,7 @@ pub async fn shortcut(
 
 #[get("/")]
 pub async fn index(req: HttpRequest, s: Session) -> Result<HttpResponse, ShortCircuit> {
-    Ok(HttpResponse::Ok().body(gentpl_home(
+    Ok(HttpResponse::Ok().content_type(ContentType::html()).body(gentpl_home(
         &get_lang(&req),
         cookie_captcha_set(&s).as_deref(),
         None,

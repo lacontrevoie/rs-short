@@ -3,6 +3,7 @@ use actix_web::http::Method;
 use actix_web::HttpResponseBuilder;
 use actix_web::{error, http::StatusCode};
 use actix_web::{HttpRequest, HttpResponse, Result};
+use actix_web::http::header::ContentType;
 use askama::Template;
 use std::fmt;
 
@@ -143,7 +144,7 @@ impl error::ResponseError for ShortCircuit {
         // special case for the PhishingLinkReached error
         if self.error.kind == ErrorKind::InfoPhishingLinkReached {
             HttpResponseBuilder::new(self.status_code())
-                .content_type("text/html")
+                .content_type(ContentType::html())
                 .body(
                     PhishingTemplate {
                         loc: &LANG.pages["phishing"].map,
@@ -162,7 +163,7 @@ impl error::ResponseError for ShortCircuit {
             );
 
             HttpResponseBuilder::new(self.status_code())
-                .content_type("text/html")
+                .content_type(ContentType::html())
                 .body(gentpl_home(
                     &self.req.lang,
                     self.req.captcha.as_deref(),
