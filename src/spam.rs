@@ -89,6 +89,11 @@ impl PolicyList {
         toml::from_str(&liststr).unwrap()
     }
 
+    pub fn is_allowlisted(&self, url_from: &str, url_to: &str) -> bool {
+        self.urls.allowlist.iter().any(|r| r.expr.is_match(&url_to.to_lowercase()))
+        || self.names.allowlist.iter().any(|r| r.expr.is_match(&url_from.to_lowercase()))
+    }
+
     pub fn blocklist_check_from(&self, url_from: &str) -> Result<(), ErrorInfo> {
         if let Some(bl_entry) = self
             .names

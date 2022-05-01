@@ -371,7 +371,7 @@ pub async fn post_link(
     let linkinfo = LinkInfo::create_from(new_link);
 
     // if phishing verbose is enabled, display link creation info in console
-    if CONFIG.phishing.verbose_console {
+    if !POLICY.is_allowlisted(&linkinfo.url_from, &linkinfo.url_to) && CONFIG.phishing.verbose_console {
         println!(
             "NOTE: New link created: {}\n\
             Redirects to: {}\n\
@@ -443,8 +443,9 @@ pub async fn shortcut(
         }
         // else, redirects with a 303 See Other.
         // if verbose_suspicious is enabled, play with the Mutex.
+        // Do NOT count visits if link is allowlisted.
         Some(link) => {
-            if CONFIG.phishing.verbose_suspicious {
+            if !POLICY.is_allowlisted(&link.url_from, &link.url_to) && CONFIG.phishing.verbose_suspicious {
                 watch_visits(
                     &suspicious_watch,
                     &LinkInfo::create_from(link.clone()),
