@@ -65,7 +65,10 @@ git clone https://git.42l.fr/42l/rs-short.git
 
 You can configure a `fail2ban` instance and watch your favourite reverse-proxy logs to see which IPs are getting a 403 Forbidden and ban accordingly for the duration of your choice.
 
-- `cargo run --release`
+- Choose a database:
+    - `cargo run --release` for SQLite (default, don’t use in production)
+    - `cargo run --release --no-default-features --features postgres` for PostgreSQL
+    - `cargo run --release --no-default-features --features mysql` for MySQL
 
 To integrate the service with a **systemd** or **nginx** configuration, please check [the wiki](https://git.42l.fr/42l/rs-short/wiki/Integration-with-nginx-%2F-systemd).
 
