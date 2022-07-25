@@ -1,7 +1,7 @@
 {
     "pages": {
         "home": {
-            "template": "početna",
+            "template": "home",
             "map": {
                 "logo_alt": {
                     "En": "Link shortener",
@@ -71,8 +71,8 @@
                 },
                 "linkpolicy": {
                     "En": "Links created with our service does not expire. Malicious links will be deleted.",
-                    "Fr": "Les liens créés avec notre service n’expirent pas. Tout lien qui redirige vers une arnaque ou du contenu malveillant sera supprimé."
-                    "Hr": "Poveznice stvorene s našom uslugom ne ističu. Zlonamjerne poveznice će se izbrisati.",
+                    "Fr": "Les liens créés avec notre service n’expirent pas. Tout lien qui redirige vers une arnaque ou du contenu malveillant sera supprimé.",
+                    "Hr": "Poveznice stvorene s našom uslugom ne ističu. Zlonamjerne poveznice će se izbrisati."
                 },
                 "InfoInvalidUrlFrom": {
                     "En": "The shortcut name you specified contains forbidden characters.",
@@ -160,8 +160,8 @@
                 },
                 "WarnBlockedNameSpam": {
                     "En": "We have flagged this shortcut name as malicious, you can’t use it with our service.",
-                    "Fr": "Nous avons marqué ce nom de raccourci comme malveillant, vous ne pouvez pas l’utiliser avec notre service."
-                    "Hr": "Ovo kratko ime smo označili kao zlonamjerno. Ne možeš ga koristiti s našom uslugom.",
+                    "Fr": "Nous avons marqué ce nom de raccourci comme malveillant, vous ne pouvez pas l’utiliser avec notre service.",
+                    "Hr": "Ovo kratko ime smo označili kao zlonamjerno. Ne možeš ga koristiti s našom uslugom."
                 },
                 "WarnBlockedLinkShortener": {
                     "En": "Please do not chain shortened links with another link shortener.",
@@ -171,13 +171,13 @@
                 },
                 "WarnBlockedLinkSpam": {
                     "En": "We have flagged this URL as malicious, you can’t use it with our service.",
-                    "Fr": "Nous avons marqué cette URL comme malveillante, vous ne pouvez pas l’utiliser avec notre service."
-                    "Hr": "Ovu URL-adrsu smo označili kao zlonamjernu. Ne možeš je koristiti s našom uslugom.",
+                    "Fr": "Nous avons marqué cette URL comme malveillante, vous ne pouvez pas l’utiliser avec notre service.",
+                    "Hr": "Ovu URL-adrsu smo označili kao zlonamjernu. Ne možeš je koristiti s našom uslugom."
                 },
                 "WarnBlockedLinkFreehost": {
                     "En": "The URL you entered corresponds to a web host that we have banned from our service due to abuse.",
-                    "Fr": "L’URL que vous avez entrée correspond à un hébergeur web que nous avons banni de notre service suite à des abus."
-                    "Hr": "Upisana URL-adresa odgovara web-hostu kojem smo zabranili pristup našoj usluzi zbog zloupotrebe.",
+                    "Fr": "L’URL que vous avez entrée correspond à un hébergeur web que nous avons banni de notre service suite à des abus.",
+                    "Hr": "Upisana URL-adresa odgovara web-hostu kojem smo zabranili pristup našoj usluzi zbog zloupotrebe."
                 },
                 "WarnBadServerAdminKey": {
                     "En": "The administrator password entered is invalid.",
@@ -211,8 +211,8 @@
                 },
                 "fatal_missing_translation": {
                     "En": "Missing translation",
-                    "Fr": "Traduction manquante"
-                    "Hr": "Nedostaje prijevod",
+                    "Fr": "Traduction manquante",
+                    "Hr": "Nedostaje prijevod"
                 },
                 "fatal_captcha_gen": {
                     "En": "Error during captcha generation. Please try again.",
@@ -295,7 +295,7 @@
             }
         },
         "phishing": {
-            "template": "krađa identiteta",
+            "template": "phishing",
             "map": {
                 "logo_alt": {
                     "En": "Link shortener",
