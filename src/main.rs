@@ -24,7 +24,7 @@ mod tests;
 
 use actix_files as fs;
 use actix_session::storage::CookieSessionStore;
-use actix_session::CookieContentSecurity;
+use actix_session::config::CookieContentSecurity;
 use actix_session::SessionMiddleware;
 use actix_web::cookie::SameSite;
 use actix_web::web::Data;
