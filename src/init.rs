@@ -62,6 +62,7 @@ lazy_static! {
 pub enum ValidLanguages {
     En,
     Fr,
+    Hr,
     Oc,
 }
 
@@ -72,6 +73,7 @@ impl ValidLanguages {
         match s.to_lowercase().as_str() {
             "en" => ValidLanguages::En,
             "fr" => ValidLanguages::Fr,
+            "hr" => ValidLanguages::Hr,
             "oc" => ValidLanguages::Oc,
             _ => DEFAULT_LANGUAGE,
         }
