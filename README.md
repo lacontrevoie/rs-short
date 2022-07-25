@@ -19,7 +19,7 @@ Features:
 - Light / dark theme
 - Only needs a SQLite database to work
 - Robust caching features to serve content even with database locks
-- Localization (available in French, English and Occitan, please translate!)
+- Localization (available in French, English, Croatian and Occitan, please translate!)
 - Basic protection against spambots (captcha with a customizable difficulty)
 - Active **detection of phishing links** (detects "suspicious activity")
 - Counting clicks
