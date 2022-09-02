@@ -12,7 +12,7 @@ use crate::init::{CONFIG, LANG};
 use crate::spam::cookie_captcha_set;
 use crate::templates::{gentpl_home, get_ip, get_lang, PhishingTemplate, TplNotification};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ErrorKind {
     CritDbPool,
     CritDbFail,

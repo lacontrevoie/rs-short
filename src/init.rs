@@ -96,7 +96,7 @@ pub struct Lang {
     pub pages: HashMap<String, LangChild>,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
 pub struct LangChild {
     pub template: String,
     pub map: HashMap<String, HashMap<ValidLanguages, String>>,

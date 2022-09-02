@@ -19,8 +19,6 @@ mod routes;
 mod spam;
 mod structs;
 mod templates;
-#[cfg(test)]
-mod tests;
 
 use actix_files as fs;
 use actix_session::storage::CookieSessionStore;
