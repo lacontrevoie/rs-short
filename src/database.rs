@@ -12,7 +12,7 @@ use crate::templates::gen_random;
 use crate::DbConn;
 
 #[derive(Serialize, Queryable, Insertable, Debug, Clone)]
-#[table_name = "links"]
+#[diesel(table_name = links)]
 pub struct Link {
     pub id: Option<i32>,
     pub url_from: String,
@@ -63,7 +63,7 @@ impl LinkInfo {
 // methods used to query the DB
 impl Link {
     // gets *all links* (is this even used somewhere?)
-    pub fn all(conn: &DbConn) -> Vec<Link> {
+    pub fn all(conn: &mut DbConn) -> Vec<Link> {
         all_links
             .order(links::id.desc())
             .load::<Link>(conn)
@@ -72,7 +72,7 @@ impl Link {
 
     pub fn get_link_and_incr(
         i_url_from: &str,
-        conn: &DbConn,
+        conn: &mut DbConn,
     ) -> Result<Option<Link>, diesel::result::Error> {
         // if the link exists, increments the click count
         if let Some(l) = Link::get_link(i_url_from, conn)? {
@@ -92,7 +92,7 @@ impl Link {
 
     pub fn get_link(
         i_url_from: &str,
-        conn: &DbConn,
+        conn: &mut DbConn,
     ) -> Result<Option<Link>, diesel::result::Error> {
         all_links
             .filter(links::url_from.eq(i_url_from))
@@ -101,8 +101,8 @@ impl Link {
     }
 
     // click count increment
-    pub fn increment(&self, conn: &DbConn) -> Result<usize, diesel::result::Error> {
-        diesel::update(all_links.find(self.id))
+    pub fn increment(&self, conn: &mut DbConn) -> Result<usize, diesel::result::Error> {
+        diesel::update(all_links.filter(links::id.is(self.id)))
             .set(links::clicks.eq(self.clicks + 1))
             .execute(conn)
     }
@@ -111,7 +111,7 @@ impl Link {
     pub fn insert(
         i_url_from: &str,
         i_url_to: &str,
-        conn: &DbConn,
+        conn: &mut DbConn,
     ) -> Result<Link, diesel::result::Error> {
         let t = Link {
             id: None,
@@ -133,7 +133,7 @@ impl Link {
     pub fn insert_if_not_exists(
         i_url_from: &str,
         i_url_to: &str,
-        conn: &DbConn,
+        conn: &mut DbConn,
     ) -> Result<Option<Link>, diesel::result::Error> {
         if Link::get_link(i_url_from, conn)?.is_some() {
             Ok(None)
@@ -143,13 +143,13 @@ impl Link {
     }
 
     // deleting a link with its ID
-    pub fn delete(&self, conn: &DbConn) -> Result<usize, diesel::result::Error> {
-        diesel::delete(all_links.find(self.id)).execute(conn)
+    pub fn delete(&self, conn: &mut DbConn) -> Result<usize, diesel::result::Error> {
+        diesel::delete(all_links.filter(links::id.is(self.id))).execute(conn)
     }
 
     pub fn flag_as_phishing(
         i_url_from: &str,
-        conn: &DbConn,
+        conn: &mut DbConn,
     ) -> Result<usize, diesel::result::Error> {
         diesel::update(all_links)
             .filter(links::url_from.eq(i_url_from))

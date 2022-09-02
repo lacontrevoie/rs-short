@@ -4,7 +4,7 @@ extern crate lazy_static;
 extern crate serde_derive;
 #[macro_use]
 extern crate diesel;
-#[macro_use]
+
 extern crate diesel_migrations;
 
 extern crate base64;
@@ -33,6 +33,8 @@ use actix_web::{web, App, HttpServer};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+
 use chrono::DateTime;
 use chrono::Utc;
 
@@ -50,27 +52,46 @@ use std::sync::Mutex;
 #[cfg(feature = "default")]
 type DbConn = SqliteConnection;
 #[cfg(feature = "default")]
-embed_migrations!("migrations/sqlite");
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations/sqlite");
+#[cfg(feature = "default")]
+type DB = diesel::sqlite::Sqlite;
 
 #[cfg(feature = "postgres")]
 type DbConn = PgConnection;
 #[cfg(feature = "postgres")]
-embed_migrations!("migrations/postgres");
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations/postgres");
+#[cfg(feature = "postgres")]
+type DB = diesel::pg::Pg;
 
 #[cfg(feature = "sqlite")]
 type DbConn = SqliteConnection;
 #[cfg(feature = "sqlite")]
-embed_migrations!("migrations/sqlite");
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations/sqlite");
+#[cfg(feature = "sqlite")]
+type DB = diesel::sqlite::Sqlite;
 
 #[cfg(feature = "mysql")]
 type DbConn = MysqlConnection;
 #[cfg(feature = "mysql")]
-embed_migrations!("migrations/mysql");
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations/mysql");
+#[cfg(feature = "mysql")]
+type DB = diesel::mysql::Mysql;
 
 type DbPool = r2d2::Pool<ConnectionManager<DbConn>>;
 
 // see the watch_visits function for more details on the watcher
 type SuspiciousWatcher = Mutex<HashMap<String, Vec<(DateTime<Utc>, String)>>>;
+
+fn run_migrations(connection: &mut impl MigrationHarness<DB>) -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+
+    // This will run the necessary migrations.
+    //
+    // See the documentation for `MigrationHarness` for
+    // all available methods.
+    connection.run_pending_migrations(MIGRATIONS)?;
+
+    Ok(())
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -83,10 +104,10 @@ async fn main() -> std::io::Result<()> {
         .build(manager)
         .expect("Failed to create pool.");
 
-    let conn = pool.get().expect("ERROR: main: DB connection failed");
+    let mut conn = pool.get().expect("ERROR: main: DB connection failed");
 
     println!("Running migrations");
-    embedded_migrations::run(&*conn).expect("Failed to run database migrations");
+    run_migrations(&mut conn).expect("Failed to run migrations.");
 
     // for verbose_suspicious option
     let suspicious_watch = web::Data::new(Mutex::new(HashMap::<

@@ -21,8 +21,8 @@ serde_regex = "1.1"
 toml = "0.5"
 lazy_static = "1.4"
 rand = "0.8"
-diesel = { version = "1.4", features = ["r2d2", "chrono"] }
-diesel_migrations = "1.4"
+diesel = { version = "2.0", features = ["r2d2", "chrono", "returning_clauses_for_sqlite_3_35"] }
+diesel_migrations = "2.0"
 chrono = { version = "0.4", features = ["serde"] }
 base64 = "0.13"
 
@@ -31,6 +31,6 @@ version = "0.0.9"
 default-features = false
 
 [dependencies.regex]
-version = "1.5"
+version = "1.6"
 default-features = false
 features = ["std", "perf"]
