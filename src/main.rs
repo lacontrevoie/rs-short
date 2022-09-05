@@ -46,14 +46,6 @@ use crate::init::{get_cookie_key, CONFIG};
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-// default to sqlite
-#[cfg(feature = "default")]
-type DbConn = SqliteConnection;
-#[cfg(feature = "default")]
-pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations/sqlite");
-#[cfg(feature = "default")]
-type DB = diesel::sqlite::Sqlite;
-
 #[cfg(feature = "postgres")]
 type DbConn = PgConnection;
 #[cfg(feature = "postgres")]
@@ -148,4 +140,58 @@ async fn main() -> std::io::Result<()> {
     .bind(&CONFIG.general.listening_address)?
     .run()
     .await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const URL_FROM: &str = "git_de_42l";
+    const URL_TO: &str = "https://git.42l.fr/";
+
+    fn create_db() -> r2d2::Pool<ConnectionManager<SqliteConnection>> {
+        let manager = ConnectionManager::<DbConn>::new(":memory:");
+        r2d2::Pool::builder()
+            .build(manager)
+            .expect("Failed to create pool.")
+    }
+
+    #[test]
+    fn create_link() {
+        let pool = create_db();
+        let mut conn = pool.get().expect("Failed to create sql connection.");
+        run_migrations(&mut conn).expect("Failed to run migrations.");
+
+        let res = database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+
+        assert_eq!(res.url_from, URL_FROM);
+        assert_eq!(res.url_to, URL_TO)
+    }
+
+    #[test]
+    fn get_link_exists() {
+        let pool = create_db();
+        let mut conn = pool.get().expect("Failed to create sql connection.");
+        run_migrations(&mut conn).expect("Failed to run migrations.");
+
+        database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+
+        let res = database::Link::get_link(URL_FROM, &mut conn).expect("Could not retrieve Link in database.");
+
+        assert!(res.is_some());
+        assert_eq!(res.unwrap().url_to, URL_TO);
+    }
+
+    #[test]
+    fn get_link_not_exists() {
+        let pool = create_db();
+        let mut conn = pool.get().expect("Failed to create sql connection.");
+        run_migrations(&mut conn).expect("Failed to run migrations.");
+
+        database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+
+        let res = database::Link::get_link("wrong_url", &mut conn).expect("Could not retrieve Link in database.");
+
+        assert!(res.is_none());
+    }
 }
