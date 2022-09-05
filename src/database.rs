@@ -90,17 +90,19 @@ impl Link {
         i_url_from: &str,
         conn: &mut DbConn,
     ) -> Result<Option<Link>, diesel::result::Error> {
-        if let Some(link) = Link::get_link(i_url_from, conn)? {
-            let result = link.increment(conn);
-            match result {
-                Ok(_) => Ok(Some(link)),
-                Err(e) => {
-                    eprintln!("INFO: Failed to increment a link: {}?", e);
-                    Err(e)
-                }
+        match Link::get_link(i_url_from, conn)? {
+            Some(link) => {
+                match link.increment(conn) {
+                    Ok(_) => Ok(Some(link)),
+                    Err(e) => {
+                        eprintln!("INFO: Failed to increment a link: {}?", e);
+                        Err(e)
+                    }
+                }  
             }
-        } else {
-            Ok(None)
+            None => {
+                Ok(None)
+            }
         }
     }
 
