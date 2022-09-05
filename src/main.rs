@@ -194,4 +194,33 @@ mod tests {
 
         assert!(res.is_none());
     }
+
+    #[test]
+    fn get_link_view_count() {
+        let pool = create_db();
+        let mut conn = pool.get().expect("Failed to create sql connection.");
+        run_migrations(&mut conn).expect("Failed to run migrations.");
+
+        database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+
+        let res = database::Link::get_link(URL_FROM, &mut conn).expect("Could not retrieve Link in database.");
+
+        assert!(res.is_some());
+        let link_orig = res.unwrap();
+        assert_eq!(link_orig.url_to, URL_TO);
+        assert_eq!(link_orig.clicks, 0);
+
+        let res = database::Link::get_link_and_incr(URL_FROM, &mut conn).expect("Could not retrieve Link in database.");
+        assert!(res.is_some());
+        let link = res.unwrap();
+        assert_eq!(link.url_to, URL_TO);
+        assert_eq!(link.clicks, 1);
+
+        let res = database::Link::get_link(URL_FROM, &mut conn).expect("Could not retrieve Link in database.");
+
+        assert!(res.is_some());
+        let link_orig = res.unwrap();
+        assert_eq!(link_orig.url_to, URL_TO);
+        assert_eq!(link_orig.clicks, 1);
+    }
 }
