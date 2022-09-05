@@ -137,7 +137,7 @@ impl Link {
 
     // deleting a link with its ID
     pub fn delete(&self, conn: &mut DbConn) -> Result<usize, diesel::result::Error> {
-        diesel::delete(all_links.filter(links::id.is(self.id))).execute(conn)
+        diesel::delete(all_links.filter(links::id.eq(self.id))).execute(conn)
     }
 
     pub fn flag_as_phishing(
