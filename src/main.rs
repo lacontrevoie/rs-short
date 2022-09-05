@@ -196,6 +196,19 @@ mod tests {
     }
 
     #[test]
+    fn get_link_and_incr_not_exists() {
+        let pool = create_db();
+        let mut conn = pool.get().expect("Failed to create sql connection.");
+        run_migrations(&mut conn).expect("Failed to run migrations.");
+
+        database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+
+        let res = database::Link::get_link_and_incr("wrong_url", &mut conn).expect("Could not retrieve Link in database.");
+
+        assert!(res.is_none());
+    }
+
+    #[test]
     fn get_link_view_count() {
         let pool = create_db();
         let mut conn = pool.get().expect("Failed to create sql connection.");
