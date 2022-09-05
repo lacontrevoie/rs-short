@@ -250,7 +250,7 @@ pub fn cookie_captcha_get(s: &Session) -> Option<(NaiveDateTime, String)> {
     let cookie_split: Vec<&str> = cookie.split('|').collect();
 
     Some((
-        NaiveDateTime::parse_from_str(cookie_split.get(0)?, "%s").ok()?,
+        NaiveDateTime::parse_from_str(cookie_split.first()?, "%s").ok()?,
         (*cookie_split.get(1)?).to_string(),
     ))
 }

@@ -1,6 +1,6 @@
 table! {
     links (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         url_from -> Text,
         url_to -> Text,
         key -> Binary,

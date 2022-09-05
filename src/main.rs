@@ -4,7 +4,7 @@ extern crate lazy_static;
 extern crate serde_derive;
 #[macro_use]
 extern crate diesel;
-#[macro_use]
+
 extern crate diesel_migrations;
 
 extern crate base64;
@@ -19,8 +19,6 @@ mod routes;
 mod spam;
 mod structs;
 mod templates;
-#[cfg(test)]
-mod tests;
 
 use actix_files as fs;
 use actix_session::storage::CookieSessionStore;
@@ -32,6 +30,8 @@ use actix_web::{web, App, HttpServer};
 
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
+
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
 use chrono::DateTime;
 use chrono::Utc;
@@ -46,31 +46,42 @@ use crate::init::{get_cookie_key, CONFIG};
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-// default to sqlite
-#[cfg(feature = "default")]
-type DbConn = SqliteConnection;
-#[cfg(feature = "default")]
-embed_migrations!("migrations/sqlite");
-
 #[cfg(feature = "postgres")]
 type DbConn = PgConnection;
 #[cfg(feature = "postgres")]
-embed_migrations!("migrations/postgres");
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations/postgres");
+#[cfg(feature = "postgres")]
+type DB = diesel::pg::Pg;
 
 #[cfg(feature = "sqlite")]
 type DbConn = SqliteConnection;
 #[cfg(feature = "sqlite")]
-embed_migrations!("migrations/sqlite");
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations/sqlite");
+#[cfg(feature = "sqlite")]
+type DB = diesel::sqlite::Sqlite;
 
 #[cfg(feature = "mysql")]
 type DbConn = MysqlConnection;
 #[cfg(feature = "mysql")]
-embed_migrations!("migrations/mysql");
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations/mysql");
+#[cfg(feature = "mysql")]
+type DB = diesel::mysql::Mysql;
 
 type DbPool = r2d2::Pool<ConnectionManager<DbConn>>;
 
 // see the watch_visits function for more details on the watcher
 type SuspiciousWatcher = Mutex<HashMap<String, Vec<(DateTime<Utc>, String)>>>;
+
+fn run_migrations(connection: &mut impl MigrationHarness<DB>) -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+
+    // This will run the necessary migrations.
+    //
+    // See the documentation for `MigrationHarness` for
+    // all available methods.
+    connection.run_pending_migrations(MIGRATIONS)?;
+
+    Ok(())
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -83,10 +94,10 @@ async fn main() -> std::io::Result<()> {
         .build(manager)
         .expect("Failed to create pool.");
 
-    let conn = pool.get().expect("ERROR: main: DB connection failed");
+    let mut conn = pool.get().expect("ERROR: main: DB connection failed");
 
     println!("Running migrations");
-    embedded_migrations::run(&*conn).expect("Failed to run database migrations");
+    run_migrations(&mut conn).expect("Failed to run migrations.");
 
     // for verbose_suspicious option
     let suspicious_watch = web::Data::new(Mutex::new(HashMap::<
@@ -129,4 +140,100 @@ async fn main() -> std::io::Result<()> {
     .bind(&CONFIG.general.listening_address)?
     .run()
     .await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const URL_FROM: &str = "git_de_42l";
+    const URL_TO: &str = "https://git.42l.fr/";
+
+    fn create_db() -> r2d2::Pool<ConnectionManager<SqliteConnection>> {
+        let manager = ConnectionManager::<DbConn>::new(":memory:");
+        r2d2::Pool::builder()
+            .build(manager)
+            .expect("Failed to create pool.")
+    }
+
+    #[test]
+    fn create_link() {
+        let pool = create_db();
+        let mut conn = pool.get().expect("Failed to create sql connection.");
+        run_migrations(&mut conn).expect("Failed to run migrations.");
+
+        let res = database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+
+        assert_eq!(res.url_from, URL_FROM);
+        assert_eq!(res.url_to, URL_TO)
+    }
+
+    #[test]
+    fn get_link_exists() {
+        let pool = create_db();
+        let mut conn = pool.get().expect("Failed to create sql connection.");
+        run_migrations(&mut conn).expect("Failed to run migrations.");
+
+        database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+
+        let res = database::Link::get_link(URL_FROM, &mut conn).expect("Could not retrieve Link in database.");
+
+        assert!(res.is_some());
+        assert_eq!(res.unwrap().url_to, URL_TO);
+    }
+
+    #[test]
+    fn get_link_not_exists() {
+        let pool = create_db();
+        let mut conn = pool.get().expect("Failed to create sql connection.");
+        run_migrations(&mut conn).expect("Failed to run migrations.");
+
+        database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+
+        let res = database::Link::get_link("wrong_url", &mut conn).expect("Could not retrieve Link in database.");
+
+        assert!(res.is_none());
+    }
+
+    #[test]
+    fn get_link_and_incr_not_exists() {
+        let pool = create_db();
+        let mut conn = pool.get().expect("Failed to create sql connection.");
+        run_migrations(&mut conn).expect("Failed to run migrations.");
+
+        database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+
+        let res = database::Link::get_link_and_incr("wrong_url", &mut conn).expect("Could not retrieve Link in database.");
+
+        assert!(res.is_none());
+    }
+
+    #[test]
+    fn get_link_view_count() {
+        let pool = create_db();
+        let mut conn = pool.get().expect("Failed to create sql connection.");
+        run_migrations(&mut conn).expect("Failed to run migrations.");
+
+        database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+
+        let res = database::Link::get_link(URL_FROM, &mut conn).expect("Could not retrieve Link in database.");
+
+        assert!(res.is_some());
+        let link_orig = res.unwrap();
+        assert_eq!(link_orig.url_to, URL_TO);
+        assert_eq!(link_orig.clicks, 0);
+
+        let res = database::Link::get_link_and_incr(URL_FROM, &mut conn).expect("Could not retrieve Link in database.");
+        assert!(res.is_some());
+        let link = res.unwrap();
+        assert_eq!(link.url_to, URL_TO);
+        assert_eq!(link.clicks, 1);
+
+        let res = database::Link::get_link(URL_FROM, &mut conn).expect("Could not retrieve Link in database.");
+
+        assert!(res.is_some());
+        let link_orig = res.unwrap();
+        assert_eq!(link_orig.url_to, URL_TO);
+        assert_eq!(link_orig.clicks, 1);
+    }
 }

@@ -42,12 +42,12 @@ pub async fn shortcut_admin_flag(
     }
 
     // get database connection
-    let conn = dbpool
+    let mut conn = dbpool
         .get()
         .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     // mark the link as phishing
-    let flag_result = web::block(move || Link::flag_as_phishing(&params.url_from, &conn))
+    let flag_result = web::block(move || Link::flag_as_phishing(&params.url_from, &mut conn))
         .await
         .map_err(|e| crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s)))?
         .map_err(|e| {
@@ -89,13 +89,13 @@ pub async fn shortcut_admin_del(
     // INFO: Copy-paste from shortcut_admin
 
     // get database connection
-    let conn = dbpool
+    let mut conn = dbpool
         .get()
         .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     // getting the link from database
     let move_url_from = params.url_from.clone();
-    let selected_link = web::block(move || Link::get_link(&move_url_from, &conn))
+    let selected_link = web::block(move || Link::get_link(&move_url_from, &mut conn))
         .await
         .map_err(|e| crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s)))?
         .map_err(|e| {
@@ -142,12 +142,12 @@ pub async fn shortcut_admin_del(
 
     // get a new database connection
     // because the other one has been consumed by another thread...
-    let conn = dbpool
+    let mut conn = dbpool
         .get()
         .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     // deleting the link
-    web::block(move || link.delete(&conn))
+    web::block(move || link.delete(&mut conn))
         .await
         .map_err(|e| {
             crash(
@@ -194,13 +194,13 @@ pub async fn shortcut_admin(
     query: web::Query<HashMap<String, String>>,
 ) -> Result<HttpResponse, ShortCircuit> {
     // get database connection
-    let conn = dbpool
+    let mut conn = dbpool
         .get()
         .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     // getting the link from database
     let move_url_from = params.url_from.clone();
-    let selected_link = web::block(move || Link::get_link(&move_url_from, &conn))
+    let selected_link = web::block(move || Link::get_link(&move_url_from, &mut conn))
         .await
         .map_err(|e| crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s)))?
         .map_err(|e| {
@@ -333,7 +333,7 @@ pub async fn post_link(
     };
 
     // get database connection
-    let conn = dbpool
+    let mut conn = dbpool
         .get()
         .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
@@ -341,7 +341,7 @@ pub async fn post_link(
     // query the database for an existing link
     // and creates a link if it doesn't exist
     let new_link =
-        web::block(move || Link::insert_if_not_exists(&new_url_from, form.url_to.trim(), &conn))
+        web::block(move || Link::insert_if_not_exists(&new_url_from, form.url_to.trim(), &mut conn))
             .await
             .map_err(|e| crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s)))?
             .map_err(|e| {
@@ -400,14 +400,14 @@ pub async fn shortcut(
     s: Session,
 ) -> Result<HttpResponse, ShortCircuit> {
     // get database connection
-    let conn = dbpool
+    let mut conn = dbpool
         .get()
         .map_err(|e| crash(throw(ErrorKind::CritDbPool, e.to_string()), pass(&req, &s)))?;
 
     // gets the link from database
     // and increments the click count
     let thread_url_from = params.url_from.clone();
-    let selected_link = web::block(move || Link::get_link_and_incr(&thread_url_from, &conn))
+    let selected_link = web::block(move || Link::get_link_and_incr(&thread_url_from, &mut conn))
         .await
         .map_err(|e| {
             crash(
