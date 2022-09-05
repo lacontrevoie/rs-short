@@ -72,6 +72,7 @@ impl Link {
             .unwrap()
     }
 
+    #[cfg(not(feature = "mysql"))]
     pub fn get_link_and_incr(
         i_url_from: &str,
         conn: &mut DbConn,
@@ -82,6 +83,25 @@ impl Link {
             .set(clicks.eq(clicks + 1))
             .get_result(conn)
             .optional()
+    }
+
+    #[cfg(feature = "mysql")]
+    pub fn get_link_and_incr(
+        i_url_from: &str,
+        conn: &mut DbConn,
+    ) -> Result<Option<Link>, diesel::result::Error> {
+        if let Some(link) = Link::get_link(i_url_from, conn)? {
+            let result = link.increment(conn);
+            match result {
+                Ok(_) => Ok(Some(link)),
+                Err(e) => {
+                    eprintln!("INFO: Failed to increment a link: {}?", e);
+                    Err(e)
+                }
+            }
+        } else {
+            Ok(None)
+        }
     }
 
     pub fn get_link(
@@ -106,6 +126,7 @@ impl Link {
     }
 
     // creating a new link
+    #[cfg(not(feature = "mysql"))]
     pub fn insert(
         i_url_from: &str,
         i_url_to: &str,
@@ -120,6 +141,28 @@ impl Link {
             key.eq(gen_random(24)),
         )).get_result(conn)
     }
+
+        // creating a new link
+        #[cfg(feature = "mysql")]
+        pub fn insert(
+            i_url_from: &str,
+            i_url_to: &str,
+            conn: &mut DbConn,
+        ) -> Result<Link, diesel::result::Error> {
+            use crate::db_schema::links::dsl::*;
+    
+            diesel::insert_into(all_links).values((
+                url_from.eq(i_url_from),
+                url_to.eq(i_url_to),
+                time.eq(Utc::now().naive_utc()),
+                key.eq(gen_random(24)),
+            )).execute(conn)?;
+
+            match Link::get_link(i_url_from, conn)? {
+                Some(l) => Ok(l),
+                None => Err(diesel::result::Error::NotFound)
+            }
+        }
 
     // returns Ok(None) if the link already exists
     // else, returns Ok(Link)
