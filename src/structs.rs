@@ -1,15 +1,14 @@
 use actix_web::http::Uri;
 use chrono::Duration;
 use chrono::{NaiveDateTime, Utc};
+use once_cell::sync::Lazy;
 use regex::Regex;
 
 use crate::error_handlers::{throw, ErrorInfo, ErrorKind};
 use crate::init::ALLOWED_PROTOCOLS;
 
-lazy_static! {
-    static ref RE_URL_FROM: Regex = Regex::new(r#"^[^,*';?:@=&.<>#%/\\\[\]\{\}"|^~ ]{0,80}$"#)
-        .expect("Failed to read NewLink url_from sanitize regular expression");
-}
+
+static RE_URL_FROM: Lazy<Regex> =  Lazy::new(|| Regex::new(r#"^[^,*';?:@=&.<>#%/\\\[\]\{\}"|^~ ]{0,80}$"#).expect("Failed to read NewLink url_from sanitize regular expression"));
 
 #[derive(Serialize, Deserialize)]
 pub struct NewLink {

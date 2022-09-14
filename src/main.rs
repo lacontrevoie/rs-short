@@ -1,6 +1,4 @@
 #[macro_use]
-extern crate lazy_static;
-#[macro_use]
 extern crate serde_derive;
 #[macro_use]
 extern crate diesel;
@@ -100,7 +98,7 @@ async fn main() -> std::io::Result<()> {
     run_migrations(&mut conn).expect("Failed to run migrations.");
 
     // for verbose_suspicious option
-    let suspicious_watch = web::Data::new(Mutex::new(HashMap::<
+    let suspicious_watch = Data::new(Mutex::new(HashMap::<
         String,
         Vec<(DateTime<Utc>, String)>,
     >::new()));

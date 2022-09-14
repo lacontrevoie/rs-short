@@ -1,4 +1,7 @@
 use actix_web::cookie::Key;
+
+use once_cell::sync::Lazy;
+
 use std::collections::HashMap;
 use std::fmt;
 use std::fs::File;
@@ -48,14 +51,12 @@ pub const CAPTCHA_LETTERS: u32 = 6;
 
 pub const CONFIG_VERSION: u8 = 3;
 
-lazy_static! {
-    // initializing configuration
-    pub static ref CONFIG: Config = Config::init();
-    // initializing lang.json file
-    pub static ref LANG: Lang = Lang::init();
-    // initializing policy list
-    pub static ref POLICY: PolicyList = PolicyList::init();
-}
+// initializing configuration
+pub static CONFIG: Lazy<Config> = Lazy::new(|| Config::init());
+// initializing lang.json file
+pub static LANG: Lazy<Lang> = Lazy::new(|| Lang::init());
+// initializing policy list
+pub static POLICY: Lazy<PolicyList> = Lazy::new(|| PolicyList::init());
 
 // DEFINE VALID LANGUAGES HERE
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
