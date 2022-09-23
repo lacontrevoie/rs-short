@@ -61,10 +61,10 @@ pub static LANG: OnceCell<Lang> = OnceCell::new();
 // initializing policy list
 pub static POLICY: OnceCell<PolicyList> = OnceCell::new();
 
-// Initialize CONFIG, LANG and POLICY.
+// Initialize RE_URL_FROM, CONFIG, LANG and POLICY.
 pub fn init_config() {
     let regex = Regex::new(r#"^[^,*';?:@=&.<>#%/\\\[\]\{\}"|^~ ]{0,80}$"#).expect("Failed to read NewLink url_from sanitize regular expression");
-    structs::RE_URL_FROM.set(regex).ok().expect("could not load regex");
+    structs::RE_URL_FROM.set(regex).expect("could not load regex");
     CONFIG.set(Config::init()).ok().expect("could not load config");
     LANG.set(Lang::init()).ok().expect("could not load langs");
     POLICY.set(PolicyList::init()).ok().expect("could not load policy list");
