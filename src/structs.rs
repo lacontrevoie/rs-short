@@ -1,14 +1,14 @@
 use actix_web::http::Uri;
 use chrono::Duration;
 use chrono::{NaiveDateTime, Utc};
-use once_cell::sync::Lazy;
+use once_cell::sync::OnceCell;
 use regex::Regex;
 
 use crate::error_handlers::{throw, ErrorInfo, ErrorKind};
 use crate::init::ALLOWED_PROTOCOLS;
 
 
-static RE_URL_FROM: Lazy<Regex> =  Lazy::new(|| Regex::new(r#"^[^,*';?:@=&.<>#%/\\\[\]\{\}"|^~ ]{0,80}$"#).expect("Failed to read NewLink url_from sanitize regular expression"));
+pub static RE_URL_FROM: OnceCell<Regex> = OnceCell::new();
 
 #[derive(Serialize, Deserialize)]
 pub struct NewLink {
@@ -69,7 +69,7 @@ impl NewLink {
             ));
         }
 
-        if self.url_from.len() > 50 || !RE_URL_FROM.is_match(&self.url_from) {
+        if self.url_from.len() > 50 || !RE_URL_FROM.get().unwrap().is_match(&self.url_from) {
             Err(throw(
                 ErrorKind::InfoInvalidUrlFrom,
                 format!("invalid shortcut name: {}", self.url_from),

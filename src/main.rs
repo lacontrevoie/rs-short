@@ -84,10 +84,12 @@ fn run_migrations(connection: &mut impl MigrationHarness<DB>) -> Result<(), Box<
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     println!("rs-short, starting.");
+    println!("initializing config.");
+    init::init_config();
 
-    println!("Opening database {}", CONFIG.general.database_path);
+    println!("Opening database {}", CONFIG.get().unwrap().general.database_path);
     // connecting the sqlite database
-    let manager = ConnectionManager::<DbConn>::new(&CONFIG.general.database_path);
+    let manager = ConnectionManager::<DbConn>::new(&CONFIG.get().unwrap().general.database_path);
     let pool = r2d2::Pool::builder()
         .build(manager)
         .expect("Failed to create pool.");
@@ -105,10 +107,10 @@ async fn main() -> std::io::Result<()> {
 
     // check configuration version
     // and panic if it doesn't match CONFIG_VERSION
-    CONFIG.check_version();
+    CONFIG.get().unwrap().check_version();
 
     // starting the http server
-    println!("Server listening at {}", CONFIG.general.listening_address);
+    println!("Server listening at {}", CONFIG.get().unwrap().general.listening_address);
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
@@ -116,7 +118,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),
-                    get_cookie_key(&CONFIG.general.cookie_key),
+                    get_cookie_key(&CONFIG.get().unwrap().general.cookie_key),
                 )
                 .cookie_content_security(CookieContentSecurity::Signed)
                 .cookie_secure(true)
@@ -135,7 +137,7 @@ async fn main() -> std::io::Result<()> {
             .service(post_link)
             .default_service(web::to(default_handler))
     })
-    .bind(&CONFIG.general.listening_address)?
+    .bind(&CONFIG.get().unwrap().general.listening_address)?
     .run()
     .await
 }

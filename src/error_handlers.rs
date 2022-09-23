@@ -111,7 +111,7 @@ impl ShortCircuit {
     }
 
     fn print_error(&self) {
-        match &CONFIG.phishing.verbose_level {
+        match &CONFIG.get().unwrap().phishing.verbose_level {
             VerboseLevel::Crit => {
                 if self.error.kind.is_critical() {
                     self.print_format();
@@ -147,9 +147,9 @@ impl error::ResponseError for ShortCircuit {
                 .content_type(ContentType::html())
                 .body(
                     PhishingTemplate {
-                        loc: &LANG.pages["phishing"].map,
+                        loc: &LANG.get().unwrap().pages["phishing"].map,
                         l: &self.req.lang,
-                        config: &CONFIG.general,
+                        config: &CONFIG.get().unwrap().general,
                     }
                     .render()
                     .expect("FATAL: Failed to render phishing template"),
