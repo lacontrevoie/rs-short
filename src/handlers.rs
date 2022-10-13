@@ -301,8 +301,7 @@ pub async fn post_link(
     // prevent shortening loop. Host string has already been checked
     if uri.host().unwrap()
         == CONFIG
-            .get()
-            .unwrap()
+            .wait()
             .general
             .instance_hostname
             .replace("http://", "")
@@ -321,13 +320,11 @@ pub async fn post_link(
     }
 
     POLICY
-        .get()
-        .unwrap()
+        .wait()
         .blocklist_check_from(&form.url_from)
         .map_err(|e| crash(e, pass(&req, &s)))?;
     POLICY
-        .get()
-        .unwrap()
+        .wait()
         .blocklist_check_to(&uri)
         .map_err(|e| crash(e, pass(&req, &s)))?;
 
