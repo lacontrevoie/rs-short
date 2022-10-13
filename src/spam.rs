@@ -197,7 +197,7 @@ pub fn gen_captcha() -> Option<(String, Vec<u8>)> {
     let mut captcha = Captcha::new();
     captcha.add_chars(CAPTCHA_LETTERS);
 
-    for diff in 1..=CONFIG.get().unwrap().general.captcha_difficulty {
+    for diff in 1..=CONFIG.wait().general.captcha_difficulty {
         match diff {
             1 => captcha.apply_filter(Noise::new(0.1)),
             2 => captcha
@@ -282,11 +282,11 @@ pub fn watch_visits(watcher: &web::Data<SuspiciousWatcher>, link: &LinkInfo, ip:
     // clean up old entries
     rate_shortcut.retain(|timestamp| {
         timestamp.0
-            > (Utc::now() - Duration::hours(i64::from(CONFIG.get().unwrap().phishing.suspicious_click_timeframe)))
+            > (Utc::now() - Duration::hours(i64::from(CONFIG.wait().phishing.suspicious_click_timeframe)))
     });
 
     // check click count
-    if rate_shortcut.len() >= CONFIG.get().unwrap().phishing.suspicious_click_count {
+    if rate_shortcut.len() >= CONFIG.wait().phishing.suspicious_click_count {
         println!(
             "WARN: suspicious activity detected.\n\
         Link: {}\n\

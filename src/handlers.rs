@@ -31,7 +31,7 @@ pub async fn shortcut_admin_flag(
     // We just used the same struct for convenience.
 
     // if the admin phishing password doesn't match, return early.
-    if params.admin_key != CONFIG.get().unwrap().phishing.phishing_password {
+    if params.admin_key != CONFIG.wait().phishing.phishing_password {
         return Err(crash(
             throw(
                 ErrorKind::WarnBadServerAdminKey,
@@ -180,7 +180,7 @@ pub async fn shortcut_admin_fallback(
 ) -> Result<HttpResponse, ShortCircuit> {
     Ok(web_redir(&format!(
         "{}/{}/admin/{}",
-        &CONFIG.get().unwrap().general.instance_hostname, params.url_from, params.admin_key
+        &CONFIG.wait().general.instance_hostname, params.url_from, params.admin_key
     )))
 }
 
@@ -378,7 +378,7 @@ pub async fn post_link(
     let linkinfo = LinkInfo::create_from(new_link);
 
     // if phishing verbose is enabled, display link creation info in console
-    if !POLICY.get().unwrap().is_allowlisted(&linkinfo.url_from, &linkinfo.url_to) && CONFIG.get().unwrap().phishing.verbose_console {
+    if !POLICY.wait().is_allowlisted(&linkinfo.url_from, &linkinfo.url_to) && CONFIG.wait().phishing.verbose_console {
         println!(
             "NOTE: New link created: {}\n\
             Redirects to: {}\n\
@@ -452,7 +452,7 @@ pub async fn shortcut(
         // if verbose_suspicious is enabled, play with the Mutex.
         // Do NOT count visits if link is allowlisted.
         Some(link) => {
-            if !POLICY.get().unwrap().is_allowlisted(&link.url_from, &link.url_to) && CONFIG.get().unwrap().phishing.verbose_suspicious {
+            if !POLICY.wait().is_allowlisted(&link.url_from, &link.url_to) && CONFIG.wait().phishing.verbose_suspicious {
                 watch_visits(
                     &suspicious_watch,
                     &LinkInfo::create_from(link.clone()),

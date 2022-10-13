@@ -25,11 +25,11 @@ impl TplNotification<'_> {
         p_is_valid: bool,
         l: &ValidLanguages,
     ) -> Self {
-        let tr_msg = if let Some(tr) = LANG.get().unwrap().pages[page].map.get(message_key) {
+        let tr_msg = if let Some(tr) = LANG.wait().pages[page].map.get(message_key) {
             &tr[l]
         } else {
             eprintln!("FATAL: Missing translation for key {}", message_key);
-            &LANG.get().unwrap().pages[page].map["fatal_missing_translation"][l]
+            &LANG.wait().pages[page].map["fatal_missing_translation"][l]
         };
 
         TplNotification {
@@ -69,24 +69,24 @@ pub fn gentpl_home(
     if let Some(captcha_image) = captcha {
         // if it succeeds, renders the template
         HomeTemplate {
-            loc: &LANG.get().unwrap().pages["home"].map,
+            loc: &LANG.wait().pages["home"].map,
             l,
             captcha: &base64_encode(&captcha_image),
             notification,
             linkinfo,
-            config: &CONFIG.get().unwrap().general,
+            config: &CONFIG.wait().general,
         }
         .render()
     } else {
         // if it fails, returns an error message
         eprintln!("FATAL: Failed to generate the captcha");
         HomeTemplate {
-            loc: &LANG.get().unwrap().pages["home"].map,
+            loc: &LANG.wait().pages["home"].map,
             l,
             captcha: &String::from("Error"),
             notification: Some(&TplNotification::new("home", "fatal_captcha_gen", false, l)),
             linkinfo,
-            config: &CONFIG.get().unwrap().general,
+            config: &CONFIG.wait().general,
         }
         .render()
     }

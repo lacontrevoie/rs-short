@@ -69,7 +69,7 @@ impl NewLink {
             ));
         }
 
-        if self.url_from.len() > 50 || !RE_URL_FROM.get().unwrap().is_match(&self.url_from) {
+        if self.url_from.len() > 50 || !RE_URL_FROM.wait().is_match(&self.url_from) {
             Err(throw(
                 ErrorKind::InfoInvalidUrlFrom,
                 format!("invalid shortcut name: {}", self.url_from),
