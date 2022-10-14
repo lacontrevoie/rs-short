@@ -1,10 +1,16 @@
 use actix_web::cookie::Key;
+
+use once_cell::sync::OnceCell;
+
 use std::collections::HashMap;
 use std::fmt;
 use std::fs::File;
 use std::io::Read;
 
+use regex::Regex;
+
 use crate::spam::PolicyList;
+use crate::structs;
 
 pub const CONFIG_FILE: &str = "./config.toml";
 pub const LISTS_FILE: &str = "./lists.toml";
@@ -48,13 +54,20 @@ pub const CAPTCHA_LETTERS: u32 = 6;
 
 pub const CONFIG_VERSION: u8 = 3;
 
-lazy_static! {
-    // initializing configuration
-    pub static ref CONFIG: Config = Config::init();
-    // initializing lang.json file
-    pub static ref LANG: Lang = Lang::init();
-    // initializing policy list
-    pub static ref POLICY: PolicyList = PolicyList::init();
+// initializing configuration
+pub static CONFIG: OnceCell<Config> = OnceCell::new();
+// initializing lang.json file
+pub static LANG: OnceCell<Lang> = OnceCell::new();
+// initializing policy list
+pub static POLICY: OnceCell<PolicyList> = OnceCell::new();
+
+// Initialize RE_URL_FROM, CONFIG, LANG and POLICY.
+pub fn init_config() {
+    let regex = Regex::new(r#"^[^,*';?:@=&.<>#%/\\\[\]\{\}"|^~ ]{0,80}$"#).expect("Failed to read NewLink url_from sanitize regular expression");
+    structs::RE_URL_FROM.set(regex).expect("could not load regex");
+    CONFIG.set(Config::init()).ok().expect("could not load config");
+    LANG.set(Lang::init()).ok().expect("could not load langs");
+    POLICY.set(PolicyList::init()).ok().expect("could not load policy list");
 }
 
 // DEFINE VALID LANGUAGES HERE

@@ -1,6 +1,4 @@
 #[macro_use]
-extern crate lazy_static;
-#[macro_use]
 extern crate serde_derive;
 #[macro_use]
 extern crate diesel;
@@ -86,10 +84,12 @@ fn run_migrations(connection: &mut impl MigrationHarness<DB>) -> Result<(), Box<
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     println!("rs-short, starting.");
+    println!("initializing config.");
+    init::init_config();
 
-    println!("Opening database {}", CONFIG.general.database_path);
+    println!("Opening database {}", CONFIG.wait().general.database_path);
     // connecting the sqlite database
-    let manager = ConnectionManager::<DbConn>::new(&CONFIG.general.database_path);
+    let manager = ConnectionManager::<DbConn>::new(&CONFIG.wait().general.database_path);
     let pool = r2d2::Pool::builder()
         .build(manager)
         .expect("Failed to create pool.");
@@ -100,17 +100,17 @@ async fn main() -> std::io::Result<()> {
     run_migrations(&mut conn).expect("Failed to run migrations.");
 
     // for verbose_suspicious option
-    let suspicious_watch = web::Data::new(Mutex::new(HashMap::<
+    let suspicious_watch = Data::new(Mutex::new(HashMap::<
         String,
         Vec<(DateTime<Utc>, String)>,
     >::new()));
 
     // check configuration version
     // and panic if it doesn't match CONFIG_VERSION
-    CONFIG.check_version();
+    CONFIG.wait().check_version();
 
     // starting the http server
-    println!("Server listening at {}", CONFIG.general.listening_address);
+    println!("Server listening at {}", CONFIG.wait().general.listening_address);
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
@@ -118,7 +118,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),
-                    get_cookie_key(&CONFIG.general.cookie_key),
+                    get_cookie_key(&CONFIG.wait().general.cookie_key),
                 )
                 .cookie_content_security(CookieContentSecurity::Signed)
                 .cookie_secure(true)
@@ -137,7 +137,7 @@ async fn main() -> std::io::Result<()> {
             .service(post_link)
             .default_service(web::to(default_handler))
     })
-    .bind(&CONFIG.general.listening_address)?
+    .bind(&CONFIG.wait().general.listening_address)?
     .run()
     .await
 }

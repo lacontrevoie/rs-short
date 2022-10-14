@@ -37,23 +37,23 @@ pub struct LinkInfo {
 impl LinkInfo {
     pub fn create_from(link: Link) -> Self {
         LinkInfo {
-            url_from: format!("{}/{}", CONFIG.general.instance_hostname, link.url_from),
+            url_from: format!("{}/{}", CONFIG.wait().general.instance_hostname, link.url_from),
             url_to: link.url_to,
             adminlink: format!(
                 "{}/{}/admin/{}",
-                CONFIG.general.instance_hostname,
+                CONFIG.wait().general.instance_hostname,
                 link.url_from,
                 base64_encode_config(&link.key, URL_SAFE_NO_PAD)
             ),
             deletelink: format!(
                 "{}/{}/delete/{}",
-                CONFIG.general.instance_hostname,
+                CONFIG.wait().general.instance_hostname,
                 link.url_from,
                 base64_encode_config(&link.key, URL_SAFE_NO_PAD)
             ),
             phishlink: format!(
                 "{}/{}/phishing/{}",
-                CONFIG.general.instance_hostname, link.url_from, CONFIG.phishing.phishing_password
+                CONFIG.wait().general.instance_hostname, link.url_from, CONFIG.wait().phishing.phishing_password
             ),
             clicks: link.clicks,
         }
