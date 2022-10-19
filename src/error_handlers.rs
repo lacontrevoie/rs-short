@@ -1,9 +1,9 @@
 use actix_session::Session;
+use actix_web::http::header::ContentType;
 use actix_web::http::Method;
 use actix_web::HttpResponseBuilder;
 use actix_web::{error, http::StatusCode};
 use actix_web::{HttpRequest, HttpResponse, Result};
-use actix_web::http::header::ContentType;
 use askama::Template;
 use std::fmt;
 
@@ -170,8 +170,8 @@ impl error::ResponseError for ShortCircuit {
                     None,
                     Some(&tpl),
                 ))
-            }
         }
+    }
 
     fn status_code(&self) -> StatusCode {
         match &self.error.kind {
