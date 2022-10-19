@@ -1,6 +1,6 @@
 use actix_session::Session;
-use actix_web::{get, http, post, web, HttpRequest, HttpResponse, Result};
 use actix_web::http::header::ContentType;
+use actix_web::{get, http, post, web, HttpRequest, HttpResponse, Result};
 use base64::encode_config as base64_encode_config;
 use base64::URL_SAFE_NO_PAD;
 use std::collections::HashMap;
@@ -69,12 +69,14 @@ pub async fn shortcut_admin_flag(
         ))
     } else {
         let tpl = TplNotification::new("home", "link_flag_success", true, &get_lang(&req));
-        Ok(HttpResponse::Ok().content_type(ContentType::html()).body(gentpl_home(
-            &get_lang(&req),
-            cookie_captcha_set(&s).as_deref(),
-            None,
-            Some(&tpl),
-        )))
+        Ok(HttpResponse::Ok()
+            .content_type(ContentType::html())
+            .body(gentpl_home(
+                &get_lang(&req),
+                cookie_captcha_set(&s).as_deref(),
+                None,
+                Some(&tpl),
+            )))
     }
 }
 
@@ -164,12 +166,14 @@ pub async fn shortcut_admin_del(
 
     // displaying success message
     let tpl = TplNotification::new("home", "link_delete_success", true, &get_lang(&req));
-    Ok(HttpResponse::Ok().content_type(ContentType::html()).body(gentpl_home(
-        &get_lang(&req),
-        cookie_captcha_set(&s).as_deref(),
-        None,
-        Some(&tpl),
-    )))
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::html())
+        .body(gentpl_home(
+            &get_lang(&req),
+            cookie_captcha_set(&s).as_deref(),
+            None,
+            Some(&tpl),
+        )))
 }
 
 // GET: link administration page, fallback compatibility
@@ -180,7 +184,9 @@ pub async fn shortcut_admin_fallback(
 ) -> Result<HttpResponse, ShortCircuit> {
     Ok(web_redir(&format!(
         "{}/{}/admin/{}",
-        &CONFIG.wait().general.instance_hostname, params.url_from, params.admin_key
+        &CONFIG.wait().general.instance_hostname,
+        params.url_from,
+        params.admin_key
     )))
 }
 
@@ -251,19 +257,23 @@ pub async fn shortcut_admin(
     // if created=true, display a green notification
     if query.get("created").is_some() {
         let tpl = TplNotification::new("home", "form_success", true, &get_lang(&req));
-        Ok(HttpResponse::Ok().content_type(ContentType::html()).body(gentpl_home(
-            &get_lang(&req),
-            cookie_captcha_set(&s).as_deref(),
-            Some(&linkinfo),
-            Some(&tpl),
-        )))
+        Ok(HttpResponse::Ok()
+            .content_type(ContentType::html())
+            .body(gentpl_home(
+                &get_lang(&req),
+                cookie_captcha_set(&s).as_deref(),
+                Some(&linkinfo),
+                Some(&tpl),
+            )))
     } else {
-        Ok(HttpResponse::Ok().content_type(ContentType::html()).body(gentpl_home(
-            &get_lang(&req),
-            cookie_captcha_set(&s).as_deref(),
-            Some(&linkinfo),
-            None,
-        )))
+        Ok(HttpResponse::Ok()
+            .content_type(ContentType::html())
+            .body(gentpl_home(
+                &get_lang(&req),
+                cookie_captcha_set(&s).as_deref(),
+                Some(&linkinfo),
+                None,
+            )))
     }
 }
 
@@ -343,16 +353,17 @@ pub async fn post_link(
     let url_from_copy = form.url_from.clone();
     // query the database for an existing link
     // and creates a link if it doesn't exist
-    let new_link =
-        web::block(move || Link::insert_if_not_exists(&new_url_from, form.url_to.trim(), &mut conn))
-            .await
-            .map_err(|e| crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s)))?
-            .map_err(|e| {
-                crash(
-                    throw(ErrorKind::CritAwaitFail, e.to_string()),
-                    pass(&req, &s),
-                )
-            })?;
+    let new_link = web::block(move || {
+        Link::insert_if_not_exists(&new_url_from, form.url_to.trim(), &mut conn)
+    })
+    .await
+    .map_err(|e| crash(throw(ErrorKind::CritDbFail, e.to_string()), pass(&req, &s)))?
+    .map_err(|e| {
+        crash(
+            throw(ErrorKind::CritAwaitFail, e.to_string()),
+            pass(&req, &s),
+        )
+    })?;
 
     // if the link already exists, early return.
     let new_link = match new_link {
@@ -375,7 +386,11 @@ pub async fn post_link(
     let linkinfo = LinkInfo::create_from(new_link);
 
     // if phishing verbose is enabled, display link creation info in console
-    if !POLICY.wait().is_allowlisted(&linkinfo.url_from, &linkinfo.url_to) && CONFIG.wait().phishing.verbose_console {
+    if !POLICY
+        .wait()
+        .is_allowlisted(&linkinfo.url_from, &linkinfo.url_to)
+        && CONFIG.wait().phishing.verbose_console
+    {
         println!(
             "NOTE: New link created: {}\n\
             Redirects to: {}\n\
@@ -449,7 +464,9 @@ pub async fn shortcut(
         // if verbose_suspicious is enabled, play with the Mutex.
         // Do NOT count visits if link is allowlisted.
         Some(link) => {
-            if !POLICY.wait().is_allowlisted(&link.url_from, &link.url_to) && CONFIG.wait().phishing.verbose_suspicious {
+            if !POLICY.wait().is_allowlisted(&link.url_from, &link.url_to)
+                && CONFIG.wait().phishing.verbose_suspicious
+            {
                 watch_visits(
                     &suspicious_watch,
                     &LinkInfo::create_from(link.clone()),
@@ -464,12 +481,14 @@ pub async fn shortcut(
 
 #[get("/")]
 pub async fn index(req: HttpRequest, s: Session) -> Result<HttpResponse, ShortCircuit> {
-    Ok(HttpResponse::Ok().content_type(ContentType::html()).body(gentpl_home(
-        &get_lang(&req),
-        cookie_captcha_set(&s).as_deref(),
-        None,
-        None,
-    )))
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::html())
+        .body(gentpl_home(
+            &get_lang(&req),
+            cookie_captcha_set(&s).as_deref(),
+            None,
+            None,
+        )))
 }
 
 fn web_redir(location: &str) -> HttpResponse {

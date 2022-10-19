@@ -7,7 +7,6 @@ use regex::Regex;
 use crate::error_handlers::{throw, ErrorInfo, ErrorKind};
 use crate::init::ALLOWED_PROTOCOLS;
 
-
 pub static RE_URL_FROM: OnceCell<Regex> = OnceCell::new();
 
 #[derive(Serialize, Deserialize)]

@@ -159,7 +159,7 @@ pub fn gen_random(n_bytes: usize) -> Vec<u8> {
 }
 
 pub fn get_ip(req: &HttpRequest) -> String {
-    if let Some(v) =  req.connection_info().realip_remote_addr() {
+    if let Some(v) = req.connection_info().realip_remote_addr() {
         v.to_owned()
         // do not trim the port anymore since there is
         // no port with a reverse proxy.
