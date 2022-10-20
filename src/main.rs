@@ -19,8 +19,8 @@ mod structs;
 mod templates;
 
 use actix_files as fs;
-use actix_session::storage::CookieSessionStore;
 use actix_session::config::CookieContentSecurity;
+use actix_session::storage::CookieSessionStore;
 use actix_session::SessionMiddleware;
 use actix_web::cookie::SameSite;
 use actix_web::web::Data;
@@ -70,8 +70,9 @@ type DbPool = r2d2::Pool<ConnectionManager<DbConn>>;
 // see the watch_visits function for more details on the watcher
 type SuspiciousWatcher = Mutex<HashMap<String, Vec<(DateTime<Utc>, String)>>>;
 
-fn run_migrations(connection: &mut impl MigrationHarness<DB>) -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
-
+fn run_migrations(
+    connection: &mut impl MigrationHarness<DB>,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
     // This will run the necessary migrations.
     //
     // See the documentation for `MigrationHarness` for
@@ -100,17 +101,19 @@ async fn main() -> std::io::Result<()> {
     run_migrations(&mut conn).expect("Failed to run migrations.");
 
     // for verbose_suspicious option
-    let suspicious_watch = Data::new(Mutex::new(HashMap::<
-        String,
-        Vec<(DateTime<Utc>, String)>,
-    >::new()));
+    let suspicious_watch = Data::new(Mutex::new(
+        HashMap::<String, Vec<(DateTime<Utc>, String)>>::new(),
+    ));
 
     // check configuration validity
     // and panic if it is invalid
     CONFIG.wait().check();
 
     // starting the http server
-    println!("Server listening at {}", CONFIG.wait().general.listening_address);
+    println!(
+        "Server listening at {}",
+        CONFIG.wait().general.listening_address
+    );
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
@@ -162,7 +165,8 @@ mod tests {
         let mut conn = pool.get().expect("Failed to create sql connection.");
         run_migrations(&mut conn).expect("Failed to run migrations.");
 
-        let res = database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+        let res = database::Link::insert(URL_FROM, URL_TO, &mut conn)
+            .expect("Could not insert Link in database.");
 
         assert_eq!(res.url_from, URL_FROM);
         assert_eq!(res.url_to, URL_TO)
@@ -174,9 +178,11 @@ mod tests {
         let mut conn = pool.get().expect("Failed to create sql connection.");
         run_migrations(&mut conn).expect("Failed to run migrations.");
 
-        database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+        database::Link::insert(URL_FROM, URL_TO, &mut conn)
+            .expect("Could not insert Link in database.");
 
-        let res = database::Link::get_link(URL_FROM, &mut conn).expect("Could not retrieve Link in database.");
+        let res = database::Link::get_link(URL_FROM, &mut conn)
+            .expect("Could not retrieve Link in database.");
 
         assert!(res.is_some());
         assert_eq!(res.unwrap().url_to, URL_TO);
@@ -188,9 +194,11 @@ mod tests {
         let mut conn = pool.get().expect("Failed to create sql connection.");
         run_migrations(&mut conn).expect("Failed to run migrations.");
 
-        database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+        database::Link::insert(URL_FROM, URL_TO, &mut conn)
+            .expect("Could not insert Link in database.");
 
-        let res = database::Link::get_link("wrong_url", &mut conn).expect("Could not retrieve Link in database.");
+        let res = database::Link::get_link("wrong_url", &mut conn)
+            .expect("Could not retrieve Link in database.");
 
         assert!(res.is_none());
     }
@@ -201,9 +209,11 @@ mod tests {
         let mut conn = pool.get().expect("Failed to create sql connection.");
         run_migrations(&mut conn).expect("Failed to run migrations.");
 
-        database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+        database::Link::insert(URL_FROM, URL_TO, &mut conn)
+            .expect("Could not insert Link in database.");
 
-        let res = database::Link::get_link_and_incr("wrong_url", &mut conn).expect("Could not retrieve Link in database.");
+        let res = database::Link::get_link_and_incr("wrong_url", &mut conn)
+            .expect("Could not retrieve Link in database.");
 
         assert!(res.is_none());
     }
@@ -214,22 +224,26 @@ mod tests {
         let mut conn = pool.get().expect("Failed to create sql connection.");
         run_migrations(&mut conn).expect("Failed to run migrations.");
 
-        database::Link::insert(URL_FROM, URL_TO, &mut conn).expect("Could not insert Link in database.");
+        database::Link::insert(URL_FROM, URL_TO, &mut conn)
+            .expect("Could not insert Link in database.");
 
-        let res = database::Link::get_link(URL_FROM, &mut conn).expect("Could not retrieve Link in database.");
+        let res = database::Link::get_link(URL_FROM, &mut conn)
+            .expect("Could not retrieve Link in database.");
 
         assert!(res.is_some());
         let link_orig = res.unwrap();
         assert_eq!(link_orig.url_to, URL_TO);
         assert_eq!(link_orig.clicks, 0);
 
-        let res = database::Link::get_link_and_incr(URL_FROM, &mut conn).expect("Could not retrieve Link in database.");
+        let res = database::Link::get_link_and_incr(URL_FROM, &mut conn)
+            .expect("Could not retrieve Link in database.");
         assert!(res.is_some());
         let link = res.unwrap();
         assert_eq!(link.url_to, URL_TO);
         assert_eq!(link.clicks, 1);
 
-        let res = database::Link::get_link(URL_FROM, &mut conn).expect("Could not retrieve Link in database.");
+        let res = database::Link::get_link(URL_FROM, &mut conn)
+            .expect("Could not retrieve Link in database.");
 
         assert!(res.is_some());
         let link_orig = res.unwrap();

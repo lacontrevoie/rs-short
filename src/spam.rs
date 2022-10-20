@@ -90,8 +90,15 @@ impl PolicyList {
     }
 
     pub fn is_allowlisted(&self, url_from: &str, url_to: &str) -> bool {
-        self.urls.allowlist.iter().any(|r| r.expr.is_match(&url_to.to_lowercase()))
-        || self.names.allowlist.iter().any(|r| r.expr.is_match(&url_from.to_lowercase()))
+        self.urls
+            .allowlist
+            .iter()
+            .any(|r| r.expr.is_match(&url_to.to_lowercase()))
+            || self
+                .names
+                .allowlist
+                .iter()
+                .any(|r| r.expr.is_match(&url_from.to_lowercase()))
     }
 
     pub fn blocklist_check_from(&self, url_from: &str) -> Result<(), ErrorInfo> {
@@ -202,22 +209,42 @@ pub fn gen_captcha() -> Option<(String, Vec<u8>)> {
             1 => captcha.apply_filter(Noise::new(0.1)),
             2 => captcha
                 .apply_filter(
-                    Wave::new(f64::from(rng.gen_range(1..4)), f64::from(rng.gen_range(6..13))).horizontal(),
+                    Wave::new(
+                        f64::from(rng.gen_range(1..4)),
+                        f64::from(rng.gen_range(6..13)),
+                    )
+                    .horizontal(),
                 )
                 .apply_filter(
-                    Wave::new(f64::from(rng.gen_range(1..4)), f64::from(rng.gen_range(6..13))).vertical(),
+                    Wave::new(
+                        f64::from(rng.gen_range(1..4)),
+                        f64::from(rng.gen_range(6..13)),
+                    )
+                    .vertical(),
                 ),
             3 => captcha.apply_filter(Grid::new(rng.gen_range(15..25), rng.gen_range(15..25))),
             4 => captcha
                 .apply_filter(
-                    Wave::new(f64::from(rng.gen_range(1..4)), f64::from(rng.gen_range(5..9))).horizontal(),
+                    Wave::new(
+                        f64::from(rng.gen_range(1..4)),
+                        f64::from(rng.gen_range(5..9)),
+                    )
+                    .horizontal(),
                 )
                 .apply_filter(
-                    Wave::new(f64::from(rng.gen_range(1..4)), f64::from(rng.gen_range(5..9))).vertical(),
+                    Wave::new(
+                        f64::from(rng.gen_range(1..4)),
+                        f64::from(rng.gen_range(5..9)),
+                    )
+                    .vertical(),
                 ),
             5 => captcha
                 .apply_filter(
-                    Wave::new(f64::from(rng.gen_range(1..4)), f64::from(rng.gen_range(6..13))).horizontal(),
+                    Wave::new(
+                        f64::from(rng.gen_range(1..4)),
+                        f64::from(rng.gen_range(6..13)),
+                    )
+                    .horizontal(),
                 )
                 .apply_filter(Noise::new(0.1)),
             _ => break,
@@ -282,7 +309,8 @@ pub fn watch_visits(watcher: &web::Data<SuspiciousWatcher>, link: &LinkInfo, ip:
     // clean up old entries
     rate_shortcut.retain(|timestamp| {
         timestamp.0
-            > (Utc::now() - Duration::hours(i64::from(CONFIG.wait().phishing.suspicious_click_timeframe)))
+            > (Utc::now()
+                - Duration::hours(i64::from(CONFIG.wait().phishing.suspicious_click_timeframe)))
     });
 
     // check click count
