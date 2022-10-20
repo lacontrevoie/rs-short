@@ -37,8 +37,10 @@ hoster_tos = "https://example.com/ToS"
 # Can be https:, mailto: or whatever
 contact = "mailto:contact@example.com"
 
-# Theme (light or dark). If you make new themes, please
+# Theme (light, dark or custom). If you make new themes, please
 # contact us so we can add them to the main repository!
+# To add a custom theme, create a folder named "custom" in the
+# assets/themes/ folder and add your base.css file inside.
 theme = "light"
 
 # Key used to encrypt the cookie key.
@@ -80,5 +82,5 @@ suspicious_click_timeframe = 12
 # Admin password to mark a link as phish link
 # example.com/<bad_link>/<secret>/phishing/<phishing_password> 
 # You must use characters that are safe to use in URLs
-# (let's say, alphanumeric characters)
+# (let's say, alphanumeric characters). Should be longer than 16 characters.
 phishing_password = "CHANGE ME"

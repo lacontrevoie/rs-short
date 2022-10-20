@@ -61,6 +61,14 @@ pub static LANG: OnceCell<Lang> = OnceCell::new();
 // initializing policy list
 pub static POLICY: OnceCell<PolicyList> = OnceCell::new();
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[serde(rename_all = "lowercase")]
+pub enum AllowedThemes {
+    Light,
+    Dark,
+    Custom,
+}
+
 // Initialize RE_URL_FROM, CONFIG, LANG and POLICY.
 pub fn init_config() {
     let regex = Regex::new(r#"^[^,*';?:@=&.<>#%/\\\[\]\{\}"|^~ ]{0,80}$"#)
@@ -113,6 +121,12 @@ impl fmt::Display for ValidLanguages {
     }
 }
 
+impl fmt::Display for AllowedThemes {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Lang {
     pub pages: HashMap<String, LangChild>,
@@ -147,7 +161,7 @@ pub struct ConfGeneral {
     pub hoster_hostname: String,
     pub hoster_tos: String,
     pub contact: String,
-    pub theme: String,
+    pub theme: AllowedThemes,
     pub captcha_difficulty: u8,
     pub cookie_key: String,
 }
@@ -199,23 +213,62 @@ impl Config {
         }
 
         // check for default values
-        Self::check_default("instance_hostname", &self.general.instance_hostname, "s.example.com", true);
-        Self::check_default("hoster_name", &self.general.hoster_name, "ExampleSoft", false);
-        Self::check_default("hoster_hostname", &self.general.hoster_hostname, "example.com", false);
-        Self::check_default("hoster_tos", &self.general.hoster_tos, "https://example.com/ToS", false);
-        Self::check_default("contact", &self.general.contact, "mailto:contact@example.com", false);
+        Self::check_default(
+            "instance_hostname",
+            &self.general.instance_hostname,
+            "s.example.com",
+            true,
+        );
+        Self::check_default(
+            "hoster_name",
+            &self.general.hoster_name,
+            "ExampleSoft",
+            false,
+        );
+        Self::check_default(
+            "hoster_hostname",
+            &self.general.hoster_hostname,
+            "example.com",
+            false,
+        );
+        Self::check_default(
+            "hoster_tos",
+            &self.general.hoster_tos,
+            "https://example.com/ToS",
+            false,
+        );
+        Self::check_default(
+            "contact",
+            &self.general.contact,
+            "mailto:contact@example.com",
+            false,
+        );
         Self::check_default("cookie_key", &self.general.cookie_key, "CHANGE ME", true);
-        Self::check_default("phishing_password", &self.phishing.phishing_password, "CHANGE ME", true);
+        Self::check_default(
+            "phishing_password",
+            &self.phishing.phishing_password,
+            "CHANGE ME",
+            true,
+        );
 
-        // check theme value
-        
         // check cookie key and phishing password
-        //println!("cookie length: {}", self.general.cookie_key);
+        if self.general.cookie_key.len() < 88 {
+            eprintln!("Your cookie key is shorter than 64 bits. Please refer to the config.toml.sample file to know how to generate a cookie key with the proper length.");
+            panic!();
+        }
+
+        if self.general.cookie_key.len() < 16 {
+            eprintln!("Your phishing password is shorter than 16 characters. You must increase it for security reasons.");
+            panic!();
+        }
     }
 
     fn check_default(name: &str, current: &str, default: &str, is_blocking: bool) {
         if current == default {
-            eprintln!("Your configuration parameter {} is set to its default value ({}).", name, current);
+            eprintln!(
+                "Your configuration parameter {} is set to its default value ({}).",
+                name, current
+            );
             if is_blocking {
                 eprintln!("You must change it in order to proceed.");
                 panic!();
@@ -223,7 +276,6 @@ impl Config {
         }
     }
 }
-
 
 pub fn get_cookie_key(cookie_key: &str) -> Key {
     let key = base64::decode(cookie_key).expect("Failed to read cookie key!");
