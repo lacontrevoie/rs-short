@@ -105,9 +105,9 @@ async fn main() -> std::io::Result<()> {
         Vec<(DateTime<Utc>, String)>,
     >::new()));
 
-    // check configuration version
-    // and panic if it doesn't match CONFIG_VERSION
-    CONFIG.wait().check_version();
+    // check configuration validity
+    // and panic if it is invalid
+    CONFIG.wait().check();
 
     // starting the http server
     println!("Server listening at {}", CONFIG.wait().general.listening_address);

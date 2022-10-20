@@ -181,13 +181,40 @@ impl Config {
             .expect("Couldn't read config to string");
         toml::from_str(&confstr).unwrap()
     }
-    pub fn check_version(&self) {
+
+    pub fn check(&self) {
+        // check config version
         if self.config_version != CONFIG_VERSION {
             eprintln!("Your configuration file is obsolete! Please update it using config.toml.sample and update its version to {}.", CONFIG_VERSION);
             panic!();
         }
+
+        // check for default values
+        Self::check_default("instance_hostname", &self.general.instance_hostname, "s.example.com", true);
+        Self::check_default("hoster_name", &self.general.hoster_name, "ExampleSoft", false);
+        Self::check_default("hoster_hostname", &self.general.hoster_hostname, "example.com", false);
+        Self::check_default("hoster_tos", &self.general.hoster_tos, "https://example.com/ToS", false);
+        Self::check_default("contact", &self.general.contact, "mailto:contact@example.com", false);
+        Self::check_default("cookie_key", &self.general.cookie_key, "CHANGE ME", true);
+        Self::check_default("phishing_password", &self.phishing.phishing_password, "CHANGE ME", true);
+
+        // check theme value
+        
+        // check cookie key and phishing password
+        //println!("cookie length: {}", self.general.cookie_key);
+    }
+
+    fn check_default(name: &str, current: &str, default: &str, is_blocking: bool) {
+        if current == default {
+            eprintln!("Your configuration parameter {} is set to its default value ({}).", name, current);
+            if is_blocking {
+                eprintln!("You must change it in order to proceed.");
+                panic!();
+            }
+        }
     }
 }
+
 
 pub fn get_cookie_key(cookie_key: &str) -> Key {
     let key = base64::decode(cookie_key).expect("Failed to read cookie key!");
