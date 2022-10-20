@@ -70,7 +70,7 @@ pub enum AllowedThemes {
 }
 
 // Initialize RE_URL_FROM, CONFIG, LANG and POLICY.
-pub fn init_config() {
+pub fn read_config() {
     let regex = Regex::new(r#"^[^,*';?:@=&.<>#%/\\\[\]\{\}"|^~ ]{0,80}$"#)
         .expect("Failed to read NewLink url_from sanitize regular expression");
     structs::RE_URL_FROM

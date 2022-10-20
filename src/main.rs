@@ -86,7 +86,7 @@ fn run_migrations(
 async fn main() -> std::io::Result<()> {
     println!("rs-short, starting.");
     println!("initializing config.");
-    init::init_config();
+    init::read_config();
 
     println!("Opening database {}", CONFIG.wait().general.database_path);
     // connecting the sqlite database

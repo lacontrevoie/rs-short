@@ -70,7 +70,7 @@ impl LinkInfo {
 impl Link {
     // gets *all links* (is this even used somewhere?)
     pub fn all(conn: &mut DbConn) -> Vec<Link> {
-        use crate::db_schema::links::dsl::*;
+        use crate::db_schema::links::dsl::{id, links};
 
         links.order(id.desc()).load::<Link>(conn).unwrap()
     }
@@ -80,7 +80,7 @@ impl Link {
         i_url_from: &str,
         conn: &mut DbConn,
     ) -> Result<Option<Link>, diesel::result::Error> {
-        use crate::db_schema::links::dsl::*;
+        use crate::db_schema::links::dsl::{clicks, links, url_from};
 
         diesel::update(links.filter(url_from.eq(i_url_from)))
             .set(clicks.eq(clicks + 1))
@@ -109,14 +109,14 @@ impl Link {
         i_url_from: &str,
         conn: &mut DbConn,
     ) -> Result<Option<Link>, diesel::result::Error> {
-        use crate::db_schema::links::dsl::*;
+        use crate::db_schema::links::dsl::{links, url_from};
 
         links.filter(url_from.eq(i_url_from)).first(conn).optional()
     }
 
     // click count increment
     pub fn increment(&self, conn: &mut DbConn) -> Result<usize, diesel::result::Error> {
-        use crate::db_schema::links::dsl::*;
+        use crate::db_schema::links::dsl::{clicks, id, links};
 
         diesel::update(links.filter(id.eq(self.id)))
             .set(clicks.eq(self.clicks + 1))
@@ -130,7 +130,7 @@ impl Link {
         i_url_to: &str,
         conn: &mut DbConn,
     ) -> Result<Link, diesel::result::Error> {
-        use crate::db_schema::links::dsl::*;
+        use crate::db_schema::links::dsl::{key, time, url_from, url_to};
 
         diesel::insert_into(all_links)
             .values((
