@@ -43,7 +43,7 @@ theme = "light"
 
 # Key used to encrypt the cookie key.
 # Don't leave it empty!!
-# `openssl rand -base64 64`
+# `openssl rand -base64 64 | tr -d '\n'`
 cookie_key = "CHANGE ME"
 
 # Find a compromise between accessibility and protection
@@ -81,4 +81,4 @@ suspicious_click_timeframe = 12
 # example.com/<bad_link>/<secret>/phishing/<phishing_password> 
 # You must use characters that are safe to use in URLs
 # (let's say, alphanumeric characters)
-phishing_password = "edit me >///<"
+phishing_password = "CHANGE ME"
