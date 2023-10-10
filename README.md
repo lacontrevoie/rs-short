@@ -85,9 +85,9 @@ Here are many ways to contribute:
 - Add a toggle to disable the captcha
 - Experiment around captchas to match accessibility needs. I have no idea... :(
 
-This software is mainly developed and maintained by [Neil](https://shelter.moe/@Neil) for the [Association 42l](https://42l.fr). 
+This software is mainly developed and maintained by [Neil](https://shelter.moe/@Neil) for [La Contre-Voie](https://lacontrevoie.fr/en/). 
 
-If you like the work done on this project, please consider to [donate or join](https://42l.fr/Support-us) the association. Thank you!
+If you like the work done on this project, please consider [donating or joining](https://lacontrevoie.fr/en/participer/) the association. Thank you!
 
 ## Graphical credits
 
