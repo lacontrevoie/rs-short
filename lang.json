@@ -72,7 +72,8 @@
                 "linkpolicy": {
                     "En": "Links created with our service does not expire. Malicious links will be deleted.",
                     "Fr": "Les liens créés avec notre service n’expirent pas. Tout lien qui redirige vers une arnaque ou du contenu malveillant sera supprimé.",
-                    "Hr": "Poveznice stvorene s našom uslugom ne ističu. Zlonamjerne poveznice će se izbrisati."
+                    "Hr": "Poveznice stvorene s našom uslugom ne ističu. Zlonamjerne poveznice će se izbrisati.",
+                    "Oc": "Los ligams creats amb nòstre servici expiran pas. Tot ligam que manda a una engana o de contengut malvolent serà suprimit."
                 },
                 "InfoInvalidUrlFrom": {
                     "En": "The shortcut name you specified contains forbidden characters.",
@@ -161,7 +162,8 @@
                 "WarnBlockedNameSpam": {
                     "En": "We have flagged this shortcut name as malicious, you can’t use it with our service.",
                     "Fr": "Nous avons marqué ce nom de raccourci comme malveillant, vous ne pouvez pas l’utiliser avec notre service.",
-                    "Hr": "Ovo kratko ime smo označili kao zlonamjerno. Ne možeš ga koristiti s našom uslugom."
+                    "Hr": "Ovo kratko ime smo označili kao zlonamjerno. Ne možeš ga koristiti s našom uslugom.",
+                    "Oc": "Avèm marcat aqueste acorchi coma malvolent, lo podètz pas utilizar amb nòstre servici."
                 },
                 "WarnBlockedLinkShortener": {
                     "En": "Please do not chain shortened links with another link shortener.",
@@ -172,12 +174,14 @@
                 "WarnBlockedLinkSpam": {
                     "En": "We have flagged this URL as malicious, you can’t use it with our service.",
                     "Fr": "Nous avons marqué cette URL comme malveillante, vous ne pouvez pas l’utiliser avec notre service.",
-                    "Hr": "Ovu URL-adrsu smo označili kao zlonamjernu. Ne možeš je koristiti s našom uslugom."
+                    "Hr": "Ovu URL-adrsu smo označili kao zlonamjernu. Ne možeš je koristiti s našom uslugom.",
+                    "Oc": "Avèm marcar aqueste URL coma malvolenta, la podètz pas utilizar amb nòstre servici."
                 },
                 "WarnBlockedLinkFreehost": {
                     "En": "The URL you entered corresponds to a web host that we have banned from our service due to abuse.",
                     "Fr": "L’URL que vous avez entrée correspond à un hébergeur web que nous avons banni de notre service suite à des abus.",
-                    "Hr": "Upisana URL-adresa odgovara web-hostu kojem smo zabranili pristup našoj usluzi zbog zloupotrebe."
+                    "Hr": "Upisana URL-adresa odgovara web-hostu kojem smo zabranili pristup našoj usluzi zbog zloupotrebe.",
+                    "Oc": "L’URL qu’avètz dintrada correspond a un site que fòrabandiguèrem de nòstre servici a causa d’abuses."
                 },
                 "WarnBadServerAdminKey": {
                     "En": "The administrator password entered is invalid.",
@@ -212,7 +216,8 @@
                 "fatal_missing_translation": {
                     "En": "Missing translation",
                     "Fr": "Traduction manquante",
-                    "Hr": "Nedostaje prijevod"
+                    "Hr": "Nedostaje prijevod",
+                    "Oc": "Traduccion mancanta"
                 },
                 "fatal_captcha_gen": {
                     "En": "Error during captcha generation. Please try again.",
