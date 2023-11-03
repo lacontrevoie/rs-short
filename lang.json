@@ -175,7 +175,7 @@
                     "En": "We have flagged this URL as malicious, you can’t use it with our service.",
                     "Fr": "Nous avons marqué cette URL comme malveillante, vous ne pouvez pas l’utiliser avec notre service.",
                     "Hr": "Ovu URL-adrsu smo označili kao zlonamjernu. Ne možeš je koristiti s našom uslugom.",
-                    "Oc": "Avèm marcar aqueste URL coma malvolenta, la podètz pas utilizar amb nòstre servici."
+                    "Oc": "Avèm marcat aqueste URL coma malvolenta, la podètz pas utilizar amb nòstre servici."
                 },
                 "WarnBlockedLinkFreehost": {
                     "En": "The URL you entered corresponds to a web host that we have banned from our service due to abuse.",
