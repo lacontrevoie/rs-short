@@ -267,6 +267,10 @@
                     "Hr": "Ova poveznica omogućuje provjeru brojača poveznica i brisanje prečaca.",
                     "Oc": "Aqueste ligam vos permet de comptar lo nombre de clics e de suprimir l’acorchi."
                 },
+                "notif_link_admin_caution": {
+                    "En": "Caution: keep this link carefully as it can't be shared again.",
+                    "Fr": "Attention: conservez ce lien précieusement, il ne pourra pas être communiqué ultérieurement."
+                },
                 "notif_link_clickcount": {
                     "En": "Click count: ",
                     "Fr": "Nombre de clics : ",
