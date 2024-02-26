@@ -1,5 +1,7 @@
 use actix_web::cookie::Key;
 
+use base64::prelude::*;
+
 use once_cell::sync::OnceCell;
 
 use std::collections::HashMap;
@@ -278,6 +280,8 @@ impl Config {
 }
 
 pub fn get_cookie_key(cookie_key: &str) -> Key {
-    let key = base64::decode(cookie_key).expect("Failed to read cookie key!");
+    let key = BASE64_STANDARD
+        .decode(cookie_key)
+        .expect("Failed to read cookie key!");
     Key::from(&key[..64])
 }

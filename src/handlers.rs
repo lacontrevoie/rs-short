@@ -1,8 +1,7 @@
 use actix_session::Session;
 use actix_web::http::header::ContentType;
 use actix_web::{get, http, post, web, HttpRequest, HttpResponse, Result};
-use base64::encode_config as base64_encode_config;
-use base64::URL_SAFE_NO_PAD;
+use base64::prelude::*;
 use std::collections::HashMap;
 
 use crate::database::{Link, LinkInfo};
@@ -109,7 +108,7 @@ pub async fn shortcut_admin_del(
 
     let link = match selected_link {
         // if the administration key doesn't match, return early
-        Some(v) if base64_encode_config(&v.key, URL_SAFE_NO_PAD) != params.admin_key => {
+        Some(v) if BASE64_URL_SAFE_NO_PAD.encode(&v.key) != params.admin_key => {
             return Err(crash(
                 throw(
                     ErrorKind::NoticeInvalidKey,
@@ -218,7 +217,7 @@ pub async fn shortcut_admin(
 
     let linkinfo = match selected_link {
         // if the administration key doesn't match, return early
-        Some(v) if base64_encode_config(&v.key, URL_SAFE_NO_PAD) != params.admin_key => {
+        Some(v) if BASE64_URL_SAFE_NO_PAD.encode(&v.key) != params.admin_key => {
             return Err(crash(
                 throw(
                     ErrorKind::NoticeInvalidKey,
@@ -340,7 +339,7 @@ pub async fn post_link(
 
     // if the user hasn't chosen a shortcut name, decide for them.
     let new_url_from = if form.url_from.is_empty() {
-        base64_encode_config(&gen_random(6), URL_SAFE_NO_PAD)
+        BASE64_URL_SAFE_NO_PAD.encode(&gen_random(6))
     } else {
         form.url_from.clone()
     };
