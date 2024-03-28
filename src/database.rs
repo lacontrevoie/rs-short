@@ -46,13 +46,13 @@ impl LinkInfo {
                 "{}/{}/admin/{}",
                 CONFIG.wait().general.instance_hostname,
                 link.url_from,
-                BASE64_STANDARD_NO_PAD.encode(&link.key)
+                BASE64_URL_SAFE_NO_PAD.encode(&link.key)
             ),
             deletelink: format!(
                 "{}/{}/delete/{}",
                 CONFIG.wait().general.instance_hostname,
                 link.url_from,
-                BASE64_STANDARD_NO_PAD.encode(&link.key)
+                BASE64_URL_SAFE_NO_PAD.encode(&link.key)
             ),
             phishlink: format!(
                 "{}/{}/phishing/{}",
