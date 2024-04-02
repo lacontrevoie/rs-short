@@ -44,10 +44,12 @@
                                 </div>
                                 <br />
                                 <div class="s-field s-link-group">
-                                    <label for="new_link">{{ loc|tr(l,"notif_link_label_admin") }}</label>
-                                    <input type="text" id="new_link" name="new_link" readonly value="{{ linkinfo.as_ref().unwrap().adminlink|safe }}">
+                                    <label for="admin_link">{{ loc|tr(l,"notif_link_label_admin") }}</label>
+                                    <input type="text" id="admin_link" name="admin_link" readonly value="{{ linkinfo.as_ref().unwrap().adminlink|safe }}">
                                 </div>
                                 <small>{{ loc|tr(l,"notif_link_admin_desc") }}</small>
+                                <br />
+                                <small style="font-weight: bold;">{{ loc|tr(l, "notif_link_admin_caution") }}</small>
                                 <br />
                                 <p>{{ loc|tr(l,"notif_link_clickcount") }}{{ linkinfo.as_ref().unwrap().clicks }}</p>
                                 <a class="s-button s-danger" href="{{ linkinfo.as_ref().unwrap().deletelink|safe }}">{{ loc|tr(l,"notif_link_delete") }}</a>
