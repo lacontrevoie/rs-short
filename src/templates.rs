@@ -1,13 +1,11 @@
-use std::collections::HashMap;
-
 use askama::Template;
+use base64::prelude::*;
+use std::collections::HashMap;
 
 use crate::database::LinkInfo;
 use crate::init::{ConfGeneral, ValidLanguages, CONFIG, DEFAULT_LANGUAGE, LANG};
 
 use actix_web::HttpRequest;
-
-use base64::encode as base64_encode;
 
 use rand::rngs::OsRng;
 use rand::RngCore;
@@ -71,7 +69,7 @@ pub fn gentpl_home(
         HomeTemplate {
             loc: &LANG.wait().pages["home"].map,
             l,
-            captcha: &base64_encode(&captcha_image),
+            captcha: &BASE64_STANDARD.encode(&captcha_image),
             notification,
             linkinfo,
             config: &CONFIG.wait().general,

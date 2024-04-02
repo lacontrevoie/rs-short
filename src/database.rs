@@ -1,5 +1,4 @@
-use base64::encode_config as base64_encode_config;
-use base64::URL_SAFE_NO_PAD;
+use base64::prelude::*;
 use chrono::{NaiveDateTime, Utc};
 
 use diesel::{self, prelude::*};
@@ -47,13 +46,13 @@ impl LinkInfo {
                 "{}/{}/admin/{}",
                 CONFIG.wait().general.instance_hostname,
                 link.url_from,
-                base64_encode_config(&link.key, URL_SAFE_NO_PAD)
+                BASE64_URL_SAFE_NO_PAD.encode(&link.key)
             ),
             deletelink: format!(
                 "{}/{}/delete/{}",
                 CONFIG.wait().general.instance_hostname,
                 link.url_from,
-                base64_encode_config(&link.key, URL_SAFE_NO_PAD)
+                BASE64_URL_SAFE_NO_PAD.encode(&link.key)
             ),
             phishlink: format!(
                 "{}/{}/phishing/{}",
