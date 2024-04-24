@@ -82,7 +82,7 @@
                     "Oc": "Lo nom de l’acorchi qu’avètz dintrat conten de caractèrs defenduts."
                 },
                 "InfoInvalidUrlTo": {
-                    "En": "The URL you specified does not like a valid URL.",
+                    "En": "The URL you specified does not look like a valid URL.",
                     "Fr": "Le lien que vous avez spécifié semble être invalide.",
                     "Hr": "Navedena URL-adresa ne odgovara ispravnoj URL-adresi.",
                     "Oc": "Lo ligam qu’avètz especificat sembla èsser invalid."
