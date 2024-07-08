@@ -8,6 +8,11 @@ RUN cargo build --release --no-default-features --features postgres
 
 FROM debian:bookworm-slim
 
+RUN apt update \
+    && apt -y install libpq5 \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /run_dir
 
 COPY --from=builder /run_dir/target/release/rs-short /run_dir/lists.toml ./
