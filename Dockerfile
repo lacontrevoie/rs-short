@@ -4,13 +4,13 @@ WORKDIR /run_dir
 
 COPY . .
 
-RUN cargo run --release --no-default-features --features postgres
+RUN cargo build --release --no-default-features --features postgres
 
 FROM debian:bookworm-slim
 
 WORKDIR /run_dir
 
-COPY --from=builder /run_dir/target/release/rs-short /run_dir/config.toml /run_dir/lists.toml ./
+COPY --from=builder /run_dir/target/release/rs-short /run_dir/lists.toml ./
 
 RUN adduser --disabled-password --gecos "" --no-create-home "unprivileged"
 
