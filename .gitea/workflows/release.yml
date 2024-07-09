@@ -10,10 +10,10 @@ jobs:
     runs-on: runner_image
     steps:
       - name: Checkout
-        run: /clone.sh ${{ gitea.server_url }} ${{ gitea.repository }}
+        run: /scripts/clone.sh ${{ gitea.server_url }} ${{ gitea.repository }}
 
       - name: Login to Docker registry
-        run: /login.sh ${{ secrets.DOCKER_USERNAME }} ${{ secrets.DOCKER_PASSWORD }} ${{ vars.DOCKER_REGISTRY }}
+        run: /scripts/login.sh ${{ secrets.DOCKER_USERNAME }} ${{ secrets.DOCKER_PASSWORD }} ${{ vars.DOCKER_REGISTRY }}
       
       - name: Build and push
-        run: /build.sh linux/amd64 ${{ vars.DOCKER_REGISTRY }} ${{ gitea.repository }} ${{ gitea.sha }}
+        run: /scripts/build.sh linux/amd64 ${{ vars.DOCKER_REGISTRY }} ${{ gitea.repository }} ${{ gitea.sha }}
