@@ -105,7 +105,8 @@ fn try_get_lang(req: &HttpRequest) -> Option<ValidLanguages> {
             .get("Accept-Language")?
             .to_str()
             .ok()?
-            .to_lowercase()[..2],
+            .to_lowercase()
+            .get(..2)?
     ))
 }
 
