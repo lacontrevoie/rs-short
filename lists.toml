@@ -65,9 +65,9 @@ allowlist = []
 
 blocklist = [
     # Listing common link shorteners
-    { expr = '^bit\.+ly$', category = 'shortener' },
-    { expr = '^bit\.+do$', category = 'shortener' },
-    { expr = '^ow\.+ly$', category = 'shortener' },
+    { expr = '^(|www\.+)bit\.+ly$', category = 'shortener' },
+    { expr = '^(|www\.+)bit\.+do$', category = 'shortener' },
+    { expr = '^(|www\.+)ow\.+ly$', category = 'shortener' },
     { expr = '^x\.+co$', category = 'shortener' },
     { expr = '^rebrand\.+ly$', category = 'shortener' },
     { expr = 'tinyurl\.+com$', category = 'shortener' },
@@ -317,9 +317,65 @@ blocklist = [
     { expr = '^(?:1shorten\.+com|24payu\.+top|2ad\.+ir|acortaz\.+net|adbitfly\.+com|adbits\.+pro|adbx\.+pro|addurl\.+biz|adflyfly\.+com|adfoc\.+us|adlinkshort\.+xyz|adrate\.+com|adrevlnks\.+com|adshort\.+link|adz\.+moe|anchurl\.+com|atglinks\.+com|bestcash2020\.+com|bitlinks\.+site|bitss\.+sbs|c2g\.+at|cash4share\.+com|cbshort\.+com|ccurl\.+net|chainfo\.+xyz|click\.+mundoxdigital\.+com|clockads\.+in|coinsfaucet\.+tech|cosmic-matter\.+pw|cryptosh\.+pro|cut\.+casperhd\.+com|cutearn\.+net|cutpaid\.+com|cutp\.+in|cuturl\.+cc|dash-free\.+com|du-link\.+in|e2share\.+in|earnify\.+pro|earnow\.+online|easysky\.+in|eazyurl\.+xyz|encurtaon\.+com\.+br|exalink\.+fun|faho\.+us|geetlink\.+com|get4links\.+com|goto\.+com\.+np|indianshortner\.+com|insfly\.+pw|james-trussy\.+link|kiddyshort\.+com|kisal\.+ink|link\.+3dmili\.+com|link4rev\.+site|linkati\.+win|link\.+bigboxnet\.+com|linkmonet\.+com|linksfly\.+link|linksfly\.+me|linkshortify\.+com|linku\.+id|link-yz\.+com|megatube\.+club|miklpro\.+com|mtraffics\.+com|my-ga\.+me|nanolinks\.+in|opizo\.+com|ouoi\.+in|paid4link\.+com|paisakamalo\.+in|panyflay\.+me|panyshort\.+link|qlinks\.+eu|revcut\.+net|revly\.+click|saly\.+io|share4link\.+com|sharem\.+tech|sheralinks\.+com|shortano\.+link|shortearn\.+in|shortino\.+link|short\.+network|shortox\.+com|shortplus\.+xyz|shortsfly\.+me|shortsme\.+in|shortyget\.+com|shrinkbit\.+in|shrinkfly\.+com|shrinkforearn\.+in|shrinklo\.+com|shrt10\.+com|sh\.+techsamir\.+com|shtie\.+co|sigmalinks\.+in|sld\.+one|slfly\.+net|smoner\.+com|srink\.+in|tapnip\.+vip|teamsplush\.+com|tipsli\.+com|topfaucet\.+us|up4cash\.+com|urlcik\.+site|urlcut\.+pro|url\.+namaidani\.+net|urlpoints\.+com|urlshortx\.+com|urlspay\.+in|urltamil\.+in|v2p\.+icu|viewfr\.+com|vklinks\.+com|warp\.+bz|wedocrypto\.+online|wez\.+info|worldmagzine\.+club|www\.+clictune\.+com|yxoshort\.+com)$', category = 'shortener' },
     { expr = '^etd\.+bz$', category = 'shortener' },
     { expr = '^cdpt\.+in$', category = 'shortener' },
+    { expr = '^openinapp\.+com$', category = 'shortener' },
+    { expr = '^do\.+my$', category = 'shortener' },
+    { expr = '^me2\.+kr$', category = 'shortener' },
+    { expr = '^openinapp\.+link$', category = 'shortener' },
+    { expr = '^u7up\.+com$', category = 'shortener' },
+    { expr = '^0rz\.+tw$', category = 'shortener' },
+    { expr = '^ii1\.+su$', category = 'shortener' },
+    { expr = '^minifi\.+ca$', category = 'shortener' },
+    { expr = '^tinylink\.+(onl|pro)$', category = 'shortener' },
+    { expr = '^sn\.+rs$', category = 'shortener' },
+    { expr = '^shorturl\.+dev$', category = 'shortener' },
+    { expr = '^short\.+rs$', category = 'shortener' },
+    { expr = '^urlsrt\.+io$', category = 'shortener' },
+    { expr = '^shortin\.+in$', category = 'shortener' },
+    { expr = '^tiny\.+cc$', category = 'shortener' },
+    { expr = '^(www\.+)?reallylong\.+link$', category = 'shortener' },
+    { expr = '^shote\.+nl$', category = 'shortener' },
+    { expr = '^shortenly\.+net$', category = 'shortener' },
+    { expr = '^i\.+nupem\.+ufrj\.+br$', category = 'shortener' },
+    { expr = '^kurl\.+ru$', category = 'shortener' },
+    { expr = '^tny\.+wtf$', category = 'shortener' },
+    { expr = '^come\.+ac$', category = 'shortener' },
+    { expr = '^spoo\.+me$', category = 'shortener' },
+    { expr = '^zws\.+im$', category = 'shortener' },
+    { expr = 'hidelinks\.+com$', category = 'shortener' },
+    { expr = 'rs\.+wip\.+la$', category = 'shortener' },
+    { expr = 'bizstim\.+com$', category = 'shortener' },
+    { expr = 'i24\.+biz$', category = 'shortener' },
+    { expr = '01e\.+me$', category = 'shortener' },
+    { expr = 'urltin\.+com$', category = 'shortener' },
+    { expr = 'alhai\.+de$', category = 'shortener' },
+    { expr = 'lienvu\.+fr$', category = 'shortener' },
+    { expr = 'reduced\.+to$', category = 'shortener' },
+    { expr = 'urless\.+com$', category = 'shortener' },
+    { expr = 'tuney\.+kr$', category = 'shortener' },
+    { expr = 'lin-k\.+eu$', category = 'shortener' },
+    { expr = 's\.+bikurim-il\.+org\.+il$', category = 'shortener' },
+    { expr = 'monurl\.+ca$', category = 'shortener' },
+    { expr = 'tr\.+ee$', category = 'shortener' },
+    { expr = 'shor\.+tf$', category = 'shortener' },
+    { expr = 'bitly\.+cx$', category = 'shortener' },
+    { expr = 'f5i\.+org$', category = 'shortener' },
+    { expr = 'me-qr\.+com$', category = 'shortener' },
+    # 2024-11-05: owo link shortener
+    { expr = 'owo\.+(vc|gay)$', category = 'shortener' },
+    { expr = '0x6f776f2e7663\.+net$', category = 'shortener' },
+    { expr = 'mub\.+me$', category = 'shortener' },
+    # 2024-11-07: list of domains offered by link shortener <https://skrat.it/>
+    { expr = '(sdu\.+sk|0a\.+sk|5du\.+pl|ľa\.+eu|xn--a-4ka\.+eu|skrat\.+it)$', category = 'shortener' },
+    { expr = '(psee|picsee)\.+io$', category = 'shortener' },
+    { expr = 's\.+kbe\.+ai$', category = 'shortener' },
+    { expr = 'ybit\.+(app|in)$', category = 'shortener' },
+    { expr = 'aws3-demo\.+link$', category = 'shortener' },
+    { expr = 'fito\.+cc$', category = 'shortener' },
+    { expr = 'yaso\.+su$', category = 'shortener' },
+    { expr = 'kit\.+do$', category = 'shortener' },
     # Listing common free hosts, free website template tools used for phishing
     { expr = '^sites\.+google\.+com$', category = 'freehost' },
-    { expr = '^blogspot\.+com$', category = 'freehost' },
+    { expr = '(^|\.+)blogspot\.+com$', category = 'freehost' },
     { expr = '\.+yolasite\.+com$', category = 'freehost' },
     { expr = '\.+moonfruit\.+com$', category = 'freehost' },
     { expr = '\.+wixsite\.+com$', category = 'freehost' },
@@ -394,7 +450,7 @@ blocklist = [
 
     # 2024-01-01: adding all available domains from Dyn <https://account.dyn.com/>
     # a dynamic DNS service, we only had spam/phishing with some of these domains:
-    #   
+    #
     #   dyndns.org                      dyndns.org                      from-sd.com                     is-a-green.com                  isteingeek.de
     #   dvrdns.org                      dyndns.tv                       from-tn.com                     is-a-guru.com                   istmein.de
     #   dyndns.tv                       dyndns.ws                       from-tx.com                     is-a-hard-worker.com            kicks-ass.net
@@ -458,6 +514,21 @@ blocklist = [
     { expr = '\.+(?:dyndns.org|dvrdns.org|dyndns.tv|dyndns.info|homeip.net|dyndns.biz|mine.nu|dnsalias.com|dyndns-ip.com|selfip.com|at-band-camp.net|ath.cx|barrel-of-knowledge.info|barrell-of-knowledge.info|better-than.tv|blogdns.com|blogdns.net|blogdns.org|blogsite.org|boldlygoingnowhere.org|broke-it.net|buyshouses.net|cechire.com|dnsalias.com|dnsalias.net|dnsalias.org|dnsdojo.com|dnsdojo.net|dnsdojo.org|does-it.net|doesntexist.com|doesntexist.org|dontexist.com|dontexist.net|dontexist.org|doomdns.com|doomdns.org|dvrdns.org|dyn-o-saur.com|dynalias.com|dynalias.net|dynalias.org|dynathome.net|dyndns-at-home.com|dyndns-at-work.com|dyndns-blog.com|dyndns-free.com|dyndns-home.com|dyndns-ip.com|dyndns-mail.com|dyndns-office.com|dyndns-pics.com|dyndns-remote.com|dyndns-server.com|dyndns-web.com|dyndns-wiki.com|dyndns-work.com|dyndns.biz|dyndns.info|dyndns.org|dyndns.tv|dyndns.ws|endofinternet.net|endofinternet.org|endoftheinternet.org|est-a-la-maison.com|est-a-la-masion.com|est-le-patron.com|est-mon-blogueur.com|for-better.biz|for-more.biz|for-our.info|for-some.biz|for-the.biz|forgot.her.name|forgot.his.name|from-ak.com|from-al.com|from-ar.com|from-az.net|from-ca.com|from-co.net|from-ct.com|from-dc.com|from-de.com|from-fl.com|from-ga.com|from-hi.com|from-ia.com|from-id.com|from-il.com|from-in.com|from-ks.com|from-ky.com|from-la.net|from-ma.com|from-md.com|from-me.org|from-mi.com|from-mn.com|from-mo.com|from-ms.com|from-mt.com|from-nc.com|from-nd.com|from-ne.com|from-nh.com|from-nj.com|from-nm.com|from-nv.com|from-ny.net|from-oh.com|from-ok.com|from-or.com|from-pa.com|from-pr.com|from-ri.com|from-sc.com|from-sd.com|from-tn.com|from-tx.com|from-ut.com|from-va.com|from-vt.com|from-wa.com|from-wi.com|from-wv.com|from-wy.com|ftpaccess.cc|fuettertdasnetz.de|game-host.org|game-server.cc|getmyip.com|gets-it.net|go.dyndns.org|gotdns.com|gotdns.org|groks-the.info|groks-this.info|ham-radio-op.net|here-for-more.info|hobby-site.com|hobby-site.org|home.dyndns.org|homedns.org|homeftp.net|homeftp.org|homeip.net|homelinux.com|homelinux.net|homelinux.org|homeunix.com|homeunix.net|homeunix.org|iamallama.com|in-the-band.net|is-a-anarchist.com|is-a-blogger.com|is-a-bookkeeper.com|is-a-bruinsfan.org|is-a-bulls-fan.com|is-a-candidate.org|is-a-caterer.com|is-a-celticsfan.org|is-a-chef.com|is-a-chef.net|is-a-chef.org|is-a-conservative.com|is-a-cpa.com|is-a-cubicle-slave.com|is-a-democrat.com|is-a-designer.com|is-a-doctor.com|is-a-financialadvisor.com|is-a-geek.com|is-a-geek.net|is-a-geek.org|is-a-green.com|is-a-guru.com|is-a-hard-worker.com|is-a-hunter.com|is-a-knight.org|is-a-landscaper.com|is-a-lawyer.com|is-a-liberal.com|is-a-libertarian.com|is-a-linux-user.org|is-a-llama.com|is-a-musician.com|is-a-nascarfan.com|is-a-nurse.com|is-a-painter.com|is-a-patsfan.org|is-a-personaltrainer.com|is-a-photographer.com|is-a-player.com|is-a-republican.com|is-a-rockstar.com|is-a-socialist.com|is-a-soxfan.org|is-a-student.com|is-a-teacher.com|is-a-techie.com|is-a-therapist.com|is-an-accountant.com|is-an-actor.com|is-an-actress.com|is-an-anarchist.com|is-an-artist.com|is-an-engineer.com|is-an-entertainer.com|is-by.us|is-certified.com|is-found.org|is-gone.com|is-into-anime.com|is-into-cars.com|is-into-cartoons.com|is-into-games.com|is-leet.com|is-lost.org|is-not-certified.com|is-saved.org|is-slick.com|is-uberleet.com|is-very-bad.org|is-very-evil.org|is-very-good.org|is-very-nice.org|is-very-sweet.org|is-with-theband.com|isa-geek.com|isa-geek.net|isa-geek.org|isa-hockeynut.com|issmarterthanyou.com|isteingeek.de|istmein.de|kicks-ass.net|kicks-ass.org|knowsitall.info|land-4-sale.us|lebtimnetz.de|leitungsen.de|likes-pie.com|likescandy.com|merseine.com|merseine.org|mine.nu|misconfused.org|mypets.ws|myphotos.cc|neat-url.com|office-on-the.net|on-the-web.tv|podzone.net|podzone.org|readmyblog.org|remotecam.nu|saves-the-whales.com|scrapper-site.net|scrapping.cc|selfip.biz|selfip.com|selfip.info|selfip.net|selfip.org|sells-for-less.com|sells-for-u.com|sells-it.net|sellsyourhome.org|servebbs.com|servebbs.net|servebbs.org|serveftp.net|serveftp.org|servegame.org|shacknet.biz|shacknet.us|shaqnet.nu|simple-url.com|space-to-rent.com|stuff-4-sale.org|stuff-4-sale.us|teaches-yoga.com|thruhere.net|traeumtgerade.de|webhop.biz|webhop.info|webhop.net|webhop.org|worse-than.tv|writesthisblog.com)$', category = 'freehost' },
     { expr = '\.+webador\.+ch$', category = 'freehost' },
     { expr = '\.+ghost\.+io$', category = 'freehost' },
+    { expr = '\.+webflow\.+io$', category = 'freehost' },
+    { expr = '\.+github\.+io$', category = 'freehost' },
+    { expr = '\.+tcp4\.+me$', category = 'freehost' },
+    # 2024-09-30 adding all available domains from <https://now-dns.com/>
+    #  2mydns.net       dtdns.org       myddns.biz      ntdll.top
+    #  ddns.cam         dynip.org       myiphost.com    ownip.net
+    #  dnsapi.info      dynserv.org     mypi.co         soundcast.me
+    #  dnsdyn.net       forumz.info     now-dns.net     tcp4.me
+    #  dnsget.org       freeddns.uk     now-dns.org     tftpd.net
+    #  dnslive.net      freeddns.us     now-dns.top     vpndns.net
+    #  dnsup.net        hicam.net       nowddns.com     wifizone.org
+    #                                                   x443.pw
+    { expr = '\.+(?:2mydns.net|ddns.cam|dnsapi.info|dnsdyn.net|dnsget.org|dnslive.net|dnsup.net|dtdns.org|dynip.org|dynserv.org|forumz.info|freeddns.uk|freeddns.us|hicam.net|myddns.biz|myiphost.com|mypi.co|now-dns.net|now-dns.org|now-dns.top|nowddns.com|ntdll.top|ownip.net|soundcast.me|tcp4.me|tftpd.net|vpndns.net|wifizone.org|x443.pw)$', category = 'freehost' },
+    { expr = '\.+jimdofree\.+com$', category = 'freehost' },
+    { expr = '\.+myclickfunnels\.+com$', category = 'freehost' },
 
     # Listing spam websites, porn category
     { expr = '^(?:meet|date|get|pretty|)-?(?:lovely|localvip|naughty|onenight|private|horny|piquant|sweet|nice|meet|sexy|hot|lusty)-?(?:girls?|glrls?|sluts?|partners?|lovers?|adults?|playmates?|flings?|ladies|lady|babies|babes?|baby|luvers?)-?(?:finder|here|only|worldwide)\.+com$', category = 'spam' },
@@ -601,6 +672,49 @@ blocklist = [
     { expr = 'zstvoip\.+com$', category = 'spam' },
     { expr = 'tai-reglement\.+com$', category = 'spam' },
     { expr = 'ako1\.+xyz$', category = 'spam' },
+    { expr = 'devun\.+sakura\.+ne\.+jp$', category = 'spam' },
+    { expr = 'dhl-payment\.+co$', category = 'spam' },
+    { expr = 'stropsdigi\.+info$', category = 'spam' },
+    { expr = 'ikandatrue\.+blog$', category = 'spam' },
+    { expr = 'aisrchtdy\.+blog$', category = 'spam' },
+    { expr = 'app-onlinebanking\.+de$', category = 'spam' },
+    { expr = 'stromders\.+org\.+uk$', category = 'spam' },
+    { expr = 'woodlandskills\.+com$', category = 'spam' },
+    { expr = 'my-ident-space\.+online$', category = 'spam' },
+    # 2024-01-01: use the sendgrid mailing service with links relying on the Location header to redirect
+    #          to a phishing website (usually to gather credentials from SFR, Orange and such)
+    { expr = '^u40423813\.+ct\.+sendgrid\.+net$', category = 'spam' },
+    # 2024-02-23: this domain has been only used for spam/phishing use
+    { expr = 'www\.+nestmakers\.+co\.+in$', category = 'spam' },
+    # 2024-02-26: this domain has been only used behind a link shortener <cuty.io>
+    #             and some of its page depends on it
+    { expr = 'exego\.+app$', category = 'spam' },
+    # 2024-03-22: this domain is hosting phishing login pages (orange, sfr, netflix...)
+    { expr = '^service-connect-valide\.+nl$', category = 'spam' },
+    # 2024-07-01: ANTS phishing login page
+    # 2024-08-04: new phishing domain in .net and arts-routiere.com
+    { expr = 'arts-(demarche|routiere)\.+(com|net)$', category = 'spam' },
+    # 2024-07-03: SpamCop notification for one link (in fact they were 5 links
+    #             in DB using this domain)
+    { expr = '^go\.+sparkpostmail2\.+com$', category = 'spam' },
+    { expr = 'hotelorlycesenatico\.+com$', category = 'spam' },
+    { expr = 'thesixshooterpipe\.+com$', category = 'spam' },
+    { expr = 'mybluehost\.+me$', category = 'spam' },
+    { expr = 'eoples\.+online$', category = 'spam' },
+    { expr = 'radio\.+garden$', category = 'spam' },
+    # 2024-09-16: blocking domains with the form roblox.com.TLD
+    #             <https://en.wikipedia.org/wiki/Roblox#Scams>
+    { expr = 'roblox\.+com\.+', category = 'spam' },
+    # 2024-08-27: domains used for Vinted phishing websites
+    { expr = '(info350|s2930)\.+com$', category = 'spam' },
+    { expr = 'myftpupload\.+com$', category = 'spam' },
+    { expr = 'dt2dt\.+com$', category = 'spam' },
+    { expr = 'revista-ideides\.+com$', category = 'spam' },
+    { expr = 'macov35942\.+systeme\.+io$', category = 'spam' },
+    { expr = '(te7b90bd7|t8ded63ca)\.+emailsys2a\.+net$', category = 'spam' },
+    { expr = 'complejoneroneventos\.+com$', category = 'spam' },
+    { expr = 'serveo\.+net$', category = 'spam' },
+    { expr = 'serv00\.+net$', category = 'spam' },
     # Wildcard for those two
     { expr = 'certicode', category = 'spam' },
     { expr = 'securi?pass', category = 'spam' },
@@ -615,6 +729,24 @@ blocklist = [
     # 2024-01-01: the service has been used to redirect to webpages hosted at <cdn.discordapp.com> to download
     #          a malicious file
     { expr = 'cdn\.discordapp\.com/.+\.exe$', category = 'spam', matching = 'full-uri' },
+    # 2024-04-23: the following string is in several domains (using what seems
+    # to be the same website/service) that redirects to phishing pages
+    { expr = '^/cl/0_pt/', category = 'spam', matching = 'path' },
+    # 2024-06-01: the old pattern '^/cl/0_pt' seems to have evolved to a query
+    # parameter pattern '?act=(cl|un)&pid=0_pt', the following regex tries to
+    # catch possible rotations in parameters
+    { expr = '(\?|&)?(act=(cl|un).*pid=0_pt|pid=0_pt.*act=(cl|un))(&|$)', category = 'spam', matching = 'query' },
+    # 2024-08-21: found a new pattern with phishing links
+    # tested in database with LIKE '%/0/0/0/%'
+    # appending the 32 hexadecimal characters to reduce the catch area
+    { expr = '^/0/0/0/[a-fA-F0-9]{32}', category = 'spam', matching = 'path' },
+    # 2024-10-29: try to catch the following URLs:
+    #   https://26oct-etm-money-isntant7726.live/get/1730165458766
+    #   https://oct29-sistempayinteretm4892.top/get/1730234145870
+    #   https://29oct-deliverzetmpay.top/get/1730238721386
+    { expr = '/([0-9]+|)(oct|nov)([0-9]+|)-.*/get/[0-9]{13}$', category = 'spam', matching = 'full-uri' },
+    # 2024-11-23: pattern with phishing links with subdomain in systeme.io
+    { expr = '/proxy/request/[0-9a-z]{37}$', category = 'spam', matching = 'full-uri' },
 
     # Listing asset hijacks
     { expr = '^assets\.+nflxext\.+com$', category = 'spam' },
