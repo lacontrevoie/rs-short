@@ -308,13 +308,14 @@ pub async fn post_link(
         .map_err(|e| crash(e, pass(&req, &s)))?;
 
     // prevent shortening loop. Host string has already been checked
-    if uri.host().unwrap()
+    if uri.host().unwrap().to_lowercase()
         == CONFIG
             .wait()
             .general
             .instance_hostname
             .replace("http://", "")
             .replace("https://", "")
+            .to_lowercase()
     {
         return Err(crash(
             throw(
