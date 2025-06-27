@@ -67,7 +67,7 @@ pub struct AllowEntry {
 pub struct BlockEntryName {
     #[serde(with = "serde_regex")]
     pub expr: Regex,
-    pub category: BlocklistCategory,
+    pub _category: BlocklistCategory,
 }
 
 #[derive(Deserialize)]
