@@ -6,8 +6,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="{{ loc|tr(l,"desc") }} – {{ config.hoster_name }}" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <link rel="stylesheet" href="/assets/themes/{{ config.theme }}/base.css?v=1.2" />
+        <link rel="stylesheet" href="/assets/themes/nav/navbar.css?v=1" />
+        <link rel="stylesheet" href="/assets/themes/nav/navbar-custom.css?v=1" />
         {% block head %}{% endblock %}
     <body>
+        {% if *l == ValidLanguages::Fr %}
+            {% include "nav/navbar-lite.fr.html" %}
+        {% else %}
+            {% include "nav/navbar-lite.en.html" %}
+        {% endif %}
         <div>
             {% block content %}{% endblock %}
         </div>

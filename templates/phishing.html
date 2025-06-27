@@ -3,7 +3,6 @@
 {% block title %}{{ loc|tr(l,"title") }}{% endblock %}
 
 {% block head %}
-    <link rel="stylesheet" href="/assets/themes/{{ config.theme }}/base.css" />
 {% endblock %}
 
 {% block content %}
@@ -11,11 +10,6 @@
         <div class="s-space"></div>
         <a href="{{ config.instance_hostname|safe }}"><img src="/assets/logo.svg" alt="{{ loc|tr(l,"logo_alt") }}"/></a>
         <div class="s-space"></div>
-    </div>
-    <div class="s-backbutton">
-        <a href="{{ config.hoster_hostname|safe }}">
-            <img src="/assets/hoster-logo.svg" alt="{{ config.hoster_name }}"/>
-        </a>
     </div>
     <section class="s-section s-phishing">
         <div class="s-warning s-responsive">
