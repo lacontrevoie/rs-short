@@ -8,6 +8,6 @@ body {
 
 @media (min-width: 801px) and (max-width: 1079px) {
     body {
-        top: 128px;
+        margin-top: 128px;
     }
 }
