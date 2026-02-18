@@ -10,7 +10,7 @@ mysql = [ "diesel/mysql" ]
 sqlite = [ "diesel/sqlite", "libsqlite3-sys" ]
 
 [dependencies]
-actix-web = { version = "4.12", default-features = false, features = ["macros"] }
+actix-web = { version = "4.13", default-features = false, features = ["macros"] }
 actix-files = "0.6"
 actix-session = { version = "0.11", features = ["cookie-session"] }
 askama = "0.13"
