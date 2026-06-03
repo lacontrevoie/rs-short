@@ -45,7 +45,7 @@ impl NewLink {
             Some(s) => {
                 // check the allowed protocols
                 // if the uri scheme isn’t on the list, early return
-                if ALLOWED_PROTOCOLS.iter().any(|&p| p == s) {
+                if ALLOWED_PROTOCOLS.contains(&s) {
                     Ok(())
                 } else {
                     Err(throw(

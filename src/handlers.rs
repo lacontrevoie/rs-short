@@ -340,7 +340,7 @@ pub async fn post_link(
 
     // if the user hasn't chosen a shortcut name, decide for them.
     let new_url_from = if form.url_from.is_empty() {
-        BASE64_URL_SAFE_NO_PAD.encode(&gen_random(6))
+        BASE64_URL_SAFE_NO_PAD.encode(gen_random(6))
     } else {
         form.url_from.clone()
     };

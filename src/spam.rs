@@ -9,7 +9,6 @@ use captcha::filters::{Grid, Noise, Wave};
 use captcha::Captcha;
 use chrono::Duration;
 use chrono::{NaiveDateTime, Utc};
-use rand::Rng;
 use regex::Regex;
 use std::fs::File;
 use std::io::Read;
@@ -138,23 +137,21 @@ impl PolicyList {
                     }
                 }
                 Some(BlocklistMatching::Port) => {
-                    if let Some(up) = uri.port() {
-                        if bl_entry.expr.is_match(&up.as_str().to_lowercase()) {
+                    if let Some(up) = uri.port()
+                        && bl_entry.expr.is_match(&up.as_str().to_lowercase()) {
                             return Err(throw(
                                 bl_entry.errkind(),
                                 format!("URL blocklisted [port]: {}", uri),
                             ));
-                        }
                     }
                 }
                 Some(BlocklistMatching::Authority) => {
-                    if let Some(ua) = uri.authority() {
-                        if bl_entry.expr.is_match(&ua.as_str().to_lowercase()) {
+                    if let Some(ua) = uri.authority()
+                        && bl_entry.expr.is_match(&ua.as_str().to_lowercase()) {
                             return Err(throw(
                                 bl_entry.errkind(),
                                 format!("URL blocklisted [authority]: {}", uri),
                             ));
-                        }
                     }
                 }
                 Some(BlocklistMatching::Path) => {
@@ -166,13 +163,12 @@ impl PolicyList {
                     }
                 }
                 Some(BlocklistMatching::Query) => {
-                    if let Some(uq) = uri.query() {
-                        if bl_entry.expr.is_match(&uq.to_lowercase()) {
+                    if let Some(uq) = uri.query()
+                        && bl_entry.expr.is_match(&uq.to_lowercase()) {
                             return Err(throw(
                                 bl_entry.errkind(),
                                 format!("URL blocklisted [query]: {}", uri),
                             ));
-                        }
                     }
                 }
             }
@@ -199,7 +195,6 @@ impl BlockEntryURL {
 }
 
 pub fn gen_captcha() -> Option<(String, Vec<u8>)> {
-    let mut rng = rand::thread_rng();
 
     let mut captcha = Captcha::new();
     captcha.add_chars(CAPTCHA_LETTERS);
@@ -210,39 +205,39 @@ pub fn gen_captcha() -> Option<(String, Vec<u8>)> {
             2 => captcha
                 .apply_filter(
                     Wave::new(
-                        f64::from(rng.gen_range(1..4)),
-                        f64::from(rng.gen_range(6..13)),
+                        f64::from(rand::random_range(1..4)),
+                        f64::from(rand::random_range(6..13)),
                     )
                     .horizontal(),
                 )
                 .apply_filter(
                     Wave::new(
-                        f64::from(rng.gen_range(1..4)),
-                        f64::from(rng.gen_range(6..13)),
+                        f64::from(rand::random_range(1..4)),
+                        f64::from(rand::random_range(6..13)),
                     )
                     .vertical(),
                 ),
-            3 => captcha.apply_filter(Grid::new(rng.gen_range(15..25), rng.gen_range(15..25))),
+            3 => captcha.apply_filter(Grid::new(rand::random_range(15..25), rand::random_range(15..25))),
             4 => captcha
                 .apply_filter(
                     Wave::new(
-                        f64::from(rng.gen_range(1..4)),
-                        f64::from(rng.gen_range(5..9)),
+                        f64::from(rand::random_range(1..4)),
+                        f64::from(rand::random_range(5..9)),
                     )
                     .horizontal(),
                 )
                 .apply_filter(
                     Wave::new(
-                        f64::from(rng.gen_range(1..4)),
-                        f64::from(rng.gen_range(5..9)),
+                        f64::from(rand::random_range(1..4)),
+                        f64::from(rand::random_range(5..9)),
                     )
                     .vertical(),
                 ),
             5 => captcha
                 .apply_filter(
                     Wave::new(
-                        f64::from(rng.gen_range(1..4)),
-                        f64::from(rng.gen_range(6..13)),
+                        f64::from(rand::random_range(1..4)),
+                        f64::from(rand::random_range(6..13)),
                     )
                     .horizontal(),
                 )
@@ -304,7 +299,7 @@ pub fn watch_visits(watcher: &web::Data<SuspiciousWatcher>, link: &LinkInfo, ip:
     let mut w = w.unwrap();
 
     // get the entry corresponding to the shortcut or create a new one
-    let rate_shortcut = w.entry(link.url_from.to_string()).or_insert_with(Vec::new);
+    let rate_shortcut = w.entry(link.url_from.to_string()).or_default();
 
     // clean up old entries
     rate_shortcut.retain(|timestamp| {

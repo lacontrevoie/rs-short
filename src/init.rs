@@ -259,7 +259,7 @@ impl Config {
             panic!();
         }
 
-        if self.general.cookie_key.len() < 16 {
+        if self.phishing.phishing_password.len() < 16 {
             eprintln!("Your phishing password is shorter than 16 characters. You must increase it for security reasons.");
             panic!();
         }

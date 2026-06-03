@@ -7,8 +7,8 @@ use crate::init::{ConfGeneral, ValidLanguages, CONFIG, DEFAULT_LANGUAGE, LANG};
 
 use actix_web::HttpRequest;
 
-use rand::rngs::OsRng;
-use rand::RngCore;
+use rand::rngs::SysRng;
+use rand::TryRng;
 
 #[derive(Debug)]
 pub struct TplNotification<'a> {
@@ -69,7 +69,7 @@ pub fn gentpl_home(
         HomeTemplate {
             loc: &LANG.wait().pages["home"].map,
             l,
-            captcha: &BASE64_STANDARD.encode(&captcha_image),
+            captcha: &BASE64_STANDARD.encode(captcha_image),
             notification,
             linkinfo,
             config: &CONFIG.wait().general,
@@ -101,7 +101,7 @@ fn try_get_lang(req: &HttpRequest) -> Option<ValidLanguages> {
         // getting language from client header
         // taking the two first characters of the Accept-Language header,
         // in lowercase, then parsing it
-        &req.headers()
+        req.headers()
             .get("Accept-Language")?
             .to_str()
             .ok()?
@@ -116,8 +116,10 @@ mod filters {
     use crate::init::ValidLanguages;
     use std::collections::HashMap;
 
+    #[askama::filter_fn]
     pub fn tr(
         loc: &HashMap<String, HashMap<ValidLanguages, String>>,
+        _: &dyn askama::Values,
         lang: &ValidLanguages,
         key: &str,
     ) -> ::askama::Result<String> {
@@ -150,10 +152,10 @@ mod filters {
 // - short link names when none is specified (links.url_from field, 6 bytes)
 pub fn gen_random(n_bytes: usize) -> Vec<u8> {
     // Using /dev/random to generate random bytes
-    let mut r = OsRng;
-
     let mut my_secure_bytes = vec![0u8; n_bytes];
-    r.fill_bytes(&mut my_secure_bytes);
+    SysRng.try_fill_bytes(&mut my_secure_bytes)
+    .expect("ERROR: Failed to generate a random string");
+
     my_secure_bytes
 }
 
